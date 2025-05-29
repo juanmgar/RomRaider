@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- MainView.fxml -->
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.romraider.controllers.MainController">
+
+    <top>
+        <VBox>
+            <MenuBar fx:id="menuBar">
+                <menus>
+                    <Menu text="File">
+                        <MenuItem text="Add ROM" onAction="#handleAddRom"/>
+                        <MenuItem text="Scan Folder" onAction="#handleScanFolder"/>
+                        <MenuItem text="Export" onAction="#handleExport"/>
+                        <MenuItem text="Import" onAction="#handleImport"/>
+                        <SeparatorMenuItem/>
+                        <MenuItem fx:id="loginLogoutMenuItem" text="Logout" onAction="#handleLoginLogout"/>
+                    </Menu>
+                    <Menu text="View">
+                        <MenuItem text="Library" onAction="#handleViewLibrary"/>
+                        <MenuItem text="Statistics" onAction="#handleViewStatistics"/>
+                    </Menu>
+                    <Menu text="Settings">
+                        <MenuItem text="Preferences" onAction="#handleSettings"/>
+                    </Menu>
+                </menus>
+            </MenuBar>
+            <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 10;">
+                <Label text="ROM RAIDER" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Button text="Sync" fx:id="syncButton" onAction="#handleSync">
+                    <tooltip>
+                        <Tooltip text="You must be logged in to synchronize"/>
+                    </tooltip>
+                </Button>
+                <Label fx:id="userLabel"/>
+            </HBox>
+        </VBox>
+    </top>
+
+
+    <center>
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <TextField fx:id="searchField" promptText="Search ROMs..." onKeyReleased="#handleSearch"/>
+            <HBox spacing="10">
+                <ListView fx:id="platformListView" prefWidth="150"/>
+                <ListView fx:id="romListView" onMouseClicked="#handleRomSelection" HBox.hgrow="ALWAYS"/>
+            </HBox>
+        </VBox>
+    </center>
+
+    <right>
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <Label text="ROM Details" style="-fx-font-size: 16px;"/>
+            <ImageView fx:id="romImage" fitHeight="150" fitWidth="150"/>
+            <Label fx:id="romDescription" wrapText="true"/>
+            <Button text="Edit" fx:id="editButton" onAction="#handleEditRom"/>
+            <Button text="Update from API" fx:id="apiButton" onAction="#handleUpdateFromAPI"/>
+            <CheckBox text="Favorite" fx:id="favoriteCheckBox" onAction="#handleFavoriteToggle"/>
+            <CheckBox text="Played" fx:id="playedCheckBox" onAction="#handlePlayedToggle"/>
+        </VBox>
+    </right>
+
+</BorderPane>
