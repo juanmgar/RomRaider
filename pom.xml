@@ -28,7 +28,6 @@
             <version>21</version>
         </dependency>
 
-
         <!-- SQLite JDBC -->
         <dependency>
             <groupId>org.xerial</groupId>
