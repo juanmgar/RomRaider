@@ -1,50 +1,36 @@
 package com.romraider.controllers;
 
+import com.romraider.model.Plataforma;
+import com.romraider.model.Rom;
+import com.romraider.service.PlataformaService;
+import com.romraider.service.RomService;
 import com.romraider.utils.SceneUtils;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
+import java.util.List;
+
 public class MainController {
 
+    private final PlataformaService plataformaService = new PlataformaService();
+    private final RomService romService = new RomService();
     private boolean offlineMode = false;
 
-    public void setOfflineMode(boolean offlineMode) {
-        this.offlineMode = offlineMode;
-        if (syncButton != null) {
-            syncButton.setDisable(offlineMode);
-        }
-        if (loginLogoutMenuItem != null) {
-            loginLogoutMenuItem.setText(offlineMode ? "Login" : "Logout");
-        }
-        System.out.println("Main view opened in offline mode: " + offlineMode);
-    }
+    private Plataforma plataformaSeleccionada;
+    private List<Rom> roms;
 
     @FXML
     private MenuBar menuBar;
     @FXML
-    private ListView<String> platformListView;
-    @FXML
-    private Button addRomButton;
-    @FXML
-    private Button scanFolderButton;
-    @FXML
-    private Button exportButton;
-    @FXML
-    private Button importButton;
-    @FXML
-    private TextField searchField;
+    private ListView<Plataforma> platformListView;
     @FXML
     private ListView<String> romListView;
     @FXML
-    private ImageView romImage;
-    @FXML
     private Label romDescription;
-    @FXML
-    private Button editButton;
-    @FXML
-    private Button apiButton;
     @FXML
     private CheckBox favoriteCheckBox;
     @FXML
@@ -52,16 +38,74 @@ public class MainController {
     @FXML
     private Button syncButton;
     @FXML
-    private Button settingsButton;
-    @FXML
     private MenuItem loginLogoutMenuItem;
     @FXML
     private Label userLabel;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private ImageView romImage;
 
     @FXML
     public void initialize() {
         System.out.println("Main view initialized");
-        syncButton.setDisable(true); // Default to disabled; enable after login if applicable
+        syncButton.setDisable(true);
+        cargarPlataformas();
+
+        platformListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selected) -> {
+            if (selected != null) {
+                plataformaSeleccionada = selected;
+                cargarRomsPorPlataforma(selected);
+            }
+        });
+
+        romListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selected) -> {
+            if (selected != null) {
+                mostrarDetallesRom(selected);
+            }
+        });
+    }
+
+    public void setOfflineMode(boolean offlineMode) {
+        this.offlineMode = offlineMode;
+        syncButton.setDisable(offlineMode);
+        loginLogoutMenuItem.setText(offlineMode ? "Login" : "Logout");
+        System.out.println("Main view opened in offline mode: " + offlineMode);
+    }
+
+    private void cargarPlataformas() {
+        List<Plataforma> plataformas = plataformaService.obtenerTodas();
+        platformListView.setItems(FXCollections.observableArrayList(plataformas));
+    }
+
+    private void cargarRomsPorPlataforma(Plataforma plataforma) {
+        roms = romService.obtenerPorPlataforma(plataforma.getId());
+        ObservableList<String> romTitulos = FXCollections.observableArrayList(
+                roms.stream().map(Rom::getTitulo).toList()
+        );
+        romListView.setItems(romTitulos);
+    }
+
+    private void mostrarDetallesRom(String titulo) {
+        Rom rom = roms.stream().filter(r -> r.getTitulo().equals(titulo)).findFirst().orElse(null);
+        if (rom != null) {
+            romDescription.setText(rom.getDescripcion());
+            favoriteCheckBox.setSelected(rom.isFavorito());
+            playedCheckBox.setSelected(rom.isJugado());
+            // romImage.setImage(...) TODO: Load image if available
+        }
+    }
+
+    @FXML
+    public void handleLoginLogout() {
+        Stage stage = (Stage) menuBar.getScene().getWindow();
+        offlineMode = !offlineMode;
+        SceneUtils.switchToLoginView(stage);
+    }
+
+    @FXML
+    public void handleSearch() {
+        System.out.println("Search changed: " + searchField.getText());
     }
 
     @FXML
@@ -82,16 +126,6 @@ public class MainController {
     @FXML
     public void handleImport() {
         System.out.println("Import clicked");
-    }
-
-    @FXML
-    public void handleSearch() {
-        System.out.println("Search changed: " + searchField.getText());
-    }
-
-    @FXML
-    public void handleRomSelection() {
-        System.out.println("ROM selected");
     }
 
     @FXML
@@ -125,22 +159,6 @@ public class MainController {
     }
 
     @FXML
-    public void handleLoginLogout() {
-        Stage stage = (Stage) menuBar.getScene().getWindow();
-
-        // Establece el estado y lanza la nueva vista
-        if (!offlineMode) {
-            offlineMode = true;
-            System.out.println("User logged out, switching to login view.");
-        } else {
-            System.out.println("User choosing to log in from offline mode.");
-        }
-
-        SceneUtils.switchToLoginView(stage);
-    }
-
-
-    @FXML
     public void handleViewLibrary() {
         System.out.println("View: Library clicked");
     }
@@ -150,4 +168,3 @@ public class MainController {
         System.out.println("View: Statistics clicked");
     }
 }
-

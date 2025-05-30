@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!-- MainView.fxml -->
 
 <?import javafx.scene.control.*?>
@@ -48,7 +47,7 @@
             <TextField fx:id="searchField" promptText="Search ROMs..." onKeyReleased="#handleSearch"/>
             <HBox spacing="10">
                 <ListView fx:id="platformListView" prefWidth="150"/>
-                <ListView fx:id="romListView" onMouseClicked="#handleRomSelection" HBox.hgrow="ALWAYS"/>
+                <ListView fx:id="romListView" HBox.hgrow="ALWAYS"/>
             </HBox>
         </VBox>
     </center>
