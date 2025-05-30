@@ -1,5 +1,7 @@
 package com.romraider.app;
 
+import com.romraider.db.JpaUtil;
+import com.romraider.db.DataInitializer;
 import com.romraider.utils.SceneUtils;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
@@ -15,6 +17,9 @@ public class Main extends Application {
 
     @Override
     public void start(Stage splashStage) {
+        // Inicializa la base de datos con datos por defecto usando JPA
+        DataInitializer.initializeWithDefaults();
+
         ImageView imageView = new ImageView(
                 new Image(getClass().getResource("/assets/romraider-logo.png").toExternalForm())
         );
@@ -23,7 +28,6 @@ public class Main extends Application {
 
         StackPane root = new StackPane(imageView);
         root.setStyle("-fx-background-color: transparent;");
-
         Scene scene = new Scene(root);
         scene.setFill(null);
 
@@ -32,21 +36,23 @@ public class Main extends Application {
         splashStage.setAlwaysOnTop(true);
         splashStage.show();
 
-        // Esperar 2.5s y mostrar login en nuevo Stage
         PauseTransition delay = new PauseTransition(Duration.seconds(2.5));
         delay.setOnFinished(e -> {
             splashStage.close();
-            // Nuevo Stage limpio
             Stage mainStage = new Stage();
             SceneUtils.switchToLoginView(mainStage);
         });
         delay.play();
     }
 
-
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+        JpaUtil.close();
+        System.out.println("EntityManagerFactory closed.");
+    }
 
     public static void main(String[] args) {
         launch(args);
     }
 }
-
