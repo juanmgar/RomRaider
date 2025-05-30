@@ -2,7 +2,6 @@ package com.romraider.repository;
 
 import com.romraider.model.Plataforma;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
 
 import java.util.List;
 
@@ -15,9 +14,7 @@ public class PlataformaRepository {
     }
 
     public List<Plataforma> findAll() {
-        TypedQuery<Plataforma> query = em.createQuery(
-                "SELECT p FROM Plataforma p ORDER BY p.nombre", Plataforma.class);
-        return query.getResultList();
+        return em.createQuery("SELECT p FROM Plataforma p ORDER BY p.nombre", Plataforma.class).getResultList();
     }
 
     public Plataforma findById(int id) {

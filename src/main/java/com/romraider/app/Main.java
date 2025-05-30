@@ -2,6 +2,7 @@ package com.romraider.app;
 
 import com.romraider.db.JpaUtil;
 import com.romraider.db.DataInitializer;
+import com.romraider.utils.AppInitializer;
 import com.romraider.utils.SceneUtils;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
@@ -17,6 +18,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage splashStage) {
+        AppInitializer.initialize();
+
         // Inicializa la base de datos con datos por defecto usando JPA
         DataInitializer.initializeWithDefaults();
 
