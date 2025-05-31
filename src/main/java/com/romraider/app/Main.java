@@ -13,14 +13,18 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Main extends Application {
 
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+
     @Override
     public void start(Stage splashStage) {
-        AppInitializer.initialize();
+        logger.info("Starting ROM Raider...");
 
-        // Inicializa la base de datos con datos por defecto usando JPA
+        AppInitializer.initialize();
         DataInitializer.initializeWithDefaults();
 
         ImageView imageView = new ImageView(
@@ -39,9 +43,13 @@ public class Main extends Application {
         splashStage.setAlwaysOnTop(true);
         splashStage.show();
 
+        logger.debug("Splash screen displayed");
+
         PauseTransition delay = new PauseTransition(Duration.seconds(2.5));
         delay.setOnFinished(e -> {
             splashStage.close();
+            logger.debug("Splash screen closed");
+
             Stage mainStage = new Stage();
             SceneUtils.switchToLoginView(mainStage);
         });
@@ -52,7 +60,7 @@ public class Main extends Application {
     public void stop() throws Exception {
         super.stop();
         JpaUtil.close();
-        System.out.println("EntityManagerFactory closed.");
+        logger.info("EntityManagerFactory closed and application shutdown complete");
     }
 
     public static void main(String[] args) {

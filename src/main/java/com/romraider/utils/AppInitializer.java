@@ -1,10 +1,19 @@
 package com.romraider.utils;
 
-import java.io.*;
-import java.nio.file.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 public class AppInitializer {
+
+    private static final Logger logger = LoggerFactory.getLogger(AppInitializer.class);
 
     private static final String APP_NAME = "romraider";
     private static final String CONFIG_FILE_NAME = "romraider.properties";
@@ -35,21 +44,20 @@ public class AppInitializer {
                 copyDefaultConfig();
             }
 
-            System.out.println("Directorio de la app: " + baseDir.toAbsolutePath());
+            logger.info("App directories initialized at: {}", baseDir.toAbsolutePath());
 
         } catch (IOException e) {
-            System.err.println("Error inicializando estructura de carpetas: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Failed to initialize application directories", e);
         }
     }
 
     private static void copyDefaultConfig() throws IOException {
         try (InputStream in = AppInitializer.class.getResourceAsStream("/config/default-config.properties")) {
             if (in == null) {
-                throw new FileNotFoundException("Archivo default-config.properties no encontrado en resources");
+                throw new FileNotFoundException("default-config.properties not found in resources.");
             }
             Files.copy(in, configFile);
-            System.out.println("Archivo de configuración creado: " + configFile);
+            logger.info("Default configuration file created at: {}", configFile.toAbsolutePath());
         }
     }
 
@@ -57,8 +65,9 @@ public class AppInitializer {
         Properties props = new Properties();
         try (InputStream in = Files.newInputStream(configFile)) {
             props.load(in);
+            logger.info("Configuration loaded successfully from: {}", configFile.toAbsolutePath());
         } catch (IOException e) {
-            System.err.println("Error cargando archivo de configuración: " + e.getMessage());
+            logger.error("Failed to load configuration file from {}", configFile.toAbsolutePath(), e);
         }
         return props;
     }
