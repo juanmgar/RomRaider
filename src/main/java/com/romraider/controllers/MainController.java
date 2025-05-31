@@ -1,20 +1,36 @@
 package com.romraider.controllers;
 
+import com.romraider.api.RawgApiClient;
 import com.romraider.model.Plataforma;
 import com.romraider.model.Rom;
 import com.romraider.service.PlataformaService;
 import com.romraider.service.RomService;
+import com.romraider.utils.MessageUtils;
 import com.romraider.utils.SceneUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
 
+import static com.romraider.api.RawgApiClient.descargarImagen;
+
 public class MainController {
+
+    private static final Logger logger = LoggerFactory.getLogger(MainController.class);
 
     private final PlataformaService plataformaService = new PlataformaService();
     private final RomService romService = new RomService();
@@ -30,7 +46,7 @@ public class MainController {
     @FXML
     private ListView<String> romListView;
     @FXML
-    private Label romDescription;
+    private TextArea romDescription;
     @FXML
     private CheckBox favoriteCheckBox;
     @FXML
@@ -40,15 +56,13 @@ public class MainController {
     @FXML
     private MenuItem loginLogoutMenuItem;
     @FXML
-    private Label userLabel;
-    @FXML
     private TextField searchField;
     @FXML
     private ImageView romImage;
 
     @FXML
     public void initialize() {
-        System.out.println("Main view initialized");
+        logger.info("Main view initialized");
         syncButton.setDisable(true);
         cargarPlataformas();
 
@@ -70,12 +84,13 @@ public class MainController {
         this.offlineMode = offlineMode;
         syncButton.setDisable(offlineMode);
         loginLogoutMenuItem.setText(offlineMode ? "Login" : "Logout");
-        System.out.println("Main view opened in offline mode: " + offlineMode);
+        logger.info("Main view opened in offline mode: {}", offlineMode);
     }
 
     private void cargarPlataformas() {
         List<Plataforma> plataformas = plataformaService.obtenerTodas();
         platformListView.setItems(FXCollections.observableArrayList(plataformas));
+        logger.debug("Loaded {} plataformas", plataformas.size());
     }
 
     private void cargarRomsPorPlataforma(Plataforma plataforma) {
@@ -84,15 +99,22 @@ public class MainController {
                 roms.stream().map(Rom::getTitulo).toList()
         );
         romListView.setItems(romTitulos);
+        logger.debug("Loaded {} ROMs for platform {}", roms.size(), plataforma.getNombre());
     }
 
     private void mostrarDetallesRom(String titulo) {
         Rom rom = roms.stream().filter(r -> r.getTitulo().equals(titulo)).findFirst().orElse(null);
         if (rom != null) {
-            romDescription.setText(rom.getDescripcion());
+            romDescription.setText(rom.getDescripcion() != null ? rom.getDescripcion() : "(No description)");
             favoriteCheckBox.setSelected(rom.isFavorito());
             playedCheckBox.setSelected(rom.isJugado());
-            // romImage.setImage(...) TODO: Load image if available
+            romImage.setImage(
+                    rom.getImagen() != null && !rom.getImagen().isBlank()
+                            ? new Image("file:" + rom.getImagen(), true)
+                            : getDefaultImage()
+            );
+
+            logger.debug("Details shown for ROM: {}", rom.getTitulo());
         }
     }
 
@@ -100,71 +122,216 @@ public class MainController {
     public void handleLoginLogout() {
         Stage stage = (Stage) menuBar.getScene().getWindow();
         offlineMode = !offlineMode;
+        logger.info("Toggling login/logout. Offline mode now: {}", offlineMode);
         SceneUtils.switchToLoginView(stage);
     }
 
     @FXML
     public void handleSearch() {
-        System.out.println("Search changed: " + searchField.getText());
+        logger.info("Search changed: {}", searchField.getText());
     }
 
     @FXML
     public void handleAddRom() {
-        System.out.println("Add ROM clicked");
+        logger.info("Add ROM clicked");
     }
 
     @FXML
     public void handleScanFolder() {
-        System.out.println("Scan folder clicked");
+        logger.info("Scan folder clicked");
     }
 
     @FXML
     public void handleExport() {
-        System.out.println("Export clicked");
+        logger.info("Export clicked");
     }
 
     @FXML
     public void handleImport() {
-        System.out.println("Import clicked");
+        logger.info("Import clicked");
     }
 
     @FXML
     public void handleEditRom() {
-        System.out.println("Edit clicked");
+        logger.info("Edit clicked");
     }
 
     @FXML
     public void handleUpdateFromAPI() {
-        System.out.println("Update from API clicked");
+        String selectedTitle = romListView.getSelectionModel().getSelectedItem();
+        if (selectedTitle == null) {
+            MessageUtils.showInfo("Please select a ROM to update.");
+            return;
+        }
+
+        Rom rom = roms.stream()
+                .filter(r -> r.getTitulo().equals(selectedTitle))
+                .findFirst().orElse(null);
+
+        if (rom == null) {
+            logger.warn("ROM '{}' not found", selectedTitle);
+            return;
+        }
+
+        logger.info("Fetching RAWG info for '{}'", rom.getTitulo());
+        RawgApiClient.RomInfo info = RawgApiClient.obtenerInfo(rom.getTitulo());
+
+        if (info != null && info.descripcion != null) {
+            rom.setDescripcion(info.descripcion);
+            logger.info("Descripción actualizada");
+
+            if (info.imageUrl != null) {
+                String localPath = descargarImagen(info.imageUrl, rom.getTitulo(), rom.getId());
+                if (localPath != null) {
+                    rom.setImagen(localPath);
+                    logger.info("Imagen descargada y guardada: {}", localPath);
+                }
+            }
+
+            romService.guardar(rom);
+            mostrarDetallesRom(rom.getTitulo());
+            MessageUtils.showInfo("ROM data updated from RAWG.io");
+        } else {
+            MessageUtils.showWarning("No data found on RAWG.io");
+        }
     }
+
 
     @FXML
     public void handleFavoriteToggle() {
-        System.out.println("Favorite toggled: " + favoriteCheckBox.isSelected());
+        logger.info("Favorite toggled: {}", favoriteCheckBox.isSelected());
     }
 
     @FXML
     public void handlePlayedToggle() {
-        System.out.println("Played toggled: " + playedCheckBox.isSelected());
+        logger.info("Played toggled: {}", playedCheckBox.isSelected());
     }
 
     @FXML
     public void handleSync() {
-        System.out.println("Sync clicked");
+        logger.info("Sync clicked");
     }
 
     @FXML
     public void handleSettings() {
-        System.out.println("Settings clicked");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/PreferencesView.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Preferences");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(SceneUtils.class.getResource("/styles/romraider.css").toExternalForm());
+
+            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream("/assets/romraider-icon.png")));
+            stage.setScene(scene);
+            stage.showAndWait();
+
+            logger.info("Preferences window opened");
+
+        } catch (IOException e) {
+            logger.error("Error opening Preferences window", e);
+        }
     }
 
     @FXML
     public void handleViewLibrary() {
-        System.out.println("View: Library clicked");
+        logger.info("View: Library clicked");
     }
 
     @FXML
     public void handleViewStatistics() {
-        System.out.println("View: Statistics clicked");
+        logger.info("View: Statistics clicked");
     }
+
+    @FXML
+    public void handleAddPlatform() {
+        Dialog<Plataforma> dialog = new Dialog<>();
+        dialog.setTitle("Add Platform");
+        dialog.setHeaderText("Enter platform details");
+
+        ButtonType addButtonType = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+
+        TextField nameField = new TextField();
+        TextField extField = new TextField();
+        TextField folderName = new TextField();
+
+        grid.add(new Label("Name:"), 0, 0);
+        grid.add(nameField, 1, 0);
+        grid.add(new Label("Extension (e.g., .nes):"), 0, 1);
+        grid.add(extField, 1, 1);
+        grid.add(new Label("Folder Name:"), 0, 2);
+        grid.add(folderName, 1, 2);
+
+        dialog.getDialogPane().setContent(grid);
+
+        Node addButton = dialog.getDialogPane().lookupButton(addButtonType);
+        addButton.setDisable(true);
+
+        nameField.textProperty().addListener((obs, oldVal, newVal) -> validateFields(nameField, extField, folderName, addButton));
+        extField.textProperty().addListener((obs, oldVal, newVal) -> validateFields(nameField, extField, folderName, addButton));
+        folderName.textProperty().addListener((obs, oldVal, newVal) -> validateFields(nameField, extField, folderName, addButton));
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == addButtonType) {
+                return new Plataforma(
+                        nameField.getText().trim(),
+                        extField.getText().trim(),
+                        folderName.getText().trim()
+                );
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(plataforma -> {
+            plataformaService.guardar(plataforma);
+            cargarPlataformas();
+            logger.info("Platform added: {}", plataforma.getNombre());
+        });
+    }
+
+    private void validateFields(TextField name, TextField ext, TextField path, Node addButton) {
+        boolean valid = !name.getText().trim().isEmpty()
+                && ext.getText().trim().matches("^\\.[a-zA-Z0-9]{1,10}$")
+                && !path.getText().trim().isEmpty();
+
+        addButton.setDisable(!valid);
+    }
+
+    @FXML
+    public void handleDeletePlatform() {
+        Plataforma selected = platformListView.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Deletion");
+            alert.setHeaderText("Delete platform '" + selected.getNombre() + "'?");
+            alert.setContentText("All associated ROMs will also be deleted. Continue?");
+
+            alert.showAndWait().ifPresent(result -> {
+                if (result == ButtonType.OK) {
+                    romService.eliminarPorPlataforma(selected.getId());
+                    plataformaService.eliminar(selected.getId());
+                    cargarPlataformas();
+                    romListView.getItems().clear();
+                    logger.info("Platform deleted: {}", selected.getNombre());
+                }
+            });
+        } else {
+            logger.warn("No platform selected to delete");
+        }
+    }
+
+    private Image getDefaultImage() {
+        return new Image(getClass().getResourceAsStream("/assets/no-image.png"));
+    }
+
+
 }

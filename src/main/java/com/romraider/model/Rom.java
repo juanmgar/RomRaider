@@ -13,6 +13,7 @@ public class Rom {
     @Column(nullable = false)
     private String titulo;
 
+    @Column(length = 4000)
     private String descripcion;
 
     private String imagen;
