@@ -7,6 +7,7 @@ import com.romraider.service.PlataformaService;
 import com.romraider.service.RomService;
 import com.romraider.utils.MessageUtils;
 import com.romraider.utils.SceneUtils;
+import com.romraider.utils.XMLUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -18,11 +19,13 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -138,12 +141,58 @@ public class MainController {
 
     @FXML
     public void handleExport() {
-        logger.info("Export clicked");
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export ROM Collection to XML");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML Files", "*.xml"));
+        File file = fileChooser.showSaveDialog(menuBar.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                List<Plataforma> plataformas = plataformaService.obtenerTodasConRoms();
+                XMLUtils.exportarAxml(plataformas, file);
+                MessageUtils.showInfo("Export completed successfully.");
+                logger.info("Exported collection to: {}", file.getAbsolutePath());
+            } catch (Exception e) {
+                logger.error("Error exporting XML", e);
+                MessageUtils.showError("Failed to export the collection.");
+            }
+        }
     }
 
     @FXML
     public void handleImport() {
-        logger.info("Import clicked");
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Import XML");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML Files", "*.xml"));
+        File selectedFile = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
+
+        if (selectedFile != null) {
+            Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmAlert.setTitle("Confirm Import");
+            confirmAlert.setHeaderText("This will delete all existing platforms and ROMs.");
+            confirmAlert.setContentText("Are you sure you want to proceed?");
+            confirmAlert.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    try {
+                        List<Plataforma> plataformasImportadas = XMLUtils.importarDesdeXml(selectedFile);
+                        plataformaService.eliminarTodas();
+                        for (Plataforma plataforma : plataformasImportadas) {
+                            for (Rom rom : plataforma.getRoms()) {
+                                rom.setPlataforma(plataforma);
+                            }
+                            plataformaService.guardar(plataforma);
+                        }
+                        cargarPlataformas();
+                        romListView.getItems().clear();
+                        MessageUtils.showInfo("Import completed successfully.");
+                        logger.info("Imported collection from: {}", selectedFile.getAbsolutePath());
+                    } catch (Exception e) {
+                        logger.error("Error importing XML", e);
+                        MessageUtils.showError("Error importing XML: " + e.getMessage());
+                    }
+                }
+            });
+        }
     }
 
     @FXML
