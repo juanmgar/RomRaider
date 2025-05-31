@@ -12,7 +12,6 @@
             <MenuBar fx:id="menuBar">
                 <menus>
                     <Menu text="File">
-                        <MenuItem text="Add ROM" onAction="#handleAddRom"/>
                         <MenuItem text="Scan Folder" onAction="#handleScanFolder"/>
                         <MenuItem text="Export" onAction="#handleExport"/>
                         <MenuItem text="Import" onAction="#handleImport"/>

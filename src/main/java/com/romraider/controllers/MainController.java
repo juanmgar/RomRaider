@@ -132,11 +132,6 @@ public class MainController {
     }
 
     @FXML
-    public void handleAddRom() {
-        logger.info("Add ROM clicked");
-    }
-
-    @FXML
     public void handleScanFolder() {
         logger.info("Scan folder clicked");
     }
