@@ -1,11 +1,14 @@
 package com.romraider.controllers;
 
 import com.romraider.api.RawgApiClient;
+import com.romraider.auth.SessionManager;
+import com.romraider.auth.SupabaseAuthService;
 import com.romraider.model.Plataforma;
 import com.romraider.model.Rom;
 import com.romraider.service.PlataformaService;
 import com.romraider.service.RomService;
 import com.romraider.utils.MessageUtils;
+import com.romraider.utils.NetworkUtils;
 import com.romraider.utils.SceneUtils;
 import com.romraider.utils.XMLUtils;
 import javafx.collections.FXCollections;
@@ -63,8 +66,14 @@ public class MainController {
 
     @FXML
     public void initialize() {
+        boolean online = NetworkUtils.isInternetAvailable();
         logger.info("Main view initialized");
         syncButton.setDisable(true);
+
+        if (!online) {
+            syncButton.setDisable(true);
+        }
+
         cargarPlataformas();
 
         platformListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selected) -> {
@@ -110,10 +119,15 @@ public class MainController {
             favoriteCheckBox.setSelected(rom.isFavorito());
             playedCheckBox.setSelected(rom.isJugado());
 
-            File imageFile = new File(rom.getImagen());
+            String imagen = rom.getImagen();
 
-            if (rom.getImagen() != null && !rom.getImagen().isBlank() && imageFile.exists()) {
-                romImage.setImage(new Image("file:" + imageFile.getAbsolutePath(), true));
+            if (imagen != null && !imagen.isBlank()) {
+                File imageFile = new File(imagen);
+                if (imageFile.exists()) {
+                    romImage.setImage(new Image("file:" + imageFile.getAbsolutePath(), true));
+                } else {
+                    romImage.setImage(getDefaultImage());
+                }
             } else {
                 romImage.setImage(getDefaultImage());
             }
@@ -125,9 +139,14 @@ public class MainController {
 
     @FXML
     public void handleLoginLogout() {
+        logger.info("Logging out and returning to login screen");
+
+        SupabaseAuthService.logout();
+        SessionManager.clearSession();
+
+        offlineMode = true;
+
         Stage stage = (Stage) menuBar.getScene().getWindow();
-        offlineMode = !offlineMode;
-        logger.info("Toggling login/logout. Offline mode now: {}", offlineMode);
         SceneUtils.switchToLoginView(stage);
     }
 
