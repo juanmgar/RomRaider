@@ -20,7 +20,7 @@ public class Plataforma {
     private String extensionRom;
 
     @Column(nullable = false)
-    private String ruta;
+    private String carpeta;
 
     @OneToMany(mappedBy = "plataforma", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rom> roms = new ArrayList<>();
@@ -28,17 +28,17 @@ public class Plataforma {
     public Plataforma() {
     }
 
-    public Plataforma(String nombre, String extensionRom, String ruta) {
+    public Plataforma(String nombre, String extensionRom, String carpeta) {
         this.nombre = nombre;
         this.extensionRom = extensionRom;
-        this.ruta = ruta;
+        this.carpeta = carpeta;
     }
 
-    public Plataforma(int id, String nombre, String extensionRom, String ruta) {
+    public Plataforma(int id, String nombre, String extensionRom, String carpeta) {
         this.id = id;
         this.nombre = nombre;
         this.extensionRom = extensionRom;
-        this.ruta = ruta;
+        this.carpeta = carpeta;
     }
 
     public int getId() {
@@ -53,8 +53,8 @@ public class Plataforma {
         return extensionRom;
     }
 
-    public String getRuta() {
-        return ruta;
+    public String getCarpeta() {
+        return carpeta;
     }
 
     public List<Rom> getRoms() {
@@ -73,8 +73,8 @@ public class Plataforma {
         this.extensionRom = extensionRom;
     }
 
-    public void setRuta(String ruta) {
-        this.ruta = ruta;
+    public void setCarpeta(String carpeta) {
+        this.carpeta = carpeta;
     }
 
     public void setRoms(List<Rom> roms) {

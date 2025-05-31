@@ -47,4 +47,13 @@ public class RomService {
         em.getTransaction().commit();
         em.close();
     }
+
+    public void eliminarPorPlataforma(int plataformaId) {
+        EntityManager em = JpaUtil.getEntityManager();
+        RomRepository repo = new RomRepository(em);
+        em.getTransaction().begin();
+        repo.deleteByPlataformaId(plataformaId);
+        em.getTransaction().commit();
+        em.close();
+    }
 }
