@@ -1,11 +1,12 @@
 package com.romraider.controllers;
 
+import com.romraider.auth.SessionManager;
+import com.romraider.auth.SupabaseAuthService;
+import com.romraider.utils.NetworkUtils;
 import com.romraider.utils.SceneUtils;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,26 +25,66 @@ public class LoginController {
     private CheckBox rememberMeCheck;
     @FXML
     private Label messageLabel;
+    @FXML
+    private Button loginButton;
+    @FXML
+    private Button registerButton;
+
+    @FXML
+    public void initialize() {
+        boolean online = NetworkUtils.isInternetAvailable();
+
+        if (!online) {
+            loginButton.setDisable(true);
+            registerButton.setDisable(true);
+            messageLabel.setText("No internet connection. You can continue offline.");
+        }
+
+        String token = SessionManager.loadSession();
+        if (token != null) {
+            logger.info("Auto-login with saved session");
+            Platform.runLater(() -> {
+                Stage stage = (Stage) usernameField.getScene().getWindow();
+                SceneUtils.switchToMainView(stage, false);
+            });
+        } else {
+            logger.info("No token found. Showing login form.");
+        }
+    }
 
     @FXML
     public void handleLogin() {
-        String username = usernameField.getText().trim();
+        String email = usernameField.getText().trim();
         String password = passwordField.getText().trim();
 
-        if (username.equals("juanma") && password.equals("1234")) {
-            logger.info("Login successful for user: {}", username);
+        boolean success = SupabaseAuthService.login(email, password);
+
+        if (success) {
+            logger.info("Login successful for user: {}", email);
+
+            if (rememberMeCheck.isSelected()) {
+                SessionManager.saveSession(SupabaseAuthService.getAccessToken());
+            }
+
             Stage stage = (Stage) usernameField.getScene().getWindow();
-            SceneUtils.switchToMainView(stage, false); // Modo online
+            SceneUtils.switchToMainView(stage, false);
         } else {
             messageLabel.setText("Invalid username or password");
-            logger.warn("Login failed for user: {}", username);
+            logger.warn("Login failed for user: {}", email);
         }
     }
 
     @FXML
     public void handleRegister() {
-        logger.info("Register clicked");
-        // TODO: implement registration
+        String email = usernameField.getText().trim();
+        String password = passwordField.getText().trim();
+
+        boolean success = SupabaseAuthService.register(email, password);
+        if (success) {
+            messageLabel.setText("Account created. You can now login.");
+        } else {
+            messageLabel.setText("Registration failed.");
+        }
     }
 
     @FXML
