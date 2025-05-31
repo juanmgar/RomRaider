@@ -1,16 +1,20 @@
 package com.romraider.model;
 
 import jakarta.persistence.*;
+import jakarta.xml.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "plataformas")
+@XmlRootElement(name = "plataforma")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Plataforma {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @XmlTransient
     private int id;
 
     @Column(nullable = false, unique = true)
@@ -23,6 +27,8 @@ public class Plataforma {
     private String carpeta;
 
     @OneToMany(mappedBy = "plataforma", cascade = CascadeType.ALL, orphanRemoval = true)
+    @XmlElementWrapper(name = "roms")
+    @XmlElement(name = "rom")
     private List<Rom> roms = new ArrayList<>();
 
     public Plataforma() {

@@ -1,13 +1,20 @@
 package com.romraider.model;
 
 import jakarta.persistence.*;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 @Entity
 @Table(name = "roms")
+@XmlRootElement(name = "rom")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Rom {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @XmlTransient
     private int id;
 
     @Column(nullable = false)
@@ -24,6 +31,7 @@ public class Rom {
 
     @ManyToOne
     @JoinColumn(name = "plataforma_id", nullable = false)
+    @XmlTransient  // Para evitar dependencias circulares
     private Plataforma plataforma;
 
     public Rom() {

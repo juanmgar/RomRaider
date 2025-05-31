@@ -16,6 +16,14 @@ public class PlataformaService {
         return result;
     }
 
+    public List<Plataforma> obtenerTodasConRoms() {
+        EntityManager em = JpaUtil.getEntityManager();
+        PlataformaRepository repo = new PlataformaRepository(em);
+        List<Plataforma> result = repo.findAllWithRoms();
+        em.close();
+        return result;
+    }
+
     public Plataforma buscarPorId(int id) {
         EntityManager em = JpaUtil.getEntityManager();
         Plataforma result = new PlataformaRepository(em).findById(id);
@@ -40,4 +48,14 @@ public class PlataformaService {
         em.getTransaction().commit();
         em.close();
     }
+
+    public void eliminarTodas() {
+        EntityManager em = JpaUtil.getEntityManager();
+        PlataformaRepository repo = new PlataformaRepository(em);
+        em.getTransaction().begin();
+        repo.deleteAll();
+        em.getTransaction().commit();
+        em.close();
+    }
+
 }

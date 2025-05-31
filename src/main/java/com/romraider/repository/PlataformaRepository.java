@@ -17,6 +17,12 @@ public class PlataformaRepository {
         return em.createQuery("SELECT p FROM Plataforma p ORDER BY p.nombre", Plataforma.class).getResultList();
     }
 
+    public List<Plataforma> findAllWithRoms() {
+        return em.createQuery(
+                "SELECT DISTINCT p FROM Plataforma p LEFT JOIN FETCH p.roms ORDER BY p.nombre", Plataforma.class
+        ).getResultList();
+    }
+
     public Plataforma findById(int id) {
         return em.find(Plataforma.class, id);
     }
@@ -35,4 +41,10 @@ public class PlataformaRepository {
             em.remove(plataforma);
         }
     }
+
+    public void deleteAll() {
+        em.createQuery("DELETE FROM Rom").executeUpdate();
+        em.createQuery("DELETE FROM Plataforma").executeUpdate();
+    }
+
 }
