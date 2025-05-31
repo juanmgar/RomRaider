@@ -109,15 +109,19 @@ public class MainController {
             romDescription.setText(rom.getDescripcion() != null ? rom.getDescripcion() : "(No description)");
             favoriteCheckBox.setSelected(rom.isFavorito());
             playedCheckBox.setSelected(rom.isJugado());
-            romImage.setImage(
-                    rom.getImagen() != null && !rom.getImagen().isBlank()
-                            ? new Image("file:" + rom.getImagen(), true)
-                            : getDefaultImage()
-            );
+
+            File imageFile = new File(rom.getImagen());
+
+            if (rom.getImagen() != null && !rom.getImagen().isBlank() && imageFile.exists()) {
+                romImage.setImage(new Image("file:" + imageFile.getAbsolutePath(), true));
+            } else {
+                romImage.setImage(getDefaultImage());
+            }
 
             logger.debug("Details shown for ROM: {}", rom.getTitulo());
         }
     }
+
 
     @FXML
     public void handleLoginLogout() {
