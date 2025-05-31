@@ -194,11 +194,6 @@ public class MainController {
     }
 
     @FXML
-    public void handleEditRom() {
-        logger.info("Edit clicked");
-    }
-
-    @FXML
     public void handleUpdateFromAPI() {
         String selectedTitle = romListView.getSelectionModel().getSelectedItem();
         if (selectedTitle == null) {
@@ -236,17 +231,6 @@ public class MainController {
         } else {
             MessageUtils.showWarning("No data found on RAWG.io");
         }
-    }
-
-
-    @FXML
-    public void handleFavoriteToggle() {
-        logger.info("Favorite toggled: {}", favoriteCheckBox.isSelected());
-    }
-
-    @FXML
-    public void handlePlayedToggle() {
-        logger.info("Played toggled: {}", playedCheckBox.isSelected());
     }
 
     @FXML
@@ -292,21 +276,60 @@ public class MainController {
     @FXML
     public void handleAddPlatform() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AddPlatformView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/PlataformaFormView.fxml"));
             Parent root = loader.load();
 
             Stage stage = new Stage();
             stage.setTitle("Add Platform");
             stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
             stage.setScene(new Scene(root));
             stage.getIcons().add(new Image(getClass().getResourceAsStream("/assets/romraider-icon.png")));
             stage.showAndWait();
 
             cargarPlataformas();
+
         } catch (IOException e) {
-            logger.error("Error opening Add Platform window", e);
+            logger.error("Error opening Platform form", e);
+            MessageUtils.showError("Could not open the Platform form.");
         }
     }
+
+
+    @FXML
+    public void handleEditPlatform() {
+        Plataforma selected = platformListView.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            MessageUtils.showWarning("Please select a platform to edit.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/PlataformaFormView.fxml"));
+            Parent root = loader.load();
+
+            PlataformaFormController controller = loader.getController();
+            controller.setPlataformaToEdit(selected);
+
+            Stage stage = new Stage();
+            stage.setTitle("Edit Platform");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.setScene(new Scene(root));
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("/assets/romraider-icon.png")));
+            stage.showAndWait();
+
+            cargarPlataformas();
+            if (platformListView.getItems().contains(selected)) {
+                platformListView.getSelectionModel().select(selected);
+            }
+
+        } catch (IOException e) {
+            logger.error("Error opening Platform edit form", e);
+            MessageUtils.showError("Could not open the Platform form.");
+        }
+    }
+
 
     @FXML
     public void handleDeletePlatform() {
@@ -339,22 +362,67 @@ public class MainController {
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AddRomView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/RomFormView.fxml"));
             Parent root = loader.load();
 
-            AddRomController controller = loader.getController();
+            RomFormController controller = loader.getController();
+            Stage stage = new Stage();
             controller.setPlataforma(plataformaSeleccionada);
 
-            Stage stage = new Stage();
             stage.setTitle("Add ROM");
             stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
             stage.setScene(new Scene(root));
-            stage.getIcons().add(new Image(getClass().getResourceAsStream("/assets/romraider-icon.png")));
+            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream("/assets/romraider-icon.png")));
+            stage.showAndWait();
+
+            cargarRomsPorPlataforma(plataformaSeleccionada); // Refresh list
+
+        } catch (IOException e) {
+            logger.error("Error opening ROM form", e);
+            MessageUtils.showError("Could not open the ROM form.");
+        }
+    }
+
+    @FXML
+    public void handleEditRom() {
+        String selectedTitle = romListView.getSelectionModel().getSelectedItem();
+        if (selectedTitle == null) {
+            MessageUtils.showInfo("Please select a ROM to edit.");
+            return;
+        }
+
+        Rom selectedRom = roms.stream()
+                .filter(r -> r.getTitulo().equals(selectedTitle))
+                .findFirst().orElse(null);
+
+        if (selectedRom == null) {
+            MessageUtils.showWarning("Selected ROM not found.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/RomFormView.fxml"));
+            Parent root = loader.load();
+
+            RomFormController controller = loader.getController();
+            Stage stage = new Stage();
+            controller.setRomToEdit(selectedRom);
+            controller.setPlataforma(plataformaSeleccionada);
+
+            stage.setTitle("Edit ROM");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.setScene(new Scene(root));
+            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream("/assets/romraider-icon.png")));
             stage.showAndWait();
 
             cargarRomsPorPlataforma(plataformaSeleccionada);
+            mostrarDetallesRom(selectedRom.getTitulo());
+
         } catch (IOException e) {
-            logger.error("Error opening Add ROM window", e);
+            logger.error("Error opening ROM edit form", e);
+            MessageUtils.showError("Could not open the ROM form.");
         }
     }
 

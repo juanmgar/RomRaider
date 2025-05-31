@@ -66,8 +66,8 @@
                 <Label text="Description:"/>
                 <TextArea fx:id="romDescription" wrapText="true" editable="false" prefRowCount="6"/>
 
-                <CheckBox text="Favorite" fx:id="favoriteCheckBox" onAction="#handleFavoriteToggle"/>
-                <CheckBox text="Played" fx:id="playedCheckBox" onAction="#handlePlayedToggle"/>
+                <CheckBox text="Favorite" fx:id="favoriteCheckBox" disable="true"/>
+                <CheckBox text="Played" fx:id="playedCheckBox" disable="true"/>
 
                 <HBox spacing="10">
                     <Button text="Add ROM" fx:id="addButton" onAction="#handleAddRom"/>
