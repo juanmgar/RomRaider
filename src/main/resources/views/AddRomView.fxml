@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.romraider.controllers.AddRomController">
+
+    <center>
+        <VBox spacing="15" style="-fx-padding: 20;">
+            <Label text="Add ROM" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+            <GridPane hgap="10" vgap="10">
+                <Label text="Title:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="titleField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Description:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextArea fx:id="descriptionField" GridPane.rowIndex="1" GridPane.columnIndex="1" prefRowCount="4"/>
+
+                <Label text="Image:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <HBox spacing="5" GridPane.rowIndex="2" GridPane.columnIndex="1">
+                    <TextField fx:id="imageField" prefWidth="200" editable="false" />
+                    <Button text="Browse" onAction="#handleBrowseImage"/>
+                </HBox>
+
+
+                <CheckBox fx:id="favoriteCheckBox" text="Favorite" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                <CheckBox fx:id="playedCheckBox" text="Played" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            </GridPane>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding: 10;">
+            <Button fx:id="saveButton" text="Save" onAction="#handleSave" disable="true"/>
+            <Button text="Cancel" onAction="#handleCancel"/>
+        </HBox>
+    </bottom>
+</BorderPane>

@@ -12,13 +12,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -293,61 +291,21 @@ public class MainController {
 
     @FXML
     public void handleAddPlatform() {
-        Dialog<Plataforma> dialog = new Dialog<>();
-        dialog.setTitle("Add Platform");
-        dialog.setHeaderText("Enter platform details");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AddPlatformView.fxml"));
+            Parent root = loader.load();
 
-        ButtonType addButtonType = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+            Stage stage = new Stage();
+            stage.setTitle("Add Platform");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("/assets/romraider-icon.png")));
+            stage.showAndWait();
 
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-
-        TextField nameField = new TextField();
-        TextField extField = new TextField();
-        TextField folderName = new TextField();
-
-        grid.add(new Label("Name:"), 0, 0);
-        grid.add(nameField, 1, 0);
-        grid.add(new Label("Extension (e.g., .nes):"), 0, 1);
-        grid.add(extField, 1, 1);
-        grid.add(new Label("Folder Name:"), 0, 2);
-        grid.add(folderName, 1, 2);
-
-        dialog.getDialogPane().setContent(grid);
-
-        Node addButton = dialog.getDialogPane().lookupButton(addButtonType);
-        addButton.setDisable(true);
-
-        nameField.textProperty().addListener((obs, oldVal, newVal) -> validateFields(nameField, extField, folderName, addButton));
-        extField.textProperty().addListener((obs, oldVal, newVal) -> validateFields(nameField, extField, folderName, addButton));
-        folderName.textProperty().addListener((obs, oldVal, newVal) -> validateFields(nameField, extField, folderName, addButton));
-
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == addButtonType) {
-                return new Plataforma(
-                        nameField.getText().trim(),
-                        extField.getText().trim(),
-                        folderName.getText().trim()
-                );
-            }
-            return null;
-        });
-
-        dialog.showAndWait().ifPresent(plataforma -> {
-            plataformaService.guardar(plataforma);
             cargarPlataformas();
-            logger.info("Platform added: {}", plataforma.getNombre());
-        });
-    }
-
-    private void validateFields(TextField name, TextField ext, TextField path, Node addButton) {
-        boolean valid = !name.getText().trim().isEmpty()
-                && ext.getText().trim().matches("^\\.[a-zA-Z0-9]{1,10}$")
-                && !path.getText().trim().isEmpty();
-
-        addButton.setDisable(!valid);
+        } catch (IOException e) {
+            logger.error("Error opening Add Platform window", e);
+        }
     }
 
     @FXML
@@ -372,6 +330,34 @@ public class MainController {
             logger.warn("No platform selected to delete");
         }
     }
+
+    @FXML
+    public void handleAddRom() {
+        if (plataformaSeleccionada == null) {
+            MessageUtils.showWarning("Please select a platform first.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AddRomView.fxml"));
+            Parent root = loader.load();
+
+            AddRomController controller = loader.getController();
+            controller.setPlataforma(plataformaSeleccionada);
+
+            Stage stage = new Stage();
+            stage.setTitle("Add ROM");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("/assets/romraider-icon.png")));
+            stage.showAndWait();
+
+            cargarRomsPorPlataforma(plataformaSeleccionada);
+        } catch (IOException e) {
+            logger.error("Error opening Add ROM window", e);
+        }
+    }
+
 
     private Image getDefaultImage() {
         return new Image(getClass().getResourceAsStream("/assets/no-image.png"));

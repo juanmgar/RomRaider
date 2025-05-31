@@ -70,6 +70,7 @@
                 <CheckBox text="Played" fx:id="playedCheckBox" onAction="#handlePlayedToggle"/>
 
                 <HBox spacing="10">
+                    <Button text="Add ROM" fx:id="addButton" onAction="#handleAddRom"/>
                     <Button text="Edit" fx:id="editButton" onAction="#handleEditRom"/>
                     <Button text="Update from API" fx:id="apiButton" onAction="#handleUpdateFromAPI"/>
                 </HBox>
