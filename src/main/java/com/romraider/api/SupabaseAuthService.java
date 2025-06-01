@@ -17,8 +17,8 @@ public class SupabaseAuthService {
     private static final Logger logger = LoggerFactory.getLogger(SupabaseAuthService.class);
 
     private static String accessToken;
-    private static String refreshToken;
     private static String userId;
+    private static String currentUserEmail;
 
     public static boolean login(String email, String password) {
         logger.info("Attempting login for: {}", email);
@@ -51,9 +51,8 @@ public class SupabaseAuthService {
                 JSONObject json = new JSONObject(responseBody);
 
                 accessToken = json.getString("access_token");
-                refreshToken = json.getString("refresh_token");
-
                 userId = extractUserIdFromToken(accessToken);
+                currentUserEmail = email;
 
                 logger.info("Login successful. User ID: {}", userId);
                 return true;
@@ -126,13 +125,12 @@ public class SupabaseAuthService {
         return accessToken;
     }
 
-    public static String getCurrentUserId() {
-        return userId;
+    public static String getCurrentUserEmail() {
+        return currentUserEmail;
     }
 
     public static void logout() {
         accessToken = null;
-        refreshToken = null;
         userId = null;
         logger.info("Session cleared. Logged out.");
     }

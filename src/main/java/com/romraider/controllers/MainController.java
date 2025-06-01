@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,23 +62,28 @@ public class MainController {
     @FXML
     private CheckBox playedCheckBox;
     @FXML
-    private Button syncButton;
-    @FXML
     private MenuItem loginLogoutMenuItem;
     @FXML
     private TextField searchField;
     @FXML
     private ImageView romImage;
+    @FXML
+    private Button backupButton;
+    @FXML
+    private Button restoreButton;
+    @FXML
+    private Label userLabel;
 
     @FXML
     public void initialize() {
-        boolean online = NetworkUtils.isInternetAvailable();
         logger.info("Main view initialized");
-        syncButton.setDisable(true);
+        boolean online = NetworkUtils.isInternetAvailable();
+        boolean loggedIn = SupabaseAuthService.getCurrentUserEmail() != null;
 
-        if (!online) {
-            syncButton.setDisable(true);
-        }
+        backupButton.setDisable(!online || !loggedIn);
+        restoreButton.setDisable(!online || !loggedIn);
+
+        userLabel.setText(loggedIn ? SupabaseAuthService.getCurrentUserEmail() : "Offline");
 
         cargarPlataformas();
 
@@ -97,7 +103,6 @@ public class MainController {
 
     public void setOfflineMode(boolean offlineMode) {
         this.offlineMode = offlineMode;
-        syncButton.setDisable(offlineMode);
         loginLogoutMenuItem.setText(offlineMode ? "Login" : "Logout");
         logger.info("Main view opened in offline mode: {}", offlineMode);
     }
@@ -389,9 +394,17 @@ public class MainController {
     }
 
     @FXML
-    public void handleSync() {
-        logger.info("Sync clicked");
+    public void handleBackup() {
+        logger.info("Backup button clicked");
+        MessageUtils.showInfo("Uploading data from local... (To be implemented)");
     }
+
+    @FXML
+    public void handleRestore() {
+        logger.info("Restore button clicked");
+        MessageUtils.showInfo("Restoring data from cloud... (To be implemented)");
+    }
+
 
     @FXML
     public void handleSettings() {
@@ -457,6 +470,9 @@ public class MainController {
         if (selected == null) {
             MessageUtils.showWarning("Please select a platform to edit.");
             return;
+        }else if (selected.getId() == -1) {
+            MessageUtils.showWarning("You cannot edit the 'All' platform.");
+            return;
         }
 
         try {
@@ -489,7 +505,14 @@ public class MainController {
     @FXML
     public void handleDeletePlatform() {
         Plataforma selected = platformListView.getSelectionModel().getSelectedItem();
-        if (selected != null) {
+
+        if (selected == null) {
+            logger.warn("No platform selected to delete");
+            return;
+        }else if(selected.getId() == -1) {
+            MessageUtils.showWarning("You cannot delete the 'All' platform.");
+            return;
+        }else{
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Confirm Deletion");
             alert.setHeaderText("Delete platform '" + selected.getNombre() + "'?");
@@ -504,8 +527,6 @@ public class MainController {
                     logger.info("Platform deleted: {}", selected.getNombre());
                 }
             });
-        } else {
-            logger.warn("No platform selected to delete");
         }
     }
 

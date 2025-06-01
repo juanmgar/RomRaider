@@ -31,9 +31,16 @@
             <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 10;">
                 <Label text="ROM RAIDER" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
                 <Pane HBox.hgrow="ALWAYS"/>
-                <Button text="Sync" fx:id="syncButton" onAction="#handleSync">
+
+                <Button text="Backup to Cloud" fx:id="backupButton" onAction="#handleBackup">
                     <tooltip>
-                        <Tooltip text="You must be logged in to synchronize"/>
+                        <Tooltip text="You must be logged in to upload data"/>
+                    </tooltip>
+                </Button>
+
+                <Button text="Restore from Cloud" fx:id="restoreButton" onAction="#handleRestore">
+                    <tooltip>
+                        <Tooltip text="You must be logged in to restore data"/>
                     </tooltip>
                 </Button>
                 <Label fx:id="userLabel"/>
@@ -49,7 +56,7 @@
                 <VBox spacing="5">
                     <ListView fx:id="platformListView" prefWidth="150"/>
                     <Button text="Add Platform" onAction="#handleAddPlatform"/>
-                    <Button text="Edit Platform" onAction="#handleEditPlatform" />
+                    <Button text="Edit Platform" onAction="#handleEditPlatform"/>
                     <Button text="Delete Platform" onAction="#handleDeletePlatform"/>
                 </VBox>
                 <ListView fx:id="romListView" HBox.hgrow="ALWAYS"/>
@@ -62,7 +69,7 @@
             <VBox spacing="10">
                 <Label text="ROM Details" style="-fx-font-size: 16px;"/>
                 <StackPane prefHeight="100" prefWidth="100">
-                    <ImageView fx:id="romImage" fitHeight="300" fitWidth="300"
+                    <ImageView fx:id="romImage" fitHeight="250" fitWidth="250"
                                preserveRatio="true" smooth="true"/>
                 </StackPane>
                 <Label text="Description:"/>
@@ -74,7 +81,7 @@
                 <HBox spacing="10">
                     <Button text="Add" onAction="#handleAddRom"/>
                     <Button text="Edit" onAction="#handleEditRom"/>
-                    <Button text="Delete" onAction="#handleDeleteRom" />
+                    <Button text="Delete" onAction="#handleDeleteRom"/>
                     <Button text="Update from RAWG" fx:id="apiButton" onAction="#handleUpdateFromAPI"/>
                 </HBox>
             </VBox>
