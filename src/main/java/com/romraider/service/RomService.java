@@ -16,6 +16,13 @@ public class RomService {
         return result;
     }
 
+    public boolean existeRomConTituloYPlataforma(String titulo, int plataformaId) {
+        EntityManager em = JpaUtil.getEntityManager();
+        boolean result = new RomRepository(em).existsByTituloAndPlataformaId(titulo, plataformaId);
+        em.close();
+        return result;
+    }
+
     public Rom buscarPorId(int id) {
         EntityManager em = JpaUtil.getEntityManager();
         Rom result = new RomRepository(em).findById(id);
