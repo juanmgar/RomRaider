@@ -24,6 +24,7 @@
                     </Menu>
                     <Menu text="Settings">
                         <MenuItem text="Preferences" onAction="#handleSettings"/>
+                        <MenuItem text="About" onAction="#handleCredits"/>
                     </Menu>
                 </menus>
             </MenuBar>
@@ -48,6 +49,7 @@
                 <VBox spacing="5">
                     <ListView fx:id="platformListView" prefWidth="150"/>
                     <Button text="Add Platform" onAction="#handleAddPlatform"/>
+                    <Button text="Edit Platform" onAction="#handleEditPlatform" />
                     <Button text="Delete Platform" onAction="#handleDeletePlatform"/>
                 </VBox>
                 <ListView fx:id="romListView" HBox.hgrow="ALWAYS"/>
@@ -70,9 +72,10 @@
                 <CheckBox text="Played" fx:id="playedCheckBox" disable="true"/>
 
                 <HBox spacing="10">
-                    <Button text="Add ROM" fx:id="addButton" onAction="#handleAddRom"/>
-                    <Button text="Edit" fx:id="editButton" onAction="#handleEditRom"/>
-                    <Button text="Update from API" fx:id="apiButton" onAction="#handleUpdateFromAPI"/>
+                    <Button text="Add" onAction="#handleAddRom"/>
+                    <Button text="Edit" onAction="#handleEditRom"/>
+                    <Button text="Delete" onAction="#handleDeleteRom" />
+                    <Button text="Update from RAWG" fx:id="apiButton" onAction="#handleUpdateFromAPI"/>
                 </HBox>
             </VBox>
         </ScrollPane>

@@ -581,6 +581,71 @@ public class MainController {
         }
     }
 
+    @FXML
+    public void handleDeleteRom() {
+        String selectedTitle = romListView.getSelectionModel().getSelectedItem();
+
+        if (selectedTitle == null) {
+            MessageUtils.showWarning("Please select a ROM to delete.");
+            return;
+        }
+
+        Rom selectedRom = roms.stream()
+                .filter(r -> r.getTitulo().equals(selectedTitle))
+                .findFirst().orElse(null);
+
+        if (selectedRom == null) {
+            MessageUtils.showWarning("Selected ROM not found.");
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Deletion");
+        alert.setHeaderText("Delete ROM '" + selectedRom.getTitulo() + "'?");
+        alert.setContentText("This action cannot be undone. Are you sure?");
+
+        alert.showAndWait().ifPresent(result -> {
+            if (result == ButtonType.OK) {
+                romService.eliminar(selectedRom.getId());
+                logger.info("ROM deleted: {}", selectedRom.getTitulo());
+
+                cargarRomsPorPlataforma(plataformaSeleccionada);
+                romDescription.clear();
+                favoriteCheckBox.setSelected(false);
+                playedCheckBox.setSelected(false);
+                romImage.setImage(getDefaultImage());
+
+                MessageUtils.showInfo("ROM deleted successfully.");
+            }
+        });
+    }
+
+    @FXML
+    public void handleCredits() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/CreditsView.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Créditos");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(SceneUtils.class.getResource("/styles/romraider.css").toExternalForm());
+
+            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream("/assets/romraider-icon.png")));
+            stage.setScene(scene);
+            stage.showAndWait();
+
+            logger.info("Credits window opened");
+
+        } catch (IOException e) {
+            logger.error("Error opening Credits window", e);
+            MessageUtils.showError("Could not open the Credits window.");
+        }
+    }
+
 
     private Image getDefaultImage() {
         return new Image(getClass().getResourceAsStream("/assets/no-image.png"));
