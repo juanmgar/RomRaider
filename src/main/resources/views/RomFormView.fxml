@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.romraider.controllers.RomFormController">
@@ -25,6 +26,11 @@
                 <Label text="Image:"/>
                 <TextField fx:id="imageField" prefWidth="250"/>
                 <Button text="Browse" onAction="#handleBrowseImage"/>
+            </HBox>
+
+            <HBox spacing="10">
+                <Label text="Platform:"/>
+                <ComboBox fx:id="platformComboBox" prefWidth="250"/>
             </HBox>
 
             <HBox spacing="10">

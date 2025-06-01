@@ -2,14 +2,13 @@ package com.romraider.controllers;
 
 import com.romraider.model.Plataforma;
 import com.romraider.model.Rom;
+import com.romraider.service.PlataformaService;
 import com.romraider.service.RomService;
 import com.romraider.utils.ImageUtils;
 import com.romraider.utils.MessageUtils;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class RomFormController {
 
@@ -34,13 +34,21 @@ public class RomFormController {
     private CheckBox playedCheckBox;
     @FXML
     private Button saveButton;
+    @FXML
+    private ComboBox<Plataforma> platformComboBox;
 
     private final RomService romService = new RomService();
-    private Plataforma plataforma;
+    private final PlataformaService plataformaService = new PlataformaService();
     private Rom romToEdit;
 
-    public void setPlataforma(Plataforma plataforma) {
-        this.plataforma = plataforma;
+    @FXML
+    public void initialize() {
+        List<Plataforma> plataformas = plataformaService.obtenerTodas();
+        platformComboBox.setItems(FXCollections.observableArrayList(plataformas));
+
+        titleField.textProperty().addListener((obs, oldVal, newVal) -> validate());
+        imageField.textProperty().addListener((obs, oldVal, newVal) -> validate());
+        platformComboBox.valueProperty().addListener((obs, oldVal, newVal) -> validate());
     }
 
     public void setRomToEdit(Rom rom) {
@@ -51,12 +59,7 @@ public class RomFormController {
         imageField.setText(rom.getImagen());
         favoriteCheckBox.setSelected(rom.isFavorito());
         playedCheckBox.setSelected(rom.isJugado());
-    }
-
-    @FXML
-    public void initialize() {
-        titleField.textProperty().addListener((obs, oldVal, newVal) -> validate());
-        imageField.textProperty().addListener((obs, oldVal, newVal) -> validate());
+        platformComboBox.setValue(rom.getPlataforma());
     }
 
     @FXML
@@ -88,13 +91,19 @@ public class RomFormController {
         if (!validateFields()) return;
 
         Rom rom = (romToEdit != null) ? romToEdit : new Rom();
-        if (romToEdit == null) rom.setPlataforma(plataforma);
+
+        Plataforma selectedPlatform = platformComboBox.getValue();
+        if (selectedPlatform == null) {
+            MessageUtils.showWarning("Platform is required.");
+            return;
+        }
 
         rom.setTitulo(titleField.getText().trim());
         rom.setDescripcion(descriptionArea.getText().trim());
         rom.setImagen(imageField.getText().trim());
         rom.setFavorito(favoriteCheckBox.isSelected());
         rom.setJugado(playedCheckBox.isSelected());
+        rom.setPlataforma(selectedPlatform);
 
         romService.guardar(rom);
         MessageUtils.showInfo("ROM saved successfully.");
@@ -110,7 +119,8 @@ public class RomFormController {
     private void validate() {
         boolean isTitleValid = titleField.getText() != null && !titleField.getText().trim().isEmpty();
         boolean isImageValid = imageField.getText() != null && !imageField.getText().trim().isEmpty();
-        saveButton.setDisable(!(isTitleValid && isImageValid));
+        boolean isPlatformValid = platformComboBox.getValue() != null;
+        saveButton.setDisable(!(isTitleValid && isImageValid && isPlatformValid));
     }
 
     private boolean validateFields() {
@@ -120,6 +130,10 @@ public class RomFormController {
         }
         if (imageField.getText().trim().isEmpty()) {
             MessageUtils.showWarning("Image is required.");
+            return false;
+        }
+        if (platformComboBox.getValue() == null) {
+            MessageUtils.showWarning("Platform is required.");
             return false;
         }
         return true;

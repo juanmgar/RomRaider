@@ -522,7 +522,6 @@ public class MainController {
 
             RomFormController controller = loader.getController();
             Stage stage = new Stage();
-            controller.setPlataforma(plataformaSeleccionada);
 
             stage.setTitle("Add ROM");
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -563,7 +562,6 @@ public class MainController {
             RomFormController controller = loader.getController();
             Stage stage = new Stage();
             controller.setRomToEdit(selectedRom);
-            controller.setPlataforma(plataformaSeleccionada);
 
             stage.setTitle("Edit ROM");
             stage.initModality(Modality.APPLICATION_MODAL);
