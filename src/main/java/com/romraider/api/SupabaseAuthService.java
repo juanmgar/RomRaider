@@ -1,4 +1,4 @@
-package com.romraider.auth;
+package com.romraider.api;
 
 import com.romraider.utils.AppInitializer;
 import com.romraider.utils.PropertyUtils;
@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Base64;
 import java.util.Scanner;
 
 public class SupabaseAuthService {
@@ -17,6 +18,7 @@ public class SupabaseAuthService {
 
     private static String accessToken;
     private static String refreshToken;
+    private static String userId;
 
     public static boolean login(String email, String password) {
         logger.info("Attempting login for: {}", email);
@@ -51,7 +53,9 @@ public class SupabaseAuthService {
                 accessToken = json.getString("access_token");
                 refreshToken = json.getString("refresh_token");
 
-                logger.info("Login successful. Access token received.");
+                userId = extractUserIdFromToken(accessToken);
+
+                logger.info("Login successful. User ID: {}", userId);
                 return true;
             } else {
                 logger.warn("Login failed. HTTP status: {}", status);
@@ -61,6 +65,21 @@ public class SupabaseAuthService {
         } catch (Exception e) {
             logger.error("Error connecting to Supabase during login", e);
             return false;
+        }
+    }
+
+    private static String extractUserIdFromToken(String token) {
+        try {
+            String[] parts = token.split("\\.");
+            if (parts.length < 2) return null;
+
+            String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]));
+            JSONObject payload = new JSONObject(payloadJson);
+
+            return payload.getString("sub");
+        } catch (Exception e) {
+            logger.error("Failed to extract user ID from token", e);
+            return null;
         }
     }
 
@@ -107,9 +126,14 @@ public class SupabaseAuthService {
         return accessToken;
     }
 
+    public static String getCurrentUserId() {
+        return userId;
+    }
+
     public static void logout() {
         accessToken = null;
         refreshToken = null;
+        userId = null;
         logger.info("Session cleared. Logged out.");
     }
 }
