@@ -81,9 +81,11 @@ public class LoginController {
 
         boolean success = SupabaseAuthService.register(email, password);
         if (success) {
-            messageLabel.setText("Account created. You can now login.");
+            messageLabel.setText("Account created. Please check your email to confirm before logging in.");
+            logger.info("Registration successful. Confirmation email sent to {}", email);
         } else {
-            messageLabel.setText("Registration failed.");
+            messageLabel.setText("Registration failed. The email might already be in use.");
+            logger.warn("Registration failed for {}", email);
         }
     }
 

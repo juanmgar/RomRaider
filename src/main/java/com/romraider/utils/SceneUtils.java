@@ -16,7 +16,7 @@ public class SceneUtils {
     private static final Logger logger = LoggerFactory.getLogger(SceneUtils.class);
 
     private static final int WIDTH = 1000;
-    private static final int HEIGHT = 700;
+    private static final int HEIGHT = 750;
     private static final String TITLE = "ROM Raider";
     private static final String ICON_PATH = "/assets/romraider-icon.png";
     private static final String STYLESHEET = "/styles/romraider.css";
