@@ -46,12 +46,12 @@ public class DataInitializer {
 
     private static void insertDefaultPlatforms(EntityManager em) {
         String[][] platforms = {
-                {"NES", ".nes", "roms/nes"},
-                {"SNES", ".sfc", "roms/snes"},
-                {"Game Boy", ".gb", "roms/gb"},
-                {"Game Boy Advance", ".gba", "roms/gba"},
-                {"Genesis", ".gen", "roms/genesis"},
-                {"Nintendo 64", ".n64", "roms/n64"}
+                {"NES", ".nes", "nes"},
+                {"SNES", ".sfc", "snes"},
+                {"Game Boy", ".gb", "gb"},
+                {"Game Boy Advance", ".gba", "gba"},
+                {"Genesis", ".gen", "genesis"},
+                {"Nintendo 64", ".n64", "n64"}
         };
 
         for (String[] p : platforms) {
@@ -101,10 +101,10 @@ public class DataInitializer {
                 {"Gunstar Heroes", "Run and gun frenético.", null, false, true, "Genesis"},
 
                 // Nintendo 64
-                {"Super Mario 64", "Salto a las 3D de Mario.", null, true, true, "Nintendo 64"},
-                {"The Legend of Zelda: Ocarina of Time", "Una de las mejores aventuras jamás creadas.", null, true, true, "Nintendo 64"},
-                {"GoldenEye 007", "FPS multijugador mítico.", null, false, true, "Nintendo 64"},
-                {"Banjo-Kazooie", "Plataformas 3D con humor y coleccionables.", null, true, false, "Nintendo 64"},
+                //{"Super Mario 64", "Salto a las 3D de Mario.", null, true, true, "Nintendo 64"},
+                //{"The Legend of Zelda: Ocarina of Time", "Una de las mejores aventuras jamás creadas.", null, true, true, "Nintendo 64"},
+                //{"GoldenEye 007", "FPS multijugador mítico.", null, false, true, "Nintendo 64"},
+                //{"Banjo-Kazooie", "Plataformas 3D con humor y coleccionables.", null, true, false, "Nintendo 64"},
         };
 
         for (Object[] r : roms) {

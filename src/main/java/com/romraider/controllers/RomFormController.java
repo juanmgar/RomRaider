@@ -3,6 +3,7 @@ package com.romraider.controllers;
 import com.romraider.model.Plataforma;
 import com.romraider.model.Rom;
 import com.romraider.service.RomService;
+import com.romraider.utils.ImageUtils;
 import com.romraider.utils.MessageUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -16,8 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 
 public class RomFormController {
 
@@ -73,17 +72,8 @@ public class RomFormController {
         if (selectedFile != null) {
             try {
                 String romTitle = titleField.getText().trim().isEmpty() ? "untitled" : titleField.getText().trim();
-                String extension = selectedFile.getName().substring(selectedFile.getName().lastIndexOf('.') + 1);
-                String safeTitle = romTitle.replaceAll("[^a-zA-Z0-9]", "_");
-                String filename = safeTitle + "_" + System.currentTimeMillis() + "." + extension;
-
-                File destDir = new File(System.getProperty("user.home"), ".romraider/images");
-                if (!destDir.exists()) destDir.mkdirs();
-
-                File destFile = new File(destDir, filename);
-                Files.copy(selectedFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-
-                imageField.setText(destFile.getAbsolutePath());
+                String copiedImagePath = ImageUtils.copyImageToLocalFolder(selectedFile, romTitle);
+                imageField.setText(copiedImagePath);
                 validate();
 
             } catch (IOException e) {

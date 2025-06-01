@@ -1,5 +1,7 @@
 package com.romraider.api;
 
+import com.romraider.utils.AppInitializer;
+import com.romraider.utils.PropertyUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -11,8 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 public class RawgApiClient {
-
-    private static final String API_KEY = "e6a0126080a14743825d61ecc3e5a349";
 
     public static class RomInfo {
         public final String descripcion;
@@ -26,9 +26,12 @@ public class RawgApiClient {
 
     public static RomInfo obtenerInfo(String titulo) {
         try {
+            PropertyUtils secrets = AppInitializer.loadSecrets();
+            String rawgAPIKey = secrets.get("RAWG_API_KEY");
+
             String searchUrl = "https://api.rawg.io/api/games?search=" +
                     URLEncoder.encode(titulo, "UTF-8") +
-                    "&key=" + API_KEY;
+                    "&key=" + rawgAPIKey;
 
             HttpURLConnection conn = (HttpURLConnection) new URL(searchUrl).openConnection();
             conn.setRequestMethod("GET");
@@ -45,7 +48,7 @@ public class RawgApiClient {
             if (results.length() > 0) {
                 int gameId = results.getJSONObject(0).getInt("id");
 
-                String detailUrl = "https://api.rawg.io/api/games/" + gameId + "?key=" + API_KEY;
+                String detailUrl = "https://api.rawg.io/api/games/" + gameId + "?key=" + rawgAPIKey;
                 HttpURLConnection detailConn = (HttpURLConnection) new URL(detailUrl).openConnection();
                 detailConn.setRequestMethod("GET");
 
@@ -71,24 +74,4 @@ public class RawgApiClient {
 
         return null;
     }
-
-    public static String descargarImagen(String imageUrl, String romTitle, int romId) {
-        try {
-            String safeTitle = romTitle.replaceAll("[^a-zA-Z0-9]", "_");
-            String extension = imageUrl.substring(imageUrl.lastIndexOf('.') + 1);
-            String filename = safeTitle + "_" + romId + "." + extension;
-            File destDir = new File(System.getProperty("user.home"), ".romraider/images");
-            destDir.mkdirs();
-            File destFile = new File(destDir, filename);
-
-            try (InputStream in = new URL(imageUrl).openStream()) {
-                Files.copy(in, destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                return destFile.getAbsolutePath();
-            }
-        } catch (IOException e) {
-            System.err.println("Error descargando imagen: " + e.getMessage());
-            return null;
-        }
-    }
-
 }

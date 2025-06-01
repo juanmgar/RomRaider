@@ -2,6 +2,7 @@ package com.romraider.controllers;
 
 import com.romraider.utils.AppInitializer;
 import com.romraider.utils.MessageUtils;
+import com.romraider.utils.PropertyUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
@@ -12,10 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Properties;
 
 public class PreferencesController {
 
@@ -28,12 +26,12 @@ public class PreferencesController {
 
     @FXML
     public void initialize() {
-        Properties config = AppInitializer.loadConfig();
+        PropertyUtils config = AppInitializer.loadConfig();
 
-        boolean autoUpdate = Boolean.parseBoolean(config.getProperty("romraider.api.autoupdate", "true"));
+        boolean autoUpdate = Boolean.parseBoolean(config.getOrDefault("romraider.api.autoupdate", "true"));
         autoUpdateCheckBox.setSelected(autoUpdate);
 
-        String relativePath = config.getProperty("romraider.roms.default-folder", "ROMRaider/roms");
+        String relativePath = config.getOrDefault("romraider.roms.default-folder", "ROMRaider/roms");
         String resolvedPath = Paths.get(System.getProperty("user.home"), relativePath).toString();
         copyPathField.setText(resolvedPath);
 
@@ -67,12 +65,11 @@ public class PreferencesController {
                 ? Paths.get(userHome).relativize(Paths.get(absolutePath)).toString()
                 : absolutePath;
 
-        Properties config = AppInitializer.loadConfig();
-        config.setProperty("romraider.api.autoupdate", String.valueOf(autoUpdate));
-        config.setProperty("romraider.roms.default-folder", relativePath);
-
-        try (OutputStream out = Files.newOutputStream(AppInitializer.configFile)) {
-            config.store(out, "ROM Raider Configuration");
+        try {
+            PropertyUtils config = AppInitializer.loadConfig();
+            config.set("romraider.api.autoupdate", String.valueOf(autoUpdate));
+            config.set("romraider.roms.default-folder", relativePath);
+            config.save("ROM Raider Configuration");
             MessageUtils.showInfo("Preferences saved successfully.");
             logger.info("Preferences saved successfully.");
         } catch (IOException e) {
