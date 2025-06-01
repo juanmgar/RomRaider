@@ -1,7 +1,7 @@
 package com.romraider.app;
 
-import com.romraider.db.JpaUtil;
 import com.romraider.db.DataInitializer;
+import com.romraider.db.JpaUtil;
 import com.romraider.utils.AppInitializer;
 import com.romraider.utils.SceneUtils;
 import javafx.animation.PauseTransition;

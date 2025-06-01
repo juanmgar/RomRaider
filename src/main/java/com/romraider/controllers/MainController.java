@@ -1,8 +1,8 @@
 package com.romraider.controllers;
 
 import com.romraider.api.RawgApiClient;
+import com.romraider.api.SupabaseAuthService;
 import com.romraider.auth.SessionManager;
-import com.romraider.auth.SupabaseAuthService;
 import com.romraider.model.Plataforma;
 import com.romraider.model.Rom;
 import com.romraider.service.PlataformaService;
@@ -196,7 +196,7 @@ public class MainController {
             return;
         }
 
-        String baseFolderRelativa  = config.get("romraider.roms.default-folder");
+        String baseFolderRelativa = config.get("romraider.roms.default-folder");
         if (baseFolderRelativa == null || baseFolderRelativa.isBlank()) {
             MessageUtils.showError("Default ROM folder not configured.");
             logger.error("Missing configuration: 'romraider.roms.default-folder'");

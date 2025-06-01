@@ -1,7 +1,7 @@
 package com.romraider.controllers;
 
-import com.romraider.auth.SessionManager;
 import com.romraider.api.SupabaseAuthService;
+import com.romraider.auth.SessionManager;
 import com.romraider.utils.NetworkUtils;
 import com.romraider.utils.SceneUtils;
 import javafx.application.Platform;
