@@ -129,6 +129,10 @@ public class SupabaseAuthService {
         return currentUserEmail;
     }
 
+    public static String getUserId() {
+        return userId;
+    }
+
     public static void logout() {
         accessToken = null;
         userId = null;
