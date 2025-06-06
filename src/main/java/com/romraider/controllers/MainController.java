@@ -2,6 +2,7 @@ package com.romraider.controllers;
 
 import com.romraider.api.RawgApiClient;
 import com.romraider.api.SupabaseAuthService;
+import com.romraider.api.SupabaseSyncService;
 import com.romraider.auth.SessionManager;
 import com.romraider.model.Plataforma;
 import com.romraider.model.Rom;
@@ -110,7 +111,7 @@ public class MainController {
     private void cargarPlataformas() {
         Plataforma todas = new Plataforma();
         todas.setId(-1);
-        todas.setNombre("Todas");
+        todas.setNombre("All Platforms");
 
         List<Plataforma> plataformas = plataformaService.obtenerTodas();
         plataformas.add(0, todas);
@@ -395,8 +396,8 @@ public class MainController {
 
     @FXML
     public void handleBackup() {
-        logger.info("Backup button clicked");
-        MessageUtils.showInfo("Uploading data from local... (To be implemented)");
+        SupabaseSyncService.syncWithSupabase();
+        MessageUtils.showInfo("Synchronization complete.");
     }
 
     @FXML
@@ -431,14 +432,23 @@ public class MainController {
         }
     }
 
-    @FXML
-    public void handleViewLibrary() {
-        logger.info("View: Library clicked");
-    }
-
-    @FXML
     public void handleViewStatistics() {
-        logger.info("View: Statistics clicked");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/StatisticsView.fxml"));
+            Parent statisticsRoot = loader.load();
+
+            Scene statisticsScene = new Scene(statisticsRoot);
+            statisticsScene.getStylesheets().add(getClass().getResource("/styles/romraider.css").toExternalForm()); // si usas uno
+
+            Stage stage = new Stage();
+            stage.setTitle("Statistics");
+            stage.setScene(statisticsScene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.show();
+        } catch (IOException e) {
+            logger.error("Failed to load statistics view", e);
+        }
     }
 
     @FXML
@@ -509,10 +519,10 @@ public class MainController {
         if (selected == null) {
             logger.warn("No platform selected to delete");
             return;
-        }else if(selected.getId() == -1) {
+        } else if (selected.getId() == -1) {
             MessageUtils.showWarning("You cannot delete the 'All' platform.");
             return;
-        }else{
+        } else {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Confirm Deletion");
             alert.setHeaderText("Delete platform '" + selected.getNombre() + "'?");
@@ -522,13 +532,16 @@ public class MainController {
                 if (result == ButtonType.OK) {
                     romService.eliminarPorPlataforma(selected.getId());
                     plataformaService.eliminar(selected.getId());
+
                     cargarPlataformas();
                     romListView.getItems().clear();
+
                     logger.info("Platform deleted: {}", selected.getNombre());
                 }
             });
         }
     }
+
 
     @FXML
     public void handleAddRom() {
