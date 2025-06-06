@@ -1,41 +1,41 @@
-/* Estilo base para toda la aplicación */
+/* Estilo base */
 .root {
-    -fx-background-color: linear-gradient(to bottom, #f8f8f8, #e0e0e0);
+    -fx-background-color: linear-gradient(to bottom, #f4f6f8, #dce3ea);
     -fx-font-family: "Segoe UI", sans-serif;
-    -fx-text-fill: #000000;
+    -fx-text-fill: #2e2e2e;
 }
 
 /* Etiquetas */
 .label {
-    -fx-text-fill: #1a1a1a;
+    -fx-text-fill: #2c3e50;
     -fx-font-size: 16px;
     -fx-font-weight: bold;
 }
 
 /* Botones */
 .button {
-    -fx-background-color: linear-gradient(to bottom, #0066cc, #004a99);
+    -fx-background-color: linear-gradient(to bottom, #4a90e2, #357ABD);
     -fx-text-fill: #ffffff;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
-    -fx-border-color: #004a99;
+    -fx-border-color: #2c3e50;
     -fx-border-width: 1;
     -fx-border-radius: 6;
     -fx-background-radius: 6;
     -fx-padding: 10 20;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 2, 0.1, 1, 1);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 2, 0.1, 1, 1);
 }
 
 .button:hover {
-    -fx-background-color: #005bb5;
+    -fx-background-color: #2c70b5;
     -fx-cursor: hand;
 }
 
 /* Campos de texto */
 .text-field, .password-field {
     -fx-background-color: #ffffff;
-    -fx-text-fill: #000000;
-    -fx-border-color: #cccccc;
+    -fx-text-fill: #2e2e2e;
+    -fx-border-color: #b0bec5;
     -fx-border-radius: 4;
     -fx-background-radius: 4;
     -fx-padding: 6;
@@ -43,14 +43,14 @@
 
 /* Menu bar */
 .menu-bar {
-    -fx-background-color: #d6d6d6;
-    -fx-border-color: #999999;
+    -fx-background-color: #e0e0e0;
+    -fx-border-color: #b0bec5;
     -fx-border-width: 0 0 1 0;
 }
 
 /* Tooltips */
 .tooltip {
-    -fx-background-color: #333333;
+    -fx-background-color: #2c3e50;
     -fx-text-fill: #ffffff;
     -fx-font-size: 12px;
     -fx-padding: 6;
@@ -60,26 +60,26 @@
 /* ListViews */
 .list-view {
     -fx-background-color: #ffffff;
-    -fx-border-color: #cccccc;
+    -fx-border-color: #b0bec5;
     -fx-control-inner-background: #ffffff;
-    -fx-text-fill: #000000;
+    -fx-text-fill: #2e2e2e;
     -fx-padding: 4;
 }
 
 .list-cell:filled:selected, .list-cell:filled:selected:hover {
-    -fx-background-color: #cce5ff;
+    -fx-background-color: #ddeeff;
     -fx-text-fill: #000000;
 }
 
 /* CheckBoxes */
 .check-box {
-    -fx-text-fill: #1a1a1a;
+    -fx-text-fill: #2e2e2e;
     -fx-font-size: 14px;
 }
 
 /* TabPane y Tabs */
 .tab-pane {
-    -fx-background-color: #f0f0f0;
+    -fx-background-color: #f4f6f8;
 }
 
 .tab {
@@ -95,8 +95,8 @@
 /* ComboBoxes */
 .combo-box {
     -fx-background-color: #ffffff;
-    -fx-border-color: #cccccc;
-    -fx-text-fill: #000000;
+    -fx-border-color: #b0bec5;
+    -fx-text-fill: #2e2e2e;
 }
 
 /* Scrollbars */
@@ -105,5 +105,5 @@
 }
 
 .scroll-bar .thumb {
-    -fx-background-color: #aaaaaa;
+    -fx-background-color: #b0bec5;
 }
