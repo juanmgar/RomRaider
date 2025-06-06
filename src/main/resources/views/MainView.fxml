@@ -4,6 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.Image?>
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.romraider.controllers.MainController">
 
@@ -19,7 +20,6 @@
                         <MenuItem fx:id="loginLogoutMenuItem" text="Logout" onAction="#handleLoginLogout"/>
                     </Menu>
                     <Menu text="View">
-                        <MenuItem text="Library" onAction="#handleViewLibrary"/>
                         <MenuItem text="Statistics" onAction="#handleViewStatistics"/>
                     </Menu>
                     <Menu text="Settings">
@@ -32,19 +32,37 @@
                 <Label text="ROM RAIDER" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
                 <Pane HBox.hgrow="ALWAYS"/>
 
-                <Button text="Backup to Cloud" fx:id="backupButton" onAction="#handleBackup">
+                <!-- Backup to Cloud -->
+                <Button fx:id="backupButton" onAction="#handleBackup">
+                    <graphic>
+                        <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                            <image>
+                                <Image url="@/assets/up.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
                     <tooltip>
-                        <Tooltip text="You must be logged in to upload data"/>
+                        <Tooltip text="Upload your local data to the cloud"/>
                     </tooltip>
                 </Button>
 
-                <Button text="Restore from Cloud" fx:id="restoreButton" onAction="#handleRestore">
+                <!-- Restore from Cloud -->
+                <Button fx:id="restoreButton" onAction="#handleRestore">
+                    <graphic>
+                        <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                            <image>
+                                <Image url="@/assets/down.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
                     <tooltip>
-                        <Tooltip text="You must be logged in to restore data"/>
+                        <Tooltip text="Download and restore your data from the cloud"/>
                     </tooltip>
                 </Button>
+
                 <Label fx:id="userLabel"/>
             </HBox>
+
         </VBox>
     </top>
 
@@ -54,12 +72,74 @@
             <TextField fx:id="searchField" promptText="Search ROMs..." onKeyReleased="#handleSearch"/>
             <HBox spacing="10">
                 <VBox spacing="5">
+                    <Label text="Platforms" style="-fx-font-weight: bold;"/>
                     <ListView fx:id="platformListView" prefWidth="150"/>
-                    <Button text="Add Platform" onAction="#handleAddPlatform"/>
-                    <Button text="Edit Platform" onAction="#handleEditPlatform"/>
-                    <Button text="Delete Platform" onAction="#handleDeletePlatform"/>
+                    <VBox spacing="5">
+                        <!-- Add Platform -->
+                        <Button onAction="#handleAddPlatform" maxWidth="Infinity">
+                            <graphic>
+                                <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                                    <image>
+                                        <Image url="@/assets/new.png"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip text="Add a new platform to your collection"/>
+                            </tooltip>
+                        </Button>
+
+                        <!-- Edit Platform -->
+                        <Button onAction="#handleEditPlatform" maxWidth="Infinity">
+                            <graphic>
+                                <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                                    <image>
+                                        <Image url="@/assets/edit.png"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip text="Edit the selected platform"/>
+                            </tooltip>
+                        </Button>
+
+                        <!-- Delete Platform -->
+                        <Button onAction="#handleDeletePlatform" maxWidth="Infinity">
+                            <graphic>
+                                <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                                    <image>
+                                        <Image url="@/assets/delete.png"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip text="Delete the selected platform"/>
+                            </tooltip>
+                        </Button>
+                    </VBox>
                 </VBox>
-                <ListView fx:id="romListView" HBox.hgrow="ALWAYS"/>
+
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="ROMs" style="-fx-font-weight: bold;"/>
+                    <ListView fx:id="romListView" HBox.hgrow="ALWAYS"/>
+
+                    <HBox alignment="CENTER_RIGHT">
+                        <!-- Add ROM -->
+                        <Button onAction="#handleAddRom"
+                                style="-fx-pref-width: 40px;">
+                            <graphic>
+                                <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                                    <image>
+                                        <Image url="@/assets/new.png"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip text="Add a new ROM"/>
+                            </tooltip>
+                        </Button>
+                    </HBox>
+                </VBox>
             </HBox>
         </VBox>
     </center>
@@ -78,11 +158,50 @@
                 <CheckBox text="Favorite" fx:id="favoriteCheckBox" disable="true"/>
                 <CheckBox text="Played" fx:id="playedCheckBox" disable="true"/>
 
-                <HBox spacing="10">
-                    <Button text="Add" onAction="#handleAddRom"/>
-                    <Button text="Edit" onAction="#handleEditRom"/>
-                    <Button text="Delete" onAction="#handleDeleteRom"/>
-                    <Button text="Update from RAWG" fx:id="apiButton" onAction="#handleUpdateFromAPI"/>
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Pane HBox.hgrow="ALWAYS"/> <!-- Empuja los botones a la derecha -->
+
+                    <!-- Edit -->
+                    <Button onAction="#handleEditRom">
+                        <graphic>
+                            <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                                <image>
+                                    <Image url="@/assets/edit.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Edit selected ROM"/>
+                        </tooltip>
+                    </Button>
+
+                    <!-- Delete -->
+                    <Button onAction="#handleDeleteRom">
+                        <graphic>
+                            <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                                <image>
+                                    <Image url="@/assets/delete.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Delete selected ROM"/>
+                        </tooltip>
+                    </Button>
+
+                    <!-- RAWG -->
+                    <Button onAction="#handleUpdateFromAPI">
+                        <graphic>
+                            <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                                <image>
+                                    <Image url="@/assets/cloud.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Fetch description and image from RAWG API"/>
+                        </tooltip>
+                    </Button>
                 </HBox>
             </VBox>
         </ScrollPane>
