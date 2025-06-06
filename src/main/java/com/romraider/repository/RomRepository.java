@@ -55,6 +55,11 @@ public class RomRepository {
         }
     }
 
+    public void deleteAll() {
+        em.createQuery("DELETE FROM Rom").executeUpdate();
+    }
+
+
     public void deleteByPlataformaId(int plataformaId) {
         em.createQuery("DELETE FROM Rom r WHERE r.plataforma.id = :id")
                 .setParameter("id", plataformaId)

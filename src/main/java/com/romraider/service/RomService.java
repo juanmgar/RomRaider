@@ -63,4 +63,13 @@ public class RomService {
         em.getTransaction().commit();
         em.close();
     }
+
+    public void eliminarTodas() {
+        EntityManager em = JpaUtil.getEntityManager();
+        RomRepository repo = new RomRepository(em);
+        em.getTransaction().begin();
+        repo.deleteAll();
+        em.getTransaction().commit();
+        em.close();
+    }
 }
