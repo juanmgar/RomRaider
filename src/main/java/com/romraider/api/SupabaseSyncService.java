@@ -28,6 +28,12 @@ public class SupabaseSyncService {
     private static final String APIKEY = "apikey";
     private static final String AUTHORIZATION = "Authorization";
     private static final String BEARER = "Bearer ";
+    private static final String LAST_UPDATED = "last_updated";
+    private static final String APPLICATION_JSON = "application/json";
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String RESOLUTION = "resolution=merge-duplicates";
+    private static final String PREFER = "Prefer";
+    private static final String USER_ID = "user_id";
 
     private static final PlataformaService plataformaService = new PlataformaService();
     private static final RomService romService = new RomService();
@@ -97,7 +103,7 @@ public class SupabaseSyncService {
             String response = scanner.useDelimiter("\\A").next();
             JSONArray jsonArray = new JSONArray(response);
             if (jsonArray.length() > 0) {
-                String timestampStr = jsonArray.getJSONObject(0).getString("last_updated");
+                String timestampStr = jsonArray.getJSONObject(0).getString(LAST_UPDATED);
                 return LocalDateTime.parse(timestampStr, formatter);
             }
         }
@@ -113,13 +119,13 @@ public class SupabaseSyncService {
         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty(APIKEY, supabaseKey);
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setRequestProperty("Prefer", "resolution=merge-duplicates");
+        conn.setRequestProperty(CONTENT_TYPE, APPLICATION_JSON);
+        conn.setRequestProperty(PREFER, RESOLUTION);
         conn.setDoOutput(true);
 
         JSONObject body = new JSONObject();
-        body.put("user_id", userId);
-        body.put("last_updated", timestamp.format(formatter));
+        body.put(USER_ID, userId);
+        body.put(LAST_UPDATED, timestamp.format(formatter));
 
         try (OutputStream os = conn.getOutputStream()) {
             os.write(body.toString().getBytes());
@@ -151,7 +157,7 @@ public class SupabaseSyncService {
                 json.put("nombre", plataforma.getNombre());
                 json.put("extension_rom", plataforma.getExtensionRom());
                 json.put("carpeta", plataforma.getCarpeta());
-                json.put("user_id", userId);
+                json.put(USER_ID, userId);
 
                 logger.info("Enviando plataforma a Supabase:\n{}", json.toString(2));
 
@@ -159,8 +165,8 @@ public class SupabaseSyncService {
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty(APIKEY, supabaseKey);
                 conn.setRequestProperty(AUTHORIZATION, BEARER + supabaseKey);
-                conn.setRequestProperty("Content-Type", "application/json");
-                conn.setRequestProperty("Prefer", "return=representation");
+                conn.setRequestProperty(CONTENT_TYPE, APPLICATION_JSON);
+                conn.setRequestProperty(PREFER, "return=representation");
                 conn.setDoOutput(true);
 
                 try (OutputStream os = conn.getOutputStream()) {
@@ -195,14 +201,14 @@ public class SupabaseSyncService {
                     json.put("imagen", rom.getImagen());
                     json.put("favorito", rom.isFavorito());
                     json.put("jugado", rom.isJugado());
-                    json.put("user_id", userId);
+                    json.put(USER_ID, userId);
                     json.put("plataforma_id", remotePlataformaId);
 
                     HttpURLConnection conn = (HttpURLConnection) new URL(supabaseUrl + "/rest/v1/roms").openConnection();
                     conn.setRequestMethod("POST");
                     conn.setRequestProperty(APIKEY, supabaseKey);
                     conn.setRequestProperty(AUTHORIZATION, BEARER + supabaseKey);
-                    conn.setRequestProperty("Content-Type", "application/json");
+                    conn.setRequestProperty(CONTENT_TYPE, APPLICATION_JSON);
                     conn.setDoOutput(true);
 
                     try (OutputStream os = conn.getOutputStream()) {
@@ -312,7 +318,7 @@ public class SupabaseSyncService {
         romsConn.setRequestMethod("DELETE");
         romsConn.setRequestProperty(APIKEY, apiKey);
         romsConn.setRequestProperty(AUTHORIZATION, BEARER + apiKey);
-        romsConn.setRequestProperty("Prefer", "resolution=merge-duplicates");
+        romsConn.setRequestProperty(PREFER, RESOLUTION);
         int romsResponse = romsConn.getResponseCode();
         if (romsResponse >= 200 && romsResponse < 300) {
             logger.info("ROMs eliminadas del usuario {}", userId);
@@ -326,7 +332,7 @@ public class SupabaseSyncService {
         plataformasConn.setRequestMethod("DELETE");
         plataformasConn.setRequestProperty(APIKEY, apiKey);
         plataformasConn.setRequestProperty(AUTHORIZATION, BEARER + apiKey);
-        plataformasConn.setRequestProperty("Prefer", "resolution=merge-duplicates");
+        plataformasConn.setRequestProperty(PREFER, RESOLUTION);
         int plataformasResponse = plataformasConn.getResponseCode();
         if (plataformasResponse >= 200 && plataformasResponse < 300) {
             logger.info("Plataformas eliminadas del usuario {}", userId);
@@ -345,13 +351,13 @@ public class SupabaseSyncService {
         conn.setRequestMethod("POST");
         conn.setRequestProperty(APIKEY, supabaseKey);
         conn.setRequestProperty(AUTHORIZATION, BEARER + supabaseKey);
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setRequestProperty("Prefer", "resolution=merge-duplicates");
+        conn.setRequestProperty(CONTENT_TYPE, APPLICATION_JSON);
+        conn.setRequestProperty(PREFER, RESOLUTION);
         conn.setDoOutput(true);
 
         JSONObject body = new JSONObject();
-        body.put("user_id", userId);
-        body.put("last_updated", timestamp.format(formatter));
+        body.put(USER_ID, userId);
+        body.put(LAST_UPDATED, timestamp.format(formatter));
 
         try (OutputStream os = conn.getOutputStream()) {
             os.write(body.toString().getBytes());

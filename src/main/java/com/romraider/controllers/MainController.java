@@ -32,7 +32,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,6 +39,8 @@ import java.util.stream.Collectors;
 public class MainController {
 
     private static final Logger logger = LoggerFactory.getLogger(MainController.class);
+    private static final String PATH_ROMRAIDER_STYLES = "/styles/romraider.css";
+    private static final String PATH_ROMRAIDER_ICON = "/assets/romraider-icon.png";
 
     private final PlataformaService plataformaService = new PlataformaService();
     private final RomService romService = new RomService();
@@ -419,9 +420,9 @@ public class MainController {
             stage.setResizable(false);
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(SceneUtils.class.getResource("/styles/romraider.css").toExternalForm());
+            scene.getStylesheets().add(SceneUtils.class.getResource(PATH_ROMRAIDER_STYLES).toExternalForm());
 
-            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream("/assets/romraider-icon.png")));
+            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(PATH_ROMRAIDER_ICON)));
             stage.setScene(scene);
             stage.showAndWait();
 
@@ -438,7 +439,7 @@ public class MainController {
             Parent statisticsRoot = loader.load();
 
             Scene statisticsScene = new Scene(statisticsRoot);
-            statisticsScene.getStylesheets().add(getClass().getResource("/styles/romraider.css").toExternalForm()); // si usas uno
+            statisticsScene.getStylesheets().add(getClass().getResource(PATH_ROMRAIDER_STYLES).toExternalForm()); // si usas uno
 
             Stage stage = new Stage();
             stage.setTitle("Statistics");
@@ -462,7 +463,7 @@ public class MainController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
             stage.setScene(new Scene(root));
-            stage.getIcons().add(new Image(getClass().getResourceAsStream("/assets/romraider-icon.png")));
+            stage.getIcons().add(new Image(getClass().getResourceAsStream(PATH_ROMRAIDER_ICON)));
             stage.showAndWait();
 
             cargarPlataformas();
@@ -480,7 +481,7 @@ public class MainController {
         if (selected == null) {
             MessageUtils.showWarning("Please select a platform to edit.");
             return;
-        }else if (selected.getId() == -1) {
+        } else if (selected.getId() == -1) {
             MessageUtils.showWarning("You cannot edit the 'All' platform.");
             return;
         }
@@ -497,7 +498,7 @@ public class MainController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
             stage.setScene(new Scene(root));
-            stage.getIcons().add(new Image(getClass().getResourceAsStream("/assets/romraider-icon.png")));
+            stage.getIcons().add(new Image(getClass().getResourceAsStream(PATH_ROMRAIDER_ICON)));
             stage.showAndWait();
 
             cargarPlataformas();
@@ -561,7 +562,7 @@ public class MainController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
             stage.setScene(new Scene(root));
-            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream("/assets/romraider-icon.png")));
+            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(PATH_ROMRAIDER_ICON)));
             stage.showAndWait();
 
             cargarRomsPorPlataforma(plataformaSeleccionada); // Refresh list
@@ -601,7 +602,7 @@ public class MainController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
             stage.setScene(new Scene(root));
-            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream("/assets/romraider-icon.png")));
+            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(PATH_ROMRAIDER_ICON)));
             stage.showAndWait();
 
             cargarRomsPorPlataforma(plataformaSeleccionada);
@@ -664,9 +665,9 @@ public class MainController {
             stage.setResizable(false);
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(SceneUtils.class.getResource("/styles/romraider.css").toExternalForm());
+            scene.getStylesheets().add(SceneUtils.class.getResource(PATH_ROMRAIDER_STYLES).toExternalForm());
 
-            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream("/assets/romraider-icon.png")));
+            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(PATH_ROMRAIDER_ICON)));
             stage.setScene(scene);
             stage.showAndWait();
 
