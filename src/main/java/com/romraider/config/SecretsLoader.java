@@ -1,22 +1,27 @@
 package com.romraider.config;
 
+import com.romraider.api.SupabaseSyncService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.InputStream;
 import java.util.Properties;
 
 public class SecretsLoader {
 
+    private static final Logger logger = LoggerFactory.getLogger(SecretsLoader.class);
     private static final Properties props = new Properties();
 
     static {
         try (InputStream in = SecretsLoader.class.getResourceAsStream("/config/secrets.properties")) {
             if (in != null) {
                 props.load(in);
-                System.out.println("[SecretsLoader] Loaded secrets.properties");
+                logger.info("[SecretsLoader] Loaded secrets.properties");
             } else {
-                System.out.println("[SecretsLoader] No secrets.properties found, using environment variables only.");
+                logger.info("[SecretsLoader] No secrets.properties found, using environment variables only.");
             }
         } catch (Exception e) {
-            System.err.println("[SecretsLoader] Error loading secrets.properties: " + e.getMessage());
+            logger.error("[SecretsLoader] Error loading secrets.properties: " + e.getMessage());
         }
     }
 
