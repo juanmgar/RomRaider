@@ -19,49 +19,102 @@ public class SupabaseAuthService {
     private static String userId;
     private static String currentUserEmail;
 
+    private static final String SUPABASE_URL = SecretsLoader.getSupabaseUrl();
+    private static final String SUPABASE_KEY = SecretsLoader.getSupabaseKey();
+
     public static boolean login(String email, String password) {
         logger.info("Attempting login for: {}", email);
 
-        try {
-            String supabaseUrl = SecretsLoader.getSupabaseUrl();
-            String supabaseKey = SecretsLoader.getSupabaseKey();
+        JSONObject body = new JSONObject()
+                .put("email", email)
+                .put("password", password);
 
-            URL url = new URL(supabaseUrl + "/auth/v1/token?grant_type=password");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        JSONObject response = sendSupabaseRequest("/auth/v1/token?grant_type=password", body);
+
+        if (response != null && response.has("access_token")) {
+            accessToken = response.getString("access_token");
+            userId = extractUserIdFromToken(accessToken);
+            currentUserEmail = email;
+            logger.info("Login successful. User ID: {}", userId);
+            return true;
+        }
+
+        logger.warn("Login failed for {}", email);
+        return false;
+    }
+
+    public static boolean register(String email, String password) {
+        logger.info("Attempting registration for: {}", email);
+
+        JSONObject body = new JSONObject()
+                .put("email", email)
+                .put("password", password);
+
+        JSONObject response = sendSupabaseRequest("/auth/v1/signup", body);
+
+        if (response != null) {
+            logger.info("User registered successfully: {}", email);
+            return true;
+        }
+
+        logger.warn("Registration failed for {}", email);
+        return false;
+    }
+
+    public static void logout() {
+        accessToken = null;
+        userId = null;
+        currentUserEmail = null;
+        logger.info("Session cleared. Logged out.");
+    }
+
+    public static String getAccessToken() {
+        return accessToken;
+    }
+
+    public static String getUserId() {
+        return userId;
+    }
+
+    public static String getCurrentUserEmail() {
+        return currentUserEmail;
+    }
+
+    private static JSONObject sendSupabaseRequest(String endpoint, JSONObject body) {
+        HttpURLConnection conn = null;
+        try {
+            URL url = new URL(SUPABASE_URL + endpoint);
+            conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("POST");
-            conn.setRequestProperty("apikey", supabaseKey);
+            conn.setRequestProperty("apikey", SUPABASE_KEY);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
 
-            JSONObject body = new JSONObject();
-            body.put("email", email);
-            body.put("password", password);
-
+            // Send JSON
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(body.toString().getBytes());
             }
 
             int status = conn.getResponseCode();
-            if (status == 200) {
-                Scanner scanner = new Scanner(conn.getInputStream()).useDelimiter("\\A");
-                String responseBody = scanner.hasNext() ? scanner.next() : "";
-                JSONObject json = new JSONObject(responseBody);
+            boolean success = status == 200 || status == 201;
 
-                accessToken = json.getString("access_token");
-                userId = extractUserIdFromToken(accessToken);
-                currentUserEmail = email;
+            Scanner scanner = new Scanner(success ? conn.getInputStream() : conn.getErrorStream())
+                    .useDelimiter("\\A");
+            String responseBody = scanner.hasNext() ? scanner.next() : "";
 
-                logger.info("Login successful. User ID: {}", userId);
-                return true;
+            if (success) {
+                return new JSONObject(responseBody.isEmpty() ? "{}" : responseBody);
             } else {
-                logger.warn("Login failed. HTTP status: {}", status);
-                return false;
+                logger.warn("Supabase request failed ({}): {}", status, responseBody);
+                return null;
             }
 
         } catch (Exception e) {
-            logger.error("Error connecting to Supabase during login", e);
-            return false;
+            logger.error("Error in Supabase request to {}", endpoint, e);
+            return null;
+        } finally {
+            if (conn != null) conn.disconnect();
         }
     }
 
@@ -72,67 +125,10 @@ public class SupabaseAuthService {
 
             String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]));
             JSONObject payload = new JSONObject(payloadJson);
-
-            return payload.getString("sub");
+            return payload.optString("sub", null);
         } catch (Exception e) {
             logger.error("Failed to extract user ID from token", e);
             return null;
         }
-    }
-
-    public static boolean register(String email, String password) {
-        logger.info("Attempting registration for: {}", email);
-
-        try {
-            String supabaseUrl = SecretsLoader.getSupabaseUrl();
-            String supabaseKey = SecretsLoader.getSupabaseKey();
-
-            URL url = new URL(supabaseUrl + "/auth/v1/signup");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("apikey", supabaseKey);
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setDoOutput(true);
-
-            JSONObject body = new JSONObject();
-            body.put("email", email);
-            body.put("password", password);
-
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(body.toString().getBytes());
-            }
-
-            int status = conn.getResponseCode();
-            if (status == 200 || status == 201) {
-                logger.info("User registered successfully.");
-                return true;
-            } else {
-                logger.warn("Registration failed. HTTP status: {}", status);
-                return false;
-            }
-
-        } catch (Exception e) {
-            logger.error("Error connecting to Supabase during registration", e);
-            return false;
-        }
-    }
-
-    public static String getAccessToken() {
-        return accessToken;
-    }
-
-    public static String getCurrentUserEmail() {
-        return currentUserEmail;
-    }
-
-    public static String getUserId() {
-        return userId;
-    }
-
-    public static void logout() {
-        accessToken = null;
-        userId = null;
-        logger.info("Session cleared. Logged out.");
     }
 }
