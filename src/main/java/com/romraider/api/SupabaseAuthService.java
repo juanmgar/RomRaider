@@ -18,6 +18,7 @@ public class SupabaseAuthService {
     private static String accessToken;
     private static String userId;
     private static String currentUserEmail;
+    private static final String APIKEY = "apikey";
 
     private static final String SUPABASE_URL = SecretsLoader.getSupabaseUrl();
     private static final String SUPABASE_KEY = SecretsLoader.getSupabaseKey();
@@ -87,7 +88,7 @@ public class SupabaseAuthService {
             conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("POST");
-            conn.setRequestProperty("apikey", SUPABASE_KEY);
+            conn.setRequestProperty(APIKEY, SUPABASE_KEY);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
 

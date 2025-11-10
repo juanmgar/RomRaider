@@ -25,6 +25,9 @@ public class SupabaseSyncService {
     private static final Logger logger = LoggerFactory.getLogger(SupabaseSyncService.class);
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
     private static final String TIMESTAMP_FILE = System.getProperty("user.home") + "/.romraider/last_sync.txt";
+    private static final String APIKEY = "apikey";
+    private static final String AUTHORIZATION = "Authorization";
+    private static final String BEARER = "Bearer ";
 
     private static final PlataformaService plataformaService = new PlataformaService();
     private static final RomService romService = new RomService();
@@ -88,7 +91,7 @@ public class SupabaseSyncService {
 
         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
         conn.setRequestMethod("GET");
-        conn.setRequestProperty("apikey", supabaseKey);
+        conn.setRequestProperty(APIKEY, supabaseKey);
 
         try (InputStream is = conn.getInputStream(); Scanner scanner = new Scanner(is)) {
             String response = scanner.useDelimiter("\\A").next();
@@ -109,7 +112,7 @@ public class SupabaseSyncService {
         String url = supabaseUrl + "/rest/v1/sync_status";
         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
         conn.setRequestMethod("POST");
-        conn.setRequestProperty("apikey", supabaseKey);
+        conn.setRequestProperty(APIKEY, supabaseKey);
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestProperty("Prefer", "resolution=merge-duplicates");
         conn.setDoOutput(true);
@@ -154,8 +157,8 @@ public class SupabaseSyncService {
 
                 HttpURLConnection conn = (HttpURLConnection) new URL(supabaseUrl + "/rest/v1/plataformas").openConnection();
                 conn.setRequestMethod("POST");
-                conn.setRequestProperty("apikey", supabaseKey);
-                conn.setRequestProperty("Authorization", "Bearer " + supabaseKey);
+                conn.setRequestProperty(APIKEY, supabaseKey);
+                conn.setRequestProperty(AUTHORIZATION, BEARER + supabaseKey);
                 conn.setRequestProperty("Content-Type", "application/json");
                 conn.setRequestProperty("Prefer", "return=representation");
                 conn.setDoOutput(true);
@@ -197,8 +200,8 @@ public class SupabaseSyncService {
 
                     HttpURLConnection conn = (HttpURLConnection) new URL(supabaseUrl + "/rest/v1/roms").openConnection();
                     conn.setRequestMethod("POST");
-                    conn.setRequestProperty("apikey", supabaseKey);
-                    conn.setRequestProperty("Authorization", "Bearer " + supabaseKey);
+                    conn.setRequestProperty(APIKEY, supabaseKey);
+                    conn.setRequestProperty(AUTHORIZATION, BEARER + supabaseKey);
                     conn.setRequestProperty("Content-Type", "application/json");
                     conn.setDoOutput(true);
 
@@ -231,8 +234,8 @@ public class SupabaseSyncService {
             URL plataformasUrl = new URL(supabaseUrl + "/rest/v1/plataformas?user_id=eq." + userId + "&select=*");
             HttpURLConnection connPlataformas = (HttpURLConnection) plataformasUrl.openConnection();
             connPlataformas.setRequestMethod("GET");
-            connPlataformas.setRequestProperty("apikey", supabaseKey);
-            connPlataformas.setRequestProperty("Authorization", "Bearer " + supabaseKey);
+            connPlataformas.setRequestProperty(APIKEY, supabaseKey);
+            connPlataformas.setRequestProperty(AUTHORIZATION, BEARER + supabaseKey);
 
             JSONArray plataformasJson;
             try (Scanner scanner = new Scanner(connPlataformas.getInputStream()).useDelimiter("\\A")) {
@@ -263,8 +266,8 @@ public class SupabaseSyncService {
             URL romsUrl = new URL(supabaseUrl + "/rest/v1/roms?user_id=eq." + userId + "&select=*");
             HttpURLConnection connRoms = (HttpURLConnection) romsUrl.openConnection();
             connRoms.setRequestMethod("GET");
-            connRoms.setRequestProperty("apikey", supabaseKey);
-            connRoms.setRequestProperty("Authorization", "Bearer " + supabaseKey);
+            connRoms.setRequestProperty(APIKEY, supabaseKey);
+            connRoms.setRequestProperty(AUTHORIZATION, BEARER + supabaseKey);
 
             JSONArray romsJson;
             try (Scanner scanner = new Scanner(connRoms.getInputStream()).useDelimiter("\\A")) {
@@ -307,8 +310,8 @@ public class SupabaseSyncService {
         URL romsUrl = new URL(baseUrl + "/rest/v1/roms?user_id=eq." + userId);
         HttpURLConnection romsConn = (HttpURLConnection) romsUrl.openConnection();
         romsConn.setRequestMethod("DELETE");
-        romsConn.setRequestProperty("apikey", apiKey);
-        romsConn.setRequestProperty("Authorization", "Bearer " + apiKey);
+        romsConn.setRequestProperty(APIKEY, apiKey);
+        romsConn.setRequestProperty(AUTHORIZATION, BEARER + apiKey);
         romsConn.setRequestProperty("Prefer", "resolution=merge-duplicates");
         int romsResponse = romsConn.getResponseCode();
         if (romsResponse >= 200 && romsResponse < 300) {
@@ -321,8 +324,8 @@ public class SupabaseSyncService {
         URL plataformasUrl = new URL(baseUrl + "/rest/v1/plataformas?user_id=eq." + userId);
         HttpURLConnection plataformasConn = (HttpURLConnection) plataformasUrl.openConnection();
         plataformasConn.setRequestMethod("DELETE");
-        plataformasConn.setRequestProperty("apikey", apiKey);
-        plataformasConn.setRequestProperty("Authorization", "Bearer " + apiKey);
+        plataformasConn.setRequestProperty(APIKEY, apiKey);
+        plataformasConn.setRequestProperty(AUTHORIZATION, BEARER + apiKey);
         plataformasConn.setRequestProperty("Prefer", "resolution=merge-duplicates");
         int plataformasResponse = plataformasConn.getResponseCode();
         if (plataformasResponse >= 200 && plataformasResponse < 300) {
@@ -340,8 +343,8 @@ public class SupabaseSyncService {
         String url = supabaseUrl + "/rest/v1/sync_status";
         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
         conn.setRequestMethod("POST");
-        conn.setRequestProperty("apikey", supabaseKey);
-        conn.setRequestProperty("Authorization", "Bearer " + supabaseKey);
+        conn.setRequestProperty(APIKEY, supabaseKey);
+        conn.setRequestProperty(AUTHORIZATION, BEARER + supabaseKey);
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestProperty("Prefer", "resolution=merge-duplicates");
         conn.setDoOutput(true);
