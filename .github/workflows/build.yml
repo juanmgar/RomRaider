@@ -1,0 +1,4 @@
+env:
+  RAWG_API_KEY: ${{ secrets.RAWG_API_KEY }}
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
