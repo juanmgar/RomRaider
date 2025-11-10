@@ -89,5 +89,12 @@
             <artifactId>org.eclipse.persistence.moxy</artifactId>
             <version>4.0.6</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>21</version>
+        </dependency>
+
     </dependencies>
 </project>

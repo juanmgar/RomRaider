@@ -4,6 +4,7 @@ import com.romraider.db.DataInitializer;
 import com.romraider.db.JpaUtil;
 import com.romraider.utils.AppInitializer;
 import com.romraider.utils.SceneUtils;
+import com.romraider.utils.SoundUtils;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -32,6 +33,7 @@ public class Main extends Application {
         );
         imageView.setPreserveRatio(true);
         imageView.setFitWidth(500);
+        SoundUtils.playRandomSound();
 
         StackPane root = new StackPane(imageView);
         root.setStyle("-fx-background-color: transparent;");
