@@ -12,6 +12,9 @@ import java.util.Map;
 public class DataInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
+    private static final String GAME_BOY = "Game Boy";
+    private static final String GAME_BOY_ADVANCE = "Game Boy Advance";
+    private static final String GENESIS = "Genesis";
 
     public static void initializeWithDefaults() {
         EntityManager em = JpaUtil.getEntityManager();
@@ -48,9 +51,9 @@ public class DataInitializer {
         String[][] platforms = {
                 {"NES", ".nes", "nes"},
                 {"SNES", ".sfc", "snes"},
-                {"Game Boy", ".gb", "gb"},
-                {"Game Boy Advance", ".gba", "gba"},
-                {"Genesis", ".gen", "genesis"},
+                {GAME_BOY, ".gb", "gb"},
+                {GAME_BOY_ADVANCE, ".gba", "gba"},
+                {GENESIS, ".gen", "genesis"},
                 {"Nintendo 64", ".n64", "n64"}
         };
 
@@ -83,22 +86,22 @@ public class DataInitializer {
                 {"Street Fighter II", "Clásico de lucha 2D.", null, false, true, "SNES"},
 
                 // Game Boy
-                {"Tetris", "El clásico puzzle por excelencia.", null, false, true, "Game Boy"},
-                {"Pokémon Red", "Comienza tu viaje para atraparlos a todos.", null, true, false, "Game Boy"},
-                {"Kirby’s Dream Land", "Debut del personaje rosado favorito.", null, false, false, "Game Boy"},
-                {"Dr. Mario", "Puzzle de cápsulas medicinales.", null, false, true, "Game Boy"},
+                {"Tetris", "El clásico puzzle por excelencia.", null, false, true, GAME_BOY},
+                {"Pokémon Red", "Comienza tu viaje para atraparlos a todos.", null, true, false, GAME_BOY},
+                {"Kirby’s Dream Land", "Debut del personaje rosado favorito.", null, false, false, GAME_BOY},
+                {"Dr. Mario", "Puzzle de cápsulas medicinales.", null, false, true, GAME_BOY},
 
                 // Game Boy Advance
-                {"Advance Wars", "Estrategia militar por turnos.", null, false, false, "Game Boy Advance"},
-                {"Metroid Fusion", "Exploración y acción en un mundo alienígena.", null, true, true, "Game Boy Advance"},
-                {"The Legend of Zelda: The Minish Cap", "Una aventura diminuta.", null, true, false, "Game Boy Advance"},
-                {"Mario Kart: Super Circuit", "Velocidad y caos sobre ruedas.", null, true, true, "Game Boy Advance"},
+                {"Advance Wars", "Estrategia militar por turnos.", null, false, false, GAME_BOY_ADVANCE},
+                {"Metroid Fusion", "Exploración y acción en un mundo alienígena.", null, true, true, GAME_BOY_ADVANCE},
+                {"The Legend of Zelda: The Minish Cap", "Una aventura diminuta.", null, true, false, GAME_BOY_ADVANCE},
+                {"Mario Kart: Super Circuit", "Velocidad y caos sobre ruedas.", null, true, true, GAME_BOY_ADVANCE},
 
                 // Genesis
-                {"Sonic the Hedgehog", "El erizo azul veloz.", null, false, true, "Genesis"},
-                {"Streets of Rage", "Beat 'em up callejero.", null, false, false, "Genesis"},
-                {"Golden Axe", "Espada y brujería en scroll lateral.", null, true, false, "Genesis"},
-                {"Gunstar Heroes", "Run and gun frenético.", null, false, true, "Genesis"},
+                {"Sonic the Hedgehog", "El erizo azul veloz.", null, false, true, GENESIS},
+                {"Streets of Rage", "Beat 'em up callejero.", null, false, false, GENESIS},
+                {"Golden Axe", "Espada y brujería en scroll lateral.", null, true, false, GENESIS},
+                {"Gunstar Heroes", "Run and gun frenético.", null, false, true, GENESIS},
 
                 // Nintendo 64
                 //{"Super Mario 64", "Salto a las 3D de Mario.", null, true, true, "Nintendo 64"},
