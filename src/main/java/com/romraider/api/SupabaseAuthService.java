@@ -1,7 +1,6 @@
 package com.romraider.api;
 
-import com.romraider.utils.AppInitializer;
-import com.romraider.utils.PropertyUtils;
+import com.romraider.config.SecretsLoader;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,15 +23,14 @@ public class SupabaseAuthService {
         logger.info("Attempting login for: {}", email);
 
         try {
-            PropertyUtils secrets = AppInitializer.loadSecrets();
-            String supabaseURL = secrets.get("SUPABASE_URL");
-            String supabaseAPIKey = secrets.get("SUPABASE_KEY");
+            String supabaseUrl = SecretsLoader.getSupabaseUrl();
+            String supabaseKey = SecretsLoader.getSupabaseKey();
 
-            URL url = new URL(supabaseURL + "/auth/v1/token?grant_type=password");
+            URL url = new URL(supabaseUrl + "/auth/v1/token?grant_type=password");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("POST");
-            conn.setRequestProperty("apikey", supabaseAPIKey);
+            conn.setRequestProperty("apikey", supabaseKey);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
 
@@ -86,15 +84,14 @@ public class SupabaseAuthService {
         logger.info("Attempting registration for: {}", email);
 
         try {
-            PropertyUtils secrets = AppInitializer.loadSecrets();
-            String supabaseURL = secrets.get("SUPABASE_URL");
-            String supabaseAPIKey = secrets.get("SUPABASE_KEY");
+            String supabaseUrl = SecretsLoader.getSupabaseUrl();
+            String supabaseKey = SecretsLoader.getSupabaseKey();
 
-            URL url = new URL(supabaseURL + "/auth/v1/signup");
+            URL url = new URL(supabaseUrl + "/auth/v1/signup");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("POST");
-            conn.setRequestProperty("apikey", supabaseAPIKey);
+            conn.setRequestProperty("apikey", supabaseKey);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
 

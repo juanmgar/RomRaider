@@ -1,11 +1,10 @@
 package com.romraider.api;
 
+import com.romraider.config.SecretsLoader;
 import com.romraider.model.Plataforma;
 import com.romraider.model.Rom;
 import com.romraider.service.PlataformaService;
 import com.romraider.service.RomService;
-import com.romraider.utils.AppInitializer;
-import com.romraider.utils.PropertyUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -16,7 +15,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
 public class SupabaseSyncService {
 
@@ -74,20 +76,19 @@ public class SupabaseSyncService {
     }
 
     private static LocalDateTime getRemoteTimestamp(String userId) throws IOException {
-        PropertyUtils secrets = AppInitializer.loadSecrets();
 
-        String baseUrl = secrets.get("SUPABASE_URL");
-        String apiKey = secrets.get("SUPABASE_KEY");
+        String supabaseUrl = SecretsLoader.getSupabaseUrl();
+        String supabaseKey = SecretsLoader.getSupabaseKey();
 
-        logger.info("DEBUG - API KEY loaded: {}", apiKey);
+        logger.info("DEBUG - API KEY loaded: {}", supabaseKey);
 
-        String url = baseUrl + "/rest/v1/sync_status?user_id=eq." + userId + "&select=last_updated";
+        String url = supabaseUrl + "/rest/v1/sync_status?user_id=eq." + userId + "&select=last_updated";
         logger.info("GET {}", url); // Log de la URL
-        logger.info("Header apikey: {}", apiKey); // Cuidado: solo mostrar en desarrollo
+        logger.info("Header apikey: {}", supabaseKey); // Cuidado: solo mostrar en desarrollo
 
         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
         conn.setRequestMethod("GET");
-        conn.setRequestProperty("apikey", apiKey);
+        conn.setRequestProperty("apikey", supabaseKey);
 
         try (InputStream is = conn.getInputStream(); Scanner scanner = new Scanner(is)) {
             String response = scanner.useDelimiter("\\A").next();
@@ -102,14 +103,13 @@ public class SupabaseSyncService {
     }
 
     private static void updateRemoteTimestamp(String userId, LocalDateTime timestamp) throws IOException {
-        PropertyUtils secrets = AppInitializer.loadSecrets();
-        String baseUrl = secrets.get("SUPABASE_URL");
-        String apiKey = secrets.get("SUPABASE_KEY");
+        String supabaseUrl = SecretsLoader.getSupabaseUrl();
+        String supabaseKey = SecretsLoader.getSupabaseKey();
 
-        String url = baseUrl + "/rest/v1/sync_status";
+        String url = supabaseUrl + "/rest/v1/sync_status";
         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
         conn.setRequestMethod("POST");
-        conn.setRequestProperty("apikey", apiKey);
+        conn.setRequestProperty("apikey", supabaseKey);
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestProperty("Prefer", "resolution=merge-duplicates");
         conn.setDoOutput(true);
@@ -132,15 +132,14 @@ public class SupabaseSyncService {
 
     private static void uploadAllData(String userId) {
         try {
-            PropertyUtils secrets = AppInitializer.loadSecrets();
-            String baseUrl = secrets.get("SUPABASE_URL");
-            String apiKey = secrets.get("SUPABASE_KEY");
+            String supabaseUrl = SecretsLoader.getSupabaseUrl();
+            String supabaseKey = SecretsLoader.getSupabaseKey();
 
             // 1. Obtener datos locales
             List<Plataforma> plataformas = plataformaService.obtenerTodasConRoms();
 
             // 2. Borrar datos anteriores en Supabase
-            borrarDatosRemotos(userId, baseUrl, apiKey);
+            borrarDatosRemotos(userId, supabaseUrl, supabaseKey);
 
             // 3. Subir plataformas y recoger sus nuevos UUIDs remotos
             Map<Integer, String> plataformaIdMap = new HashMap<>();
@@ -153,10 +152,10 @@ public class SupabaseSyncService {
 
                 logger.info("Enviando plataforma a Supabase:\n{}", json.toString(2));
 
-                HttpURLConnection conn = (HttpURLConnection) new URL(baseUrl + "/rest/v1/plataformas").openConnection();
+                HttpURLConnection conn = (HttpURLConnection) new URL(supabaseUrl + "/rest/v1/plataformas").openConnection();
                 conn.setRequestMethod("POST");
-                conn.setRequestProperty("apikey", apiKey);
-                conn.setRequestProperty("Authorization", "Bearer " + apiKey);
+                conn.setRequestProperty("apikey", supabaseKey);
+                conn.setRequestProperty("Authorization", "Bearer " + supabaseKey);
                 conn.setRequestProperty("Content-Type", "application/json");
                 conn.setRequestProperty("Prefer", "return=representation");
                 conn.setDoOutput(true);
@@ -196,10 +195,10 @@ public class SupabaseSyncService {
                     json.put("user_id", userId);
                     json.put("plataforma_id", remotePlataformaId);
 
-                    HttpURLConnection conn = (HttpURLConnection) new URL(baseUrl + "/rest/v1/roms").openConnection();
+                    HttpURLConnection conn = (HttpURLConnection) new URL(supabaseUrl + "/rest/v1/roms").openConnection();
                     conn.setRequestMethod("POST");
-                    conn.setRequestProperty("apikey", apiKey);
-                    conn.setRequestProperty("Authorization", "Bearer " + apiKey);
+                    conn.setRequestProperty("apikey", supabaseKey);
+                    conn.setRequestProperty("Authorization", "Bearer " + supabaseKey);
                     conn.setRequestProperty("Content-Type", "application/json");
                     conn.setDoOutput(true);
 
@@ -225,16 +224,15 @@ public class SupabaseSyncService {
 
     private static void downloadAllData(String userId) {
         try {
-            PropertyUtils secrets = AppInitializer.loadSecrets();
-            String baseUrl = secrets.get("SUPABASE_URL");
-            String apiKey = secrets.get("SUPABASE_KEY");
+            String supabaseUrl = SecretsLoader.getSupabaseUrl();
+            String supabaseKey = SecretsLoader.getSupabaseKey();
 
             // 1. Descargar plataformas remotas
-            URL plataformasUrl = new URL(baseUrl + "/rest/v1/plataformas?user_id=eq." + userId + "&select=*");
+            URL plataformasUrl = new URL(supabaseUrl + "/rest/v1/plataformas?user_id=eq." + userId + "&select=*");
             HttpURLConnection connPlataformas = (HttpURLConnection) plataformasUrl.openConnection();
             connPlataformas.setRequestMethod("GET");
-            connPlataformas.setRequestProperty("apikey", apiKey);
-            connPlataformas.setRequestProperty("Authorization", "Bearer " + apiKey);
+            connPlataformas.setRequestProperty("apikey", supabaseKey);
+            connPlataformas.setRequestProperty("Authorization", "Bearer " + supabaseKey);
 
             JSONArray plataformasJson;
             try (Scanner scanner = new Scanner(connPlataformas.getInputStream()).useDelimiter("\\A")) {
@@ -262,11 +260,11 @@ public class SupabaseSyncService {
             }
 
             // 4. Descargar ROMs remotas
-            URL romsUrl = new URL(baseUrl + "/rest/v1/roms?user_id=eq." + userId + "&select=*");
+            URL romsUrl = new URL(supabaseUrl + "/rest/v1/roms?user_id=eq." + userId + "&select=*");
             HttpURLConnection connRoms = (HttpURLConnection) romsUrl.openConnection();
             connRoms.setRequestMethod("GET");
-            connRoms.setRequestProperty("apikey", apiKey);
-            connRoms.setRequestProperty("Authorization", "Bearer " + apiKey);
+            connRoms.setRequestProperty("apikey", supabaseKey);
+            connRoms.setRequestProperty("Authorization", "Bearer " + supabaseKey);
 
             JSONArray romsJson;
             try (Scanner scanner = new Scanner(connRoms.getInputStream()).useDelimiter("\\A")) {
@@ -335,15 +333,15 @@ public class SupabaseSyncService {
     }
 
     private static void actualizarRemoteTimestamp(String userId, LocalDateTime timestamp) throws IOException {
-        PropertyUtils secrets = AppInitializer.loadSecrets();
-        String baseUrl = secrets.get("SUPABASE_URL");
-        String apiKey = secrets.get("SUPABASE_KEY");
 
-        String url = baseUrl + "/rest/v1/sync_status";
+        String supabaseUrl = SecretsLoader.getSupabaseUrl();
+        String supabaseKey = SecretsLoader.getSupabaseKey();
+
+        String url = supabaseUrl + "/rest/v1/sync_status";
         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
         conn.setRequestMethod("POST");
-        conn.setRequestProperty("apikey", apiKey);
-        conn.setRequestProperty("Authorization", "Bearer " + apiKey);
+        conn.setRequestProperty("apikey", supabaseKey);
+        conn.setRequestProperty("Authorization", "Bearer " + supabaseKey);
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestProperty("Prefer", "resolution=merge-duplicates");
         conn.setDoOutput(true);

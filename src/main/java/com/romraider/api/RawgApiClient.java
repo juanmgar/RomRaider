@@ -1,7 +1,6 @@
 package com.romraider.api;
 
-import com.romraider.utils.AppInitializer;
-import com.romraider.utils.PropertyUtils;
+import com.romraider.config.SecretsLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -25,12 +24,12 @@ public class RawgApiClient {
 
     public static RomInfo obtenerInfo(String titulo) {
         try {
-            PropertyUtils secrets = AppInitializer.loadSecrets();
-            String rawgAPIKey = secrets.get("RAWG_API_KEY");
+
+            String rawgKey = SecretsLoader.getRawgApiKey();
 
             String searchUrl = "https://api.rawg.io/api/games?search=" +
                     URLEncoder.encode(titulo, "UTF-8") +
-                    "&key=" + rawgAPIKey;
+                    "&key=" + rawgKey;
 
             HttpURLConnection conn = (HttpURLConnection) new URL(searchUrl).openConnection();
             conn.setRequestMethod("GET");
@@ -47,7 +46,7 @@ public class RawgApiClient {
             if (results.length() > 0) {
                 int gameId = results.getJSONObject(0).getInt("id");
 
-                String detailUrl = "https://api.rawg.io/api/games/" + gameId + "?key=" + rawgAPIKey;
+                String detailUrl = "https://api.rawg.io/api/games/" + gameId + "?key=" + rawgKey;
                 HttpURLConnection detailConn = (HttpURLConnection) new URL(detailUrl).openConnection();
                 detailConn.setRequestMethod("GET");
 
