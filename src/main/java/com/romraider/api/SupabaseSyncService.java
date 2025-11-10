@@ -46,23 +46,38 @@ public class SupabaseSyncService {
         }
 
         try {
-            LocalDateTime localTimestamp = getLocalTimestamp();
-            LocalDateTime remoteTimestamp = getRemoteTimestamp(userId);
-
-            if (remoteTimestamp.isAfter(localTimestamp)) {
-                logger.info("Remote data is newer. Syncing from Supabase.");
-                downloadAllData(userId);
-                saveLocalTimestamp(remoteTimestamp);
-            } else if (localTimestamp.isAfter(remoteTimestamp)) {
-                logger.info("Local data is newer. Syncing to Supabase.");
-                uploadAllData(userId);
-            } else {
-                logger.info("Data already up to date. No sync needed.");
-            }
-
+            performSync(userId);
         } catch (Exception e) {
             logger.error("Error during synchronization", e);
         }
+    }
+
+    private static void performSync(String userId) throws IOException {
+        LocalDateTime localTimestamp = getLocalTimestamp();
+        LocalDateTime remoteTimestamp = getRemoteTimestamp(userId);
+
+        if (remoteTimestamp.isAfter(localTimestamp)) {
+            syncFromRemote(userId, remoteTimestamp);
+            return;
+        }
+
+        if (localTimestamp.isAfter(remoteTimestamp)) {
+            syncToRemote(userId);
+            return;
+        }
+
+        logger.info("Data already up to date. No sync needed.");
+    }
+
+    private static void syncFromRemote(String userId, LocalDateTime remoteTimestamp) {
+        logger.info("Remote data is newer. Syncing from Supabase.");
+        downloadAllData(userId);
+        saveLocalTimestamp(remoteTimestamp);
+    }
+
+    private static void syncToRemote(String userId) {
+        logger.info("Local data is newer. Syncing to Supabase.");
+        uploadAllData(userId);
     }
 
     private static LocalDateTime getLocalTimestamp() {
