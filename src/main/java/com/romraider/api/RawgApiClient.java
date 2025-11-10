@@ -3,6 +3,8 @@ package com.romraider.api;
 import com.romraider.config.SecretsLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -11,6 +13,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 public class RawgApiClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(RawgApiClient.class);
 
     public static class RomInfo {
         public final String descripcion;
@@ -67,7 +71,7 @@ public class RawgApiClient {
                 return new RomInfo(description, imageUrl);
             }
         } catch (Exception e) {
-            System.err.println("Error en API RAWG: " + e.getMessage());
+            logger.error("Error en API RAWG: " + e.getMessage());
         }
 
         return null;
