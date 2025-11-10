@@ -1,6 +1,5 @@
 package com.romraider.config;
 
-import com.romraider.api.SupabaseSyncService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
