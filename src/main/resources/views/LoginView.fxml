@@ -5,18 +5,27 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.effect.Reflection?>
+<?import javafx.scene.effect.Glow?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.romraider.controllers.LoginController"
       alignment="CENTER" spacing="20" style="-fx-padding: 30;">
 
-    <ImageView fitHeight="150" fitWidth="150">
-        <image>
-            <Image url="@/assets/romraider-logo.png" preserveRatio="true"/>
-        </image>
-    </ImageView>
+    <StackPane alignment="CENTER">
+        <ImageView fitHeight="150" fitWidth="150" preserveRatio="true">
+            <image>
+                <Image url="@/assets/romraider-logo.png"/>
+            </image>
+            <clip>
+                <Circle radius="75" centerX="75" centerY="75"/>
+            </clip>
+        </ImageView>
+    </StackPane>
 
-    <Label text="ROM RAIDER" style="-fx-font-size: 26px; -fx-font-weight: bold;"/>
     <Label text="Access your collection anytime, anywhere." style="-fx-font-size: 14px; -fx-text-fill: #555555;"/>
 
     <VBox spacing="8" maxWidth="300">
