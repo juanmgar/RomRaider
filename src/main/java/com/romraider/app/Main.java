@@ -33,7 +33,7 @@ public class Main extends Application {
         );
         imageView.setPreserveRatio(true);
         imageView.setFitWidth(500);
-        SoundUtils.playRandomSound();
+        SoundUtils.play(SoundUtils.STARTUP);
 
         StackPane root = new StackPane(imageView);
         root.setStyle("-fx-background-color: transparent;");
