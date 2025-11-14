@@ -12,7 +12,10 @@
             <Label text="Retro ROM manager for multiple platforms" />
             <Label text="Final project for the Vocational Training Program in Multiplatform App Development (DAM)" />
             <Label text="Developed by JuanMa Sierra García" />
-            <Label text="Built using JavaFX, Hibernate, Supabase, and the RAWG.io API" />
+            <Label text="Built using JavaFX, Hibernate, Supabase, and the RAWG.io API"/>
+            <Hyperlink text="Background image by kjpargeter on Freepik"
+                       onAction="#handleOpenFreepik"
+                       style="-fx-text-fill: #33eaff; -fx-font-size: 12px; -fx-underline: true;" />
             <Label text="2025 © All rights reserved" />
         </VBox>
     </center>
