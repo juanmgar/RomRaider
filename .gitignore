@@ -37,3 +37,4 @@ build/
 ### Mac OS ###
 .DS_Store
 src/main/resources/config/secrets.properties
+src/main/java/pruebas/RawgAPI.java
