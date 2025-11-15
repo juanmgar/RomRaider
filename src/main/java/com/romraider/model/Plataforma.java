@@ -6,6 +6,20 @@ import jakarta.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entidad que representa una plataforma/emulador en el sistema.
+ *
+ * <p>Cada plataforma contiene:</p>
+ * <ul>
+ *     <li>Un nombre único.</li>
+ *     <li>La extensión asociada a los ROMs (ej: .nes, .gba...).</li>
+ *     <li>Una carpeta donde se almacenan los ROMs de dicha plataforma.</li>
+ *     <li>Listado de ROMs asociados.</li>
+ * </ul>
+ *
+ * <p>Además, está configurada para poder exportarse a XML sin incluir el ID,
+ * lo cual evita fugas de detalles internos y conflictos al importar.</p>
+ */
 @Entity
 @Table(name = "plataformas")
 @XmlRootElement(name = "plataforma")
@@ -26,6 +40,12 @@ public class Plataforma {
     @Column(nullable = false)
     private String carpeta;
 
+    /**
+     * Relación bidireccional entre plataforma y sus ROMs.
+     *
+     * <p>XML usa un wrapper <roms>, mientras que JPA controla la
+     * relación mediante orphanRemoval=true para limpiar ROMs huérfanos.</p>
+     */
     @OneToMany(mappedBy = "plataforma", cascade = CascadeType.ALL, orphanRemoval = true)
     @XmlElementWrapper(name = "roms")
     @XmlElement(name = "rom")

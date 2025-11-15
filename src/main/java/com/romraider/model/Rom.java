@@ -1,11 +1,23 @@
 package com.romraider.model;
 
 import jakarta.persistence.*;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.*;
 
+/**
+ * Entidad que representa un ROM dentro de una plataforma.
+ *
+ * <p>Incluye información sobre:</p>
+ * <ul>
+ *     <li>Título del juego</li>
+ *     <li>Descripción</li>
+ *     <li>Ruta de imagen local</li>
+ *     <li>Marcadores (favorito / jugado)</li>
+ *     <li>Plataforma asociada</li>
+ * </ul>
+ *
+ * <p>Se excluye del XML la referencia a plataforma para evitar
+ * ciclos recursivos durante la exportación.</p>
+ */
 @Entity
 @Table(name = "roms")
 @XmlRootElement(name = "rom")
@@ -31,7 +43,7 @@ public class Rom {
 
     @ManyToOne
     @JoinColumn(name = "plataforma_id", nullable = false)
-    @XmlTransient  // Para evitar dependencias circulares
+    @XmlTransient
     private Plataforma plataforma;
 
     public Rom() {
