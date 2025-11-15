@@ -9,30 +9,81 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+/**
+ * Utilidades para gestionar imágenes asociadas a ROMs.
+ *
+ * Incluye funciones para:
+ *  - Copiar imágenes locales a la carpeta interna de la aplicación
+ *  - Descargar y guardar imágenes desde URL (RAWG.io u otras fuentes)
+ *  - Cargar una imagen desde disco, con fallback a una imagen por defecto
+ *
+ * Todas las imágenes se guardan en:
+ * <pre>
+ *   ~/.romraider/images
+ * </pre>
+ */
 public class ImageUtils {
 
-    public static final File IMAGES_FOLDER = new File(System.getProperty("user.home"), ".romraider/images");
+    /**
+     * Carpeta interna donde se almacenan las imágenes de ROMs.
+     * Se crea automáticamente si no existe.
+     */
+    public static final File IMAGES_FOLDER =
+            new File(System.getProperty("user.home"), ".romraider/images");
 
+    /**
+     * Copia una imagen local a la carpeta interna de ROM Raider.
+     * Se genera un nombre seguro basado en el título de la ROM.
+     *
+     * @param sourceImage imagen seleccionada por el usuario
+     * @param title título de la ROM (usado para generar nombre del archivo)
+     * @return ruta absoluta del archivo copiado
+     * @throws IOException si ocurre un error al copiar la imagen
+     */
     public static String copyImageToLocalFolder(File sourceImage, String title) throws IOException {
-        String extension = sourceImage.getName().substring(sourceImage.getName().lastIndexOf('.') + 1);
+
+        // Extraer extensión original del archivo
+        String extension = sourceImage.getName()
+                .substring(sourceImage.getName().lastIndexOf('.') + 1);
+
+        // Título seguro para usar en un nombre de archivo
         String safeTitle = title.replaceAll("[^a-zA-Z0-9]", "_");
+
+        // Se añade timestamp para evitar colisiones de nombres
         String filename = safeTitle + "_" + System.currentTimeMillis() + "." + extension;
 
+        // Asegurar que la carpeta existe
         IMAGES_FOLDER.mkdirs();
+
         File destFile = new File(IMAGES_FOLDER, filename);
+
+        // Copia física del archivo
         Files.copy(sourceImage.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         return destFile.getAbsolutePath();
     }
 
+    /**
+     * Descarga una imagen desde una URL y la guarda en la carpeta interna.
+     * El nombre del archivo incluye el ID de la ROM para evitar conflictos.
+     *
+     * @param imageUrl URL completa de la imagen a descargar
+     * @param title título de la ROM (usado para nombrar el archivo)
+     * @param romId identificador único de la ROM
+     * @return ruta absoluta del archivo guardado
+     * @throws IOException si ocurre un error al descargar o guardar el archivo
+     */
     public static String downloadAndSaveImage(String imageUrl, String title, int romId) throws IOException {
+
         String extension = imageUrl.substring(imageUrl.lastIndexOf('.') + 1);
         String safeTitle = title.replaceAll("[^a-zA-Z0-9]", "_");
+
         String filename = safeTitle + "_" + romId + "." + extension;
 
         IMAGES_FOLDER.mkdirs();
         File destFile = new File(IMAGES_FOLDER, filename);
 
+        // Descargar mediante stream desde URL
         try (InputStream in = new URL(imageUrl).openStream()) {
             Files.copy(in, destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
@@ -40,12 +91,25 @@ public class ImageUtils {
         return destFile.getAbsolutePath();
     }
 
+    /**
+     * Carga una imagen desde el disco. Si no existe, devuelve una imagen por defecto.
+     *
+     * @param path ruta absoluta de la imagen
+     * @return instancia de {@link Image} correspondiente
+     */
     public static Image loadRomImageOrDefault(String path) {
         File imageFile = new File(path);
+
+        /*
+         * Se intenta cargar la imagen local. Si no existe,
+         * se usa la imagen "no-image.png" desde los recursos.
+         */
         if (imageFile.exists()) {
             return new Image("file:" + imageFile.getAbsolutePath(), true);
         } else {
-            return new Image(ImageUtils.class.getResourceAsStream("/assets/no-image.png"));
+            return new Image(
+                    ImageUtils.class.getResourceAsStream("/assets/no-image.png")
+            );
         }
     }
 }

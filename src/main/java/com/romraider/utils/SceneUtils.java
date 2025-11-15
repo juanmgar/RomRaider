@@ -1,6 +1,5 @@
 package com.romraider.utils;
 
-import com.romraider.controllers.MainController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -11,6 +10,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+/**
+ * Utilidad para gestionar cambios de escenas (pantallas) en la aplicación.
+ * Se encarga de:
+ *   - Cargar los FXML
+ *   - Aplicar estilos CSS
+ *   - Configurar título, icono y tamaño
+ */
 public class SceneUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(SceneUtils.class);
@@ -21,54 +27,63 @@ public class SceneUtils {
     private static final String ICON_PATH = "/assets/romraider-icon.png";
     private static final String STYLESHEET = "/styles/romraider.css";
 
-    public static void switchToMainView(Stage stage, boolean offlineMode) {
+    /**
+     * Cambia la escena actual hacia la vista principal (MainView).
+     *
+     * @param stage ventana principal de la aplicación
+     */
+    public static void switchToMainView(Stage stage) {
         try {
-            logger.info("Loading MainView.fxml (offlineMode={})", offlineMode);
+            logger.info("Cargando MainView.fxml");
 
             FXMLLoader loader = new FXMLLoader(SceneUtils.class.getResource("/views/MainView.fxml"));
             Parent root = loader.load();
 
-            MainController controller = loader.getController();
-            controller.setOfflineMode(offlineMode);
-
             Scene scene = new Scene(root, WIDTH, HEIGHT);
-            scene.getStylesheets().add(SceneUtils.class.getResource(STYLESHEET).toExternalForm());
+            scene.getStylesheets()
+                    .add(SceneUtils.class.getResource(STYLESHEET).toExternalForm());
 
             stage.setTitle(TITLE);
-            stage.getIcons().clear();
             stage.setResizable(false);
+            stage.getIcons().clear();
             stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(ICON_PATH)));
             stage.setScene(scene);
             stage.show();
 
-            logger.debug("Main view loaded and shown");
+            logger.debug("Vista principal cargada correctamente");
 
         } catch (IOException e) {
-            logger.error("Failed to load MainView.fxml", e);
+            logger.error("Error al cargar MainView.fxml", e);
         }
     }
 
+    /**
+     * Cambia la escena actual hacia la vista de login (LoginView).
+     *
+     * @param stage ventana principal de la aplicación
+     */
     public static void switchToLoginView(Stage stage) {
         try {
-            logger.info("Loading LoginView.fxml");
+            logger.info("Cargando LoginView.fxml");
 
             FXMLLoader loader = new FXMLLoader(SceneUtils.class.getResource("/views/LoginView.fxml"));
             Parent root = loader.load();
 
             Scene scene = new Scene(root, WIDTH, HEIGHT);
-            scene.getStylesheets().add(SceneUtils.class.getResource(STYLESHEET).toExternalForm());
+            scene.getStylesheets()
+                    .add(SceneUtils.class.getResource(STYLESHEET).toExternalForm());
 
             stage.setTitle(TITLE);
-            stage.getIcons().clear();
             stage.setResizable(false);
+            stage.getIcons().clear();
             stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(ICON_PATH)));
             stage.setScene(scene);
             stage.show();
 
-            logger.debug("Login view loaded and shown");
+            logger.debug("Vista de login cargada correctamente");
 
         } catch (IOException e) {
-            logger.error("Failed to load LoginView.fxml", e);
+            logger.error("Error al cargar LoginView.fxml", e);
         }
     }
 }
