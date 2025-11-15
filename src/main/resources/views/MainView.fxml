@@ -2,11 +2,11 @@
 <!-- MainView.fxml -->
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.image.Image?>
-<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.romraider.controllers.MainController">
+<StackPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.romraider.controllers.MainController">
+    <BorderPane fx:id="mainBorderPane">
 
     <top>
         <VBox>
@@ -14,6 +14,7 @@
                 <menus>
                     <Menu text="File">
                         <MenuItem text="Scan Folder" onAction="#handleScanFolder"/>
+                        <MenuItem text="Update all ROMS' info" onAction="#handleUpdateAllFromAPI"/>
                         <MenuItem text="Export" onAction="#handleExport"/>
                         <MenuItem text="Import" onAction="#handleImport"/>
                         <SeparatorMenuItem/>
@@ -33,30 +34,16 @@
                 <Pane HBox.hgrow="ALWAYS"/>
 
                 <!-- Backup to Cloud -->
-                <Button fx:id="backupButton" onAction="#handleBackup">
+                <Button fx:id="syncButton" onAction="#handleSync" text="Sync">
                     <graphic>
                         <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
                             <image>
-                                <Image url="@/assets/up.png"/>
+                                <Image url="@/assets/sync.png"/>
                             </image>
                         </ImageView>
                     </graphic>
                     <tooltip>
-                        <Tooltip text="Upload your local data to the cloud"/>
-                    </tooltip>
-                </Button>
-
-                <!-- Restore from Cloud -->
-                <Button fx:id="restoreButton" onAction="#handleRestore">
-                    <graphic>
-                        <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
-                            <image>
-                                <Image url="@/assets/down.png"/>
-                            </image>
-                        </ImageView>
-                    </graphic>
-                    <tooltip>
-                        <Tooltip text="Download and restore your data from the cloud"/>
+                        <Tooltip text="Synchronize with the cloud"/>
                     </tooltip>
                 </Button>
 
@@ -76,7 +63,7 @@
                     <ListView fx:id="platformListView" prefWidth="150"/>
                     <VBox spacing="5">
                         <!-- Add Platform -->
-                        <Button onAction="#handleAddPlatform" maxWidth="Infinity">
+                        <Button onAction="#handleAddPlatform" maxWidth="Infinity" text="Add">
                             <graphic>
                                 <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
                                     <image>
@@ -90,7 +77,7 @@
                         </Button>
 
                         <!-- Edit Platform -->
-                        <Button onAction="#handleEditPlatform" maxWidth="Infinity">
+                        <Button onAction="#handleEditPlatform" maxWidth="Infinity" text="Edit">
                             <graphic>
                                 <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
                                     <image>
@@ -104,7 +91,7 @@
                         </Button>
 
                         <!-- Delete Platform -->
-                        <Button onAction="#handleDeletePlatform" maxWidth="Infinity">
+                        <Button onAction="#handleDeletePlatform" maxWidth="Infinity" text="Delete">
                             <graphic>
                                 <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
                                     <image>
@@ -125,8 +112,7 @@
 
                     <HBox alignment="CENTER_RIGHT">
                         <!-- Add ROM -->
-                        <Button onAction="#handleAddRom"
-                                style="-fx-pref-width: 40px;">
+                        <Button onAction="#handleAddRom" text="Add">
                             <graphic>
                                 <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
                                     <image>
@@ -148,9 +134,11 @@
         <ScrollPane fitToWidth="true" style="-fx-padding: 10;">
             <VBox spacing="10">
                 <Label text="ROM Details" style="-fx-font-size: 16px;"/>
-                <StackPane prefHeight="100" prefWidth="100">
-                    <ImageView fx:id="romImage" fitHeight="250" fitWidth="250"
-                               preserveRatio="true" smooth="true"/>
+                <StackPane prefHeight="250" prefWidth="250" minHeight="250" maxHeight="250" alignment="CENTER">
+                    <ImageView fx:id="romImage"
+                               fitHeight="250" fitWidth="250"
+                               preserveRatio="true" smooth="true"
+                               style="-fx-background-color: #f5f5f5; -fx-border-color: #ccc; -fx-border-radius: 4; -fx-background-radius: 4;"/>
                 </StackPane>
                 <Label text="Description:"/>
                 <TextArea fx:id="romDescription" wrapText="true" editable="false" prefRowCount="6"/>
@@ -159,10 +147,10 @@
                 <CheckBox text="Played" fx:id="playedCheckBox" disable="true"/>
 
                 <HBox spacing="10" alignment="CENTER_RIGHT">
-                    <Pane HBox.hgrow="ALWAYS"/> <!-- Empuja los botones a la derecha -->
+                    <Pane HBox.hgrow="ALWAYS"/>
 
                     <!-- Edit -->
-                    <Button onAction="#handleEditRom">
+                    <Button onAction="#handleEditRom" text="Edit">
                         <graphic>
                             <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
                                 <image>
@@ -176,7 +164,7 @@
                     </Button>
 
                     <!-- Delete -->
-                    <Button onAction="#handleDeleteRom">
+                    <Button onAction="#handleDeleteRom" text="Delete">
                         <graphic>
                             <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
                                 <image>
@@ -190,7 +178,7 @@
                     </Button>
 
                     <!-- RAWG -->
-                    <Button onAction="#handleUpdateFromAPI">
+                    <Button onAction="#handleUpdateFromAPI" text="Update ROM info">
                         <graphic>
                             <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
                                 <image>
@@ -203,8 +191,13 @@
                         </tooltip>
                     </Button>
                 </HBox>
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Pane HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="syncLabel" style="-fx-text-fill: gray; -fx-font-size: 11px;"/>
+                </HBox>
             </VBox>
         </ScrollPane>
     </right>
 
 </BorderPane>
+</StackPane>
