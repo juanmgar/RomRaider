@@ -49,12 +49,40 @@ public class DataInitializer {
 
     private static void insertDefaultPlatforms(EntityManager em) {
         String[][] platforms = {
+                // Nintendo
                 {"NES", ".nes", "nes"},
-                {"SNES", ".sfc", "snes"},
-                {GAME_BOY, ".gb", "gb"},
-                {GAME_BOY_ADVANCE, ".gba", "gba"},
-                {GENESIS, ".gen", "genesis"},
-                {"Nintendo 64", ".n64", "n64"}
+                {"SNES", ".sfc,.smc", "snes"},
+                {"Nintendo 64", ".n64,.z64,.v64", "n64"},
+                {"GameCube", ".iso,.gcm", "gamecube"},
+                {"Wii", ".iso,.wbfs", "wii"},
+                {"Game Boy", ".gb", "gb"},
+                {"Game Boy Color", ".gbc", "gbc"},
+                {"Game Boy Advance", ".gba", "gba"},
+                {"Nintendo DS", ".nds", "nds"},
+                {"Nintendo 3DS", ".3ds,.cia", "3ds"},
+                {"Nintendo Switch", ".nsp,.xci", "switch"},
+
+                // Sega
+                {"Master System", ".sms", "sms"},
+                {"Genesis / Mega Drive", ".md,.gen", "genesis"},
+                {"Sega CD", ".cue,.bin", "segacd"},
+                {"Sega 32X", ".32x", "32x"},
+                {"Sega Saturn", ".cue,.bin", "saturn"},
+                {"Dreamcast", ".cdi,.gdi", "dreamcast"},
+
+                // Sony
+                {"PlayStation", ".cue,.bin,.iso", "psx"},
+                {"PlayStation 2", ".iso", "ps2"},
+                {"PSP", ".iso,.cso", "psp"},
+
+                // Atari & Retro
+                {"Atari 2600", ".a26", "atari2600"},
+                {"Atari 7800", ".a78", "atari7800"},
+                {"Neo Geo", ".zip", "neogeo"},
+                {"MAME", ".zip", "mame"},
+
+                // PC
+                {"MS-DOS", ".exe,.com,.zip", "msdos"}
         };
 
         for (String[] p : platforms) {
