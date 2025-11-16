@@ -27,10 +27,6 @@ jobs:
     - name: Build project with Maven
       run: mvn -B clean package
 
-    ######################################################
-    # DESCARGA JAVAFX PARA 3 SISTEMAS
-    ######################################################
-
     - name: Download JavaFX Windows x64
       run: |
         wget https://download2.gluonhq.com/openjfx/21.0.9/openjfx-21.0.9_windows-x64_bin-sdk.zip -O fx_win.zip
@@ -46,33 +42,22 @@ jobs:
         wget https://download2.gluonhq.com/openjfx/21.0.9/openjfx-21.0.9_osx-aarch64_bin-sdk.zip -O fx_mac.zip
         unzip -o fx_mac.zip -d fx_mac
 
-    ######################################################
-    # PREPARAR CARPETAS PARA CADA SISTEMA
-    ######################################################
-
     - name: Prepare Windows ZIP
       run: |
         mkdir dist_windows
         cp target/rom-raider-1.0-SNAPSHOT.jar dist_windows/
         cp -r fx_win/javafx-sdk-21.0.9 dist_windows/javafx
-
-        # SCRIPT DE WINDOWS RENOMBRADO
-        echo "java --enable-native-access=ALL-UNNAMED --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > dist_windows/"ROMRaider Launcher.bat"
-
-        # ICONO
+        echo "java --enable-native-access=ALL-UNNAMED --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > dist_windows/ROMRaider-Launcher.bat
         mkdir dist_windows/icons
         cp src/main/resources/assets/romraider-icon.ico dist_windows/icons/romraider.ico
-
-        # SCRIPT PARA CREAR ACCESO DIRECTO CON ICONO
         cat << 'EOF' > dist_windows/create-shortcut.vbs
 Set oWS = WScript.CreateObject("WScript.Shell")
 sLinkFile = "ROMRaider.lnk"
 Set oLink = oWS.CreateShortcut(sLinkFile)
-oLink.TargetPath = "ROMRaider Launcher.bat"
+oLink.TargetPath = "ROMRaider-Launcher.bat"
 oLink.IconLocation = "icons/romraider.ico"
 oLink.Save
 EOF
-
         cd dist_windows && zip -r ../romraider_windows.zip .
 
     - name: Prepare Linux ZIP
@@ -92,10 +77,6 @@ EOF
         echo "java --enable-native-access=ALL-UNNAMED --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > dist_mac/romraider.command
         chmod +x dist_mac/romraider.command
         cd dist_mac && zip -r ../romraider_mac.zip .
-
-    ######################################################
-    # SUBIR ARTIFACTOS
-    ######################################################
 
     - name: Upload Windows artifact
       uses: actions/upload-artifact@v4
