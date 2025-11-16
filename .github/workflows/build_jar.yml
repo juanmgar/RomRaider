@@ -1,41 +1,57 @@
-name: Build JavaFX JAR
+name: Build JavaFX Universal JAR
 
 on:
   push:
-    branches: ["main", "master"]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Set up Temurin JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
 
-      - name: Cache Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2-
+    - name: Build project with Maven
+      run: mvn -B clean package
 
-      - name: Build shaded JAR
-        run: mvn -B -e -DskipTests package
+    # DESCARGAR JAVAFX PARA INCLUIRLO EN EL ZIP FINAL
+    - name: Download JavaFX SDK
+      run: |
+        wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_linux-x64_bin-sdk.zip -O javafx.zip
+        unzip javafx.zip
+        mv javafx-sdk-21.0.3/javafx-sdk-21.0.3/lib javafx
 
-      - name: Upload executable JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: romraider-${{ matrix.os }}
-          path: target/*-SNAPSHOT.jar
+    # CREAR SCRIPT DE EJECUCIÓN WINDOWS
+    - name: Create Windows run script
+      run: |
+        echo "java --module-path javafx --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > run.bat
+
+    # CREAR SCRIPT DE EJECUCIÓN LINUX/MAC
+    - name: Create Linux/Mac run script
+      run: |
+        echo "java --module-path javafx --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > run.sh
+        chmod +x run.sh
+
+    # EMPAQUETAR TODO EN UN ZIP
+    - name: Prepare release archive
+      run: |
+        mkdir release
+        cp target/rom-raider-1.0-SNAPSHOT.jar release/
+        cp -r javafx release/
+        cp run.bat run.sh release/
+        cd release && zip -r romraider.zip .
+
+    # ALMACENAR EL ZIP COMO ARTIFACTO
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: romraider-universal
+        path: release/romraider.zip
