@@ -22,36 +22,62 @@ jobs:
     - name: Build project with Maven
       run: mvn -B clean package
 
-    # DESCARGA Y PREPARA JAVAFX
-    - name: Download JavaFX SDK
-      run: |
-        wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_linux-x64_bin-sdk.zip -O fx.zip
-        unzip -o fx.zip
-        mv javafx-sdk-21.0.3/lib javafx
+    ####################################
+    # DESCARGA JAVAFX PARA 3 SISTEMAS
+    ####################################
 
-    # SCRIPTS DE EJECUCIÓN WINDOWS
-    - name: Create Windows run script
+    - name: Download JavaFX (Windows)
       run: |
-        echo "java --module-path javafx --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > run.bat
+        wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_windows-x64_bin-sdk.zip -O fx_win.zip
+        unzip -o fx_win.zip -d fx_win
 
-    # SCRIPTS DE EJECUCIÓN LINUX/MAC
-    - name: Create Linux/Mac run script
+    - name: Download JavaFX (Linux)
       run: |
-        echo "java --module-path javafx --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > run.sh
-        chmod +x run.sh
+        wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_linux-x64_bin-sdk.zip -O fx_linux.zip
+        unzip -o fx_linux.zip -d fx_linux
 
-    # EMPAQUETAR TODO
-    - name: Prepare release archive
+    - name: Download JavaFX (MacOS)
       run: |
-        mkdir release
-        cp target/rom-raider-1.0-SNAPSHOT.jar release/
-        cp -r javafx release/
-        cp run.bat run.sh release/
-        cd release && zip -r romraider.zip .
+        wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_mac-aarch64_bin-sdk.zip -O fx_mac.zip
+        unzip -o fx_mac.zip -d fx_mac
 
-    # SUBIR ARTIFACTO
+    ####################################
+    # SCRIPTS DE EJECUCIÓN
+    ####################################
+
+    - name: Create universal run scripts
+      run: |
+        echo "java --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > run_windows.bat
+        echo "java --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > run_linux.sh
+        echo "java --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > run_mac.sh
+        chmod +x run_linux.sh
+        chmod +x run_mac.sh
+
+    ####################################
+    # ESTRUCTURA DE SALIDA FINAL
+    ####################################
+    - name: Prepare final package
+      run: |
+        mkdir dist
+        cp target/rom-raider-1.0-SNAPSHOT.jar dist/
+
+        mkdir dist/javafx-windows
+        cp -r fx_win/javafx-sdk-21.0.3/* dist/javafx-windows/
+
+        mkdir dist/javafx-linux
+        cp -r fx_linux/javafx-sdk-21.0.3/* dist/javafx-linux/
+
+        mkdir dist/javafx-mac
+        cp -r fx_mac/javafx-sdk-21.0.3/* dist/javafx-mac/
+
+        cp run_windows.bat dist/
+        cp run_linux.sh dist/
+        cp run_mac.sh dist/
+
+        cd dist && zip -r romraider_universal.zip .
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: romraider-universal
-        path: release/romraider.zip
+        path: dist/romraider_universal.zip
