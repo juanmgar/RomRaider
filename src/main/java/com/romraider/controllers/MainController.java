@@ -9,16 +9,21 @@ import com.romraider.model.Rom;
 import com.romraider.service.PlataformaService;
 import com.romraider.service.RomService;
 import com.romraider.utils.*;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -32,6 +37,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,7 +52,6 @@ public class MainController {
 
     private final PlataformaService plataformaService = new PlataformaService();
     private final RomService romService = new RomService();
-    private boolean offlineMode = false;
 
     private Plataforma plataformaSeleccionada;
     private List<Rom> roms;
@@ -70,11 +77,11 @@ public class MainController {
     @FXML
     private ImageView romImage;
     @FXML
-    private Button backupButton;
-    @FXML
-    private Button restoreButton;
+    private Button syncButton;
     @FXML
     private Label userLabel;
+    @FXML
+    private Label syncLabel;
 
     @FXML
     public void initialize() {
@@ -82,12 +89,27 @@ public class MainController {
         boolean online = NetworkUtils.isInternetAvailable();
         boolean loggedIn = SupabaseAuthService.getCurrentUserEmail() != null;
 
-        backupButton.setDisable(!online || !loggedIn);
-        restoreButton.setDisable(!online || !loggedIn);
-
+        // Si no hay conexión o estamos en modo offline, bloquear sincronización
+        syncButton.setDisable(!online || !loggedIn);
         userLabel.setText(loggedIn ? SupabaseAuthService.getCurrentUserEmail() : "Offline");
 
-        cargarPlataformas();
+        logger.info("ListView before clear: {}", platformListView);
+        if (!online || !loggedIn) {
+            platformListView.setDisable(true);
+            romListView.setDisable(true);
+            platformListView.getItems().clear();
+            romListView.getItems().clear();
+            syncLabel.setText("Offline mode");
+        } else {
+            // Mostrar última fecha de sincronización si estamos en modo online
+            LocalDateTime lastSync = SyncStateUtils.getLastSync();
+            String syncText = (lastSync != null)
+                    ? "Last sync: " + lastSync.format(DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy"))
+                    : "Last sync: never";
+            syncLabel.setText(syncText);
+
+            cargarPlataformas();
+        }
 
         platformListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selected) -> {
             if (selected != null) {
@@ -103,21 +125,15 @@ public class MainController {
         });
     }
 
-    public void setOfflineMode(boolean offlineMode) {
-        this.offlineMode = offlineMode;
-        loginLogoutMenuItem.setText(offlineMode ? "Login" : "Logout");
-        logger.info("Main view opened in offline mode: {}", offlineMode);
-    }
-
     private void cargarPlataformas() {
         Plataforma todas = new Plataforma();
         todas.setId(-1);
         todas.setNombre("All Platforms");
 
-        List<Plataforma> plataformas = plataformaService.obtenerTodas();
+        List<Plataforma> plataformas = new java.util.ArrayList<>(plataformaService.obtenerTodas());
         plataformas.add(0, todas);
-
-        platformListView.setItems(FXCollections.observableArrayList(plataformas));
+        ObservableList<Plataforma> listaObservable = FXCollections.observableArrayList(plataformas);
+        platformListView.setItems(listaObservable);
         platformListView.getSelectionModel().selectFirst();
         plataformaSeleccionada = todas;
         cargarRomsPorPlataforma(todas);
@@ -127,15 +143,17 @@ public class MainController {
 
     private void cargarRomsPorPlataforma(Plataforma plataforma) {
         if (plataforma.getId() == -1L) {
-            roms = romService.obtenerTodas();
+            roms = new java.util.ArrayList<>(romService.obtenerTodas());
         } else {
-            roms = romService.obtenerPorPlataforma(plataforma.getId());
+            roms = new java.util.ArrayList<>(romService.obtenerPorPlataforma(plataforma.getId()));
         }
 
         romTitulos.setAll(roms.stream().map(Rom::getTitulo).toList());
 
         if (romFiltradas == null) {
             romFiltradas = new FilteredList<>(romTitulos, s -> true);
+            romListView.setItems(romFiltradas);
+        } else {
             romListView.setItems(romFiltradas);
         }
         logger.debug("Loaded {} ROMs for platform {}", roms.size(), plataforma.getNombre());
@@ -171,8 +189,6 @@ public class MainController {
 
         SupabaseAuthService.logout();
         SessionManager.clearSession();
-
-        offlineMode = true;
 
         Stage stage = (Stage) menuBar.getScene().getWindow();
         SceneUtils.switchToLoginView(stage);
@@ -327,19 +343,26 @@ public class MainController {
             confirmAlert.showAndWait().ifPresent(response -> {
                 if (response == ButtonType.OK) {
                     try {
-                        List<Plataforma> plataformasImportadas = new java.util.ArrayList<>(XMLUtils.importarDesdeXml(selectedFile));
+                        List<Plataforma> plataformasImportadas =
+                                new ArrayList<>(XMLUtils.importarDesdeXml(selectedFile));
 
                         plataformaService.eliminarTodas();
 
                         for (Plataforma plataforma : plataformasImportadas) {
+                            // ⚙️ Garantizar que la lista de ROMs sea mutable
+                            if (!(plataforma.getRoms() instanceof java.util.ArrayList)) {
+                                plataforma.setRoms(new ArrayList<>(plataforma.getRoms()));
+                            }
+
                             for (Rom rom : plataforma.getRoms()) {
                                 rom.setPlataforma(plataforma);
                             }
+
                             plataformaService.guardar(plataforma);
                         }
 
                         cargarPlataformas();
-                        romListView.getItems().clear();
+                        romListView.setItems(FXCollections.observableArrayList());
                         MessageUtils.showInfo("Import completed successfully.");
                         logger.info("Imported collection from: {}", selectedFile.getAbsolutePath());
                     } catch (Exception e) {
@@ -351,6 +374,13 @@ public class MainController {
         }
     }
 
+
+    /**
+     * Actualiza una única ROM seleccionada usando la API de RAWG.io.
+     * <p>
+     * Se obtiene la información de la ROM (descripción e imagen),
+     * se actualiza la base de datos y se refresca la vista.
+     */
     @FXML
     public void handleUpdateFromAPI() {
         String selectedTitle = romListView.getSelectionModel().getSelectedItem();
@@ -359,55 +389,235 @@ public class MainController {
             return;
         }
 
+        // Buscar ROM seleccionada en la lista en memoria
         Rom rom = roms.stream()
                 .filter(r -> r.getTitulo().equals(selectedTitle))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
 
         if (rom == null) {
-            logger.warn("ROM '{}' not found", selectedTitle);
+            logger.warn("No se encontró la ROM '{}' en la lista actual", selectedTitle);
             return;
         }
 
-        logger.info("Fetching RAWG info for '{}'", rom.getTitulo());
+        logger.info("Solicitando datos RAWG.io para '{}'", rom.getTitulo());
         RawgApiClient.RomInfo info = RawgApiClient.obtenerInfo(rom.getTitulo());
+
         try {
             if (info != null && info.descripcion != null) {
-                rom.setDescripcion(info.descripcion);
-                logger.info("Descripción actualizada");
 
+                // Actualizar descripción
+                rom.setDescripcion(info.descripcion);
+                logger.info("Descripción actualizada correctamente");
+
+                // Descargar imagen si existe
                 if (info.imageUrl != null) {
-                    String localPath = ImageUtils.downloadAndSaveImage(info.imageUrl, rom.getTitulo(), rom.getId());
+                    String localPath =
+                            ImageUtils.downloadAndSaveImage(info.imageUrl, rom.getTitulo(), rom.getId());
+
                     if (localPath != null) {
                         rom.setImagen(localPath);
-                        logger.info("Imagen descargada y guardada: {}", localPath);
+                        logger.info("Imagen descargada y almacenada en '{}'", localPath);
                     }
                 }
 
                 romService.guardar(rom);
                 mostrarDetallesRom(rom.getTitulo());
+
                 MessageUtils.showInfo("ROM data updated from RAWG.io");
+
             } else {
                 MessageUtils.showWarning("No data found on RAWG.io");
             }
+
         } catch (Exception e) {
-            logger.error("Error downloading image from RAWG.io", e);
+            logger.error("Error descargando o procesando datos de RAWG.io", e);
             MessageUtils.showError("Failed to download image from RAWG.io: " + e.getMessage());
         }
     }
 
+    /**
+     * Actualiza TODAS las ROMs almacenadas usando RAWG.io
+     * ejecutándose en un hilo en segundo plano.
+     * <p>
+     * Muestra un overlay con spinner durante el proceso.
+     * Al finalizar, muestra un resumen con los resultados.
+     */
     @FXML
-    public void handleBackup() {
-        SupabaseSyncService.syncWithSupabase();
-        MessageUtils.showInfo("Synchronization complete.");
+    public void handleUpdateAllFromAPI() {
+
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Update All ROMs");
+        confirmAlert.setHeaderText("This will update all ROM descriptions and images from RAWG.io.");
+        confirmAlert.setContentText("Do you want to continue?");
+
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response != ButtonType.OK) return;
+
+            logger.info("Iniciando actualización masiva desde RAWG.io...");
+
+            List<Rom> allRoms = romService.obtenerTodas();
+            if (allRoms.isEmpty()) {
+                MessageUtils.showInfo("No ROMs found in the local database.");
+                return;
+            }
+
+            // Crear overlay con spinner semitransparente
+            ProgressIndicator spinner = new ProgressIndicator();
+            spinner.setPrefSize(80, 80);
+
+            StackPane overlay = new StackPane(spinner);
+            overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6)");
+            StackPane.setAlignment(spinner, Pos.CENTER);
+
+            Pane root = (Pane) menuBar.getScene().getRoot();
+            root.getChildren().add(overlay);
+
+            // Bloquear los botones principales durante la operación
+            syncButton.setDisable(true);
+
+            // Tarea en segundo plano para evitar bloquear la UI
+            Task<Void> updateTask = new Task<>() {
+                @Override
+                protected Void call() {
+                    int total = allRoms.size();
+                    int updated = 0;
+                    int notFound = 0;
+
+                    for (Rom rom : allRoms) {
+                        try {
+                            logger.info("Obteniendo datos de RAWG.io para '{}'", rom.getTitulo());
+                            RawgApiClient.RomInfo info = RawgApiClient.obtenerInfo(rom.getTitulo());
+
+                            if (info != null && info.descripcion != null) {
+                                rom.setDescripcion(info.descripcion);
+                                logger.info("Descripción actualizada para '{}'", rom.getTitulo());
+
+                                if (info.imageUrl != null) {
+                                    String localPath = ImageUtils.downloadAndSaveImage(
+                                            info.imageUrl,
+                                            rom.getTitulo(),
+                                            rom.getId()
+                                    );
+                                    if (localPath != null) {
+                                        rom.setImagen(localPath);
+                                        logger.info("Imagen actualizada para '{}'", rom.getTitulo());
+                                    }
+                                }
+
+                                romService.guardar(rom);
+                                updated++;
+
+                            } else {
+                                notFound++;
+                                logger.warn("Sin datos en RAWG.io para '{}'", rom.getTitulo());
+                            }
+
+                        } catch (Exception e) {
+                            logger.error("Error actualizando '{}'", rom.getTitulo(), e);
+                        }
+                    }
+
+                    // Resultados finales pasados al hilo de UI
+                    final int fUpdated = updated;
+                    final int fNotFound = notFound;
+                    final int fTotal = total;
+
+                    Platform.runLater(() -> {
+                        root.getChildren().remove(overlay);
+                        syncButton.setDisable(false);
+
+                        String summary = String.format(
+                                "Bulk update completed.\nUpdated: %d\nNot found: %d\nTotal: %d",
+                                fUpdated, fNotFound, fTotal
+                        );
+
+                        MessageUtils.showInfo(summary);
+
+                        logger.info(
+                                "Actualización RAWG.io finalizada: {}/{} actualizadas ({} sin datos)",
+                                fUpdated, fTotal, fNotFound
+                        );
+
+                        cargarPlataformas();
+                    });
+
+                    return null;
+                }
+            };
+
+            updateTask.setOnFailed(e -> {
+                Platform.runLater(() -> {
+                    root.getChildren().remove(overlay);
+                    syncButton.setDisable(false);
+                    MessageUtils.showError("RAWG.io update failed: " + updateTask.getException().getMessage());
+                });
+            });
+
+            new Thread(updateTask).start();
+        });
     }
 
+    /**
+     * Realiza la sincronización con Supabase.
+     * <p>
+     * La sincronización se ejecuta en segundo plano y mientras tanto
+     * se muestra un overlay semitransparente con un spinner.
+     */
     @FXML
-    public void handleRestore() {
-        logger.info("Restore button clicked");
-        MessageUtils.showInfo("Restoring data from cloud... (To be implemented)");
+    public void handleSync() {
+
+        // Overlay semitransparente para bloquear interacción
+        ProgressIndicator spinner = new ProgressIndicator();
+        spinner.setPrefSize(80, 80);
+
+        StackPane overlay = new StackPane(spinner);
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6)");
+        StackPane.setAlignment(spinner, Pos.CENTER);
+
+        Pane root = (Pane) menuBar.getScene().getRoot();
+        root.getChildren().add(overlay);
+        syncButton.setDisable(true);
+
+        // Hilo en segundo plano de sincronización
+        Task<Void> syncTask = new Task<>() {
+            @Override
+            protected Void call() {
+                logger.info("Iniciando sincronización con Supabase...");
+                SupabaseSyncService.syncWithSupabase();
+                return null;
+            }
+        };
+
+        syncTask.setOnSucceeded(e -> {
+            root.getChildren().remove(overlay);
+            syncButton.setDisable(false);
+
+            LocalDateTime lastSync = SyncStateUtils.getLastSync();
+            if (lastSync != null) {
+                syncLabel.setText("Last sync: " +
+                        lastSync.format(DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy")));
+            }
+
+            SoundUtils.play(SoundUtils.UPLOAD);
+            MessageUtils.showInfo("Synchronization complete.");
+            logger.info("Sincronización completada con éxito");
+        });
+
+        syncTask.setOnFailed(e -> {
+            root.getChildren().remove(overlay);
+            syncButton.setDisable(false);
+
+            MessageUtils.showError("Synchronization failed: " + syncTask.getException().getMessage());
+            logger.error("La sincronización falló", syncTask.getException());
+        });
+
+        new Thread(syncTask).start();
     }
 
-
+    /**
+     * Abre la ventana de configuración (PreferencesView.fxml).
+     */
     @FXML
     public void handleSettings() {
         try {
@@ -420,38 +630,50 @@ public class MainController {
             stage.setResizable(false);
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(SceneUtils.class.getResource(PATH_ROMRAIDER_STYLES).toExternalForm());
+            scene.getStylesheets().add(
+                    SceneUtils.class.getResource(PATH_ROMRAIDER_STYLES).toExternalForm()
+            );
 
             stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(PATH_ROMRAIDER_ICON)));
             stage.setScene(scene);
             stage.showAndWait();
 
-            logger.info("Preferences window opened");
+            logger.info("Ventana de preferencias abierta");
 
         } catch (IOException e) {
-            logger.error("Error opening Preferences window", e);
+            logger.error("Error al abrir ventana de preferencias", e);
         }
     }
 
+    /**
+     * Abre la ventana de estadísticas de ROMs.
+     */
+    @FXML
     public void handleViewStatistics() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/StatisticsView.fxml"));
             Parent statisticsRoot = loader.load();
 
-            Scene statisticsScene = new Scene(statisticsRoot);
-            statisticsScene.getStylesheets().add(getClass().getResource(PATH_ROMRAIDER_STYLES).toExternalForm()); // si usas uno
+            Scene statScene = new Scene(statisticsRoot);
+            statScene.getStylesheets().add(
+                    getClass().getResource(PATH_ROMRAIDER_STYLES).toExternalForm()
+            );
 
             Stage stage = new Stage();
             stage.setTitle("Statistics");
-            stage.setScene(statisticsScene);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
+            stage.setScene(statScene);
             stage.show();
+
         } catch (IOException e) {
-            logger.error("Failed to load statistics view", e);
+            logger.error("Error al cargar la vista de estadísticas", e);
         }
     }
 
+    /**
+     * Abre el formulario para añadir una nueva plataforma.
+     */
     @FXML
     public void handleAddPlatform() {
         try {
@@ -469,19 +691,24 @@ public class MainController {
             cargarPlataformas();
 
         } catch (IOException e) {
-            logger.error("Error opening Platform form", e);
+            logger.error("Error al abrir formulario de plataforma", e);
             MessageUtils.showError("Could not open the Platform form.");
         }
     }
 
-
+    /**
+     * Abre el formulario para editar una plataforma existente.
+     */
     @FXML
     public void handleEditPlatform() {
         Plataforma selected = platformListView.getSelectionModel().getSelectedItem();
+
         if (selected == null) {
             MessageUtils.showWarning("Please select a platform to edit.");
             return;
-        } else if (selected.getId() == -1) {
+        }
+
+        if (selected.getId() == -1) {
             MessageUtils.showWarning("You cannot edit the 'All' platform.");
             return;
         }
@@ -507,43 +734,57 @@ public class MainController {
             }
 
         } catch (IOException e) {
-            logger.error("Error opening Platform edit form", e);
+            logger.error("Error al abrir edición de plataforma", e);
             MessageUtils.showError("Could not open the Platform form.");
         }
     }
 
-
+    /**
+     * Permite eliminar una plataforma, incluyendo todas sus ROMs asociadas.
+     */
     @FXML
     public void handleDeletePlatform() {
         Plataforma selected = platformListView.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            logger.warn("No platform selected to delete");
+            logger.warn("Intento de eliminación sin plataforma seleccionada");
             return;
-        } else if (selected.getId() == -1) {
+        }
+
+        if (selected.getId() == -1) {
             MessageUtils.showWarning("You cannot delete the 'All' platform.");
             return;
-        } else {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirm Deletion");
-            alert.setHeaderText("Delete platform '" + selected.getNombre() + "'?");
-            alert.setContentText("All associated ROMs will also be deleted. Continue?");
-
-            alert.showAndWait().ifPresent(result -> {
-                if (result == ButtonType.OK) {
-                    romService.eliminarPorPlataforma(selected.getId());
-                    plataformaService.eliminar(selected.getId());
-
-                    cargarPlataformas();
-                    romListView.getItems().clear();
-
-                    logger.info("Platform deleted: {}", selected.getNombre());
-                }
-            });
         }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Deletion");
+        alert.setHeaderText("Delete platform '" + selected.getNombre() + "'?");
+        alert.setContentText("All associated ROMs will also be deleted. Continue?");
+
+        alert.showAndWait().ifPresent(result -> {
+            if (result != ButtonType.OK) return;
+
+            try {
+                romService.eliminarPorPlataforma(selected.getId());
+                plataformaService.eliminar(selected.getId());
+
+                cargarPlataformas();
+
+                romListView.setItems(FXCollections.observableArrayList());
+                platformListView.getSelectionModel().selectFirst();
+
+                logger.info("Plataforma eliminada correctamente: {}", selected.getNombre());
+
+            } catch (Exception e) {
+                logger.error("Error eliminando plataforma", e);
+                MessageUtils.showError("Could not delete platform: " + e.getMessage());
+            }
+        });
     }
 
-
+    /**
+     * Abre el formulario para añadir una ROM.
+     */
     @FXML
     public void handleAddRom() {
         if (plataformaSeleccionada == null) {
@@ -555,9 +796,7 @@ public class MainController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/RomFormView.fxml"));
             Parent root = loader.load();
 
-            RomFormController controller = loader.getController();
             Stage stage = new Stage();
-
             stage.setTitle("Add ROM");
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
@@ -565,14 +804,17 @@ public class MainController {
             stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(PATH_ROMRAIDER_ICON)));
             stage.showAndWait();
 
-            cargarRomsPorPlataforma(plataformaSeleccionada); // Refresh list
+            cargarRomsPorPlataforma(plataformaSeleccionada);
 
         } catch (IOException e) {
-            logger.error("Error opening ROM form", e);
+            logger.error("Error abriendo formulario de ROM", e);
             MessageUtils.showError("Could not open the ROM form.");
         }
     }
 
+    /**
+     * Permite editar una ROM seleccionada.
+     */
     @FXML
     public void handleEditRom() {
         String selectedTitle = romListView.getSelectionModel().getSelectedItem();
@@ -583,7 +825,8 @@ public class MainController {
 
         Rom selectedRom = roms.stream()
                 .filter(r -> r.getTitulo().equals(selectedTitle))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
 
         if (selectedRom == null) {
             MessageUtils.showWarning("Selected ROM not found.");
@@ -591,13 +834,14 @@ public class MainController {
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/RomFormView.fxml"));
-            Parent root = loader.load();
+            FXMLLoader loader =
+                    new FXMLLoader(getClass().getResource("/views/RomFormView.fxml"));
 
+            Parent root = loader.load();
             RomFormController controller = loader.getController();
-            Stage stage = new Stage();
             controller.setRomToEdit(selectedRom);
 
+            Stage stage = new Stage();
             stage.setTitle("Edit ROM");
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
@@ -609,11 +853,14 @@ public class MainController {
             mostrarDetallesRom(selectedRom.getTitulo());
 
         } catch (IOException e) {
-            logger.error("Error opening ROM edit form", e);
+            logger.error("Error abriendo edición de ROM", e);
             MessageUtils.showError("Could not open the ROM form.");
         }
     }
 
+    /**
+     * Elimina la ROM seleccionada de la base de datos.
+     */
     @FXML
     public void handleDeleteRom() {
         String selectedTitle = romListView.getSelectionModel().getSelectedItem();
@@ -625,7 +872,8 @@ public class MainController {
 
         Rom selectedRom = roms.stream()
                 .filter(r -> r.getTitulo().equals(selectedTitle))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
 
         if (selectedRom == null) {
             MessageUtils.showWarning("Selected ROM not found.");
@@ -638,21 +886,24 @@ public class MainController {
         alert.setContentText("This action cannot be undone. Are you sure?");
 
         alert.showAndWait().ifPresent(result -> {
-            if (result == ButtonType.OK) {
-                romService.eliminar(selectedRom.getId());
-                logger.info("ROM deleted: {}", selectedRom.getTitulo());
+            if (result != ButtonType.OK) return;
 
-                cargarRomsPorPlataforma(plataformaSeleccionada);
-                romDescription.clear();
-                favoriteCheckBox.setSelected(false);
-                playedCheckBox.setSelected(false);
-                romImage.setImage(getDefaultImage());
+            romService.eliminar(selectedRom.getId());
+            logger.info("ROM eliminada: {}", selectedRom.getTitulo());
 
-                MessageUtils.showInfo("ROM deleted successfully.");
-            }
+            cargarRomsPorPlataforma(plataformaSeleccionada);
+            romDescription.clear();
+            favoriteCheckBox.setSelected(false);
+            playedCheckBox.setSelected(false);
+            romImage.setImage(getDefaultImage());
+
+            MessageUtils.showInfo("ROM deleted successfully.");
         });
     }
 
+    /**
+     * Muestra la ventana de créditos del proyecto.
+     */
     @FXML
     public void handleCredits() {
         try {
@@ -660,29 +911,28 @@ public class MainController {
             Parent root = loader.load();
 
             Stage stage = new Stage();
-            stage.setTitle("Créditos");
+            stage.setTitle("Credits");
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(SceneUtils.class.getResource(PATH_ROMRAIDER_STYLES).toExternalForm());
+            scene.getStylesheets().add(
+                    SceneUtils.class.getResource(PATH_ROMRAIDER_STYLES).toExternalForm()
+            );
 
             stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(PATH_ROMRAIDER_ICON)));
             stage.setScene(scene);
             stage.showAndWait();
 
-            logger.info("Credits window opened");
+            logger.info("Ventana de créditos abierta correctamente");
 
         } catch (IOException e) {
-            logger.error("Error opening Credits window", e);
+            logger.error("Error abriendo ventana de créditos", e);
             MessageUtils.showError("Could not open the Credits window.");
         }
     }
 
-
     private Image getDefaultImage() {
         return new Image(getClass().getResourceAsStream("/assets/no-image.png"));
     }
-
-
 }
