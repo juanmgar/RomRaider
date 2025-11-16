@@ -9,34 +9,26 @@ import java.util.Properties;
 /**
  * Cargador centralizado de secretos necesarios para la aplicación.
  *
- * Prioridad de carga:
- *  1. Variables de entorno (ideal para CI/CD y SonarCloud)
- *  2. Archivo local `/config/secrets.properties`
+ * Los valores se leen exclusivamente del archivo incluido dentro del JAR:
+ *      /config/secrets.properties
  *
- * Las claves soportadas son:
- *  - RAWG_API_KEY
- *  - SUPABASE_URL
- *  - SUPABASE_KEY
- *
- * Este diseño permite mantener configuraciones sensibles fuera del código fuente
- * y manejar entornos locales y remotos sin cambios adicionales.
+ * Este archivo se inyecta en el artefacto final desde GitHub Actions,
+ * evitando que las claves estén en el repositorio.
  */
 public class SecretsLoader {
 
     private static final Logger logger = LoggerFactory.getLogger(SecretsLoader.class);
-
-    /** Propiedades cargadas desde secrets.properties, si existe. */
     private static final Properties props = new Properties();
 
-    // Bloque estático: intenta cargar el archivo de secretos local
     static {
         try (InputStream in = SecretsLoader.class.getResourceAsStream("/config/secrets.properties")) {
 
             if (in != null) {
                 props.load(in);
-                logger.info("Archivo secrets.properties cargado correctamente.");
+                logger.info("Archivo secrets.properties cargado correctamente desde el JAR.");
             } else {
-                logger.info("No se encontró secrets.properties. Solo se usarán variables de entorno.");
+                logger.error("ERROR: No se encontró el archivo /config/secrets.properties dentro del JAR.");
+                logger.error("La aplicación no podrá conectarse a Supabase ni RAWG.");
             }
 
         } catch (Exception e) {
@@ -45,49 +37,31 @@ public class SecretsLoader {
     }
 
     /**
-     * Obtiene un valor secreto buscándolo primero en variables de entorno
-     * y luego en el archivo secrets.properties.
+     * Obtiene un valor secreto desde el archivo embebido.
      *
-     * @param key nombre de la clave (ej. RAWG_API_KEY)
-     * @return valor encontrado o cadena vacía si no existe
+     * @param key Nombre de la clave
+     * @return Valor o cadena vacía
      */
     public static String get(String key) {
+        String value = props.getProperty(key, "");
 
-        // 1) Variables de entorno tienen prioridad
-        String envValue = System.getenv(key);
-        if (envValue != null && !envValue.isEmpty()) {
-            logger.debug("Valor obtenido desde variable de entorno: {}", key);
-            return envValue;
-        }
-
-        // 2) Fallback: archivo properties local
-        String fileValue = props.getProperty(key, "");
-        if (!fileValue.isEmpty()) {
-            logger.debug("Valor obtenido desde secrets.properties: {}", key);
+        if (value.isEmpty()) {
+            logger.error("Clave '{}' no encontrada en secrets.properties", key);
         } else {
-            logger.warn("Clave '{}' no encontrada ni en entorno ni en secrets.properties", key);
+            logger.debug("Clave '{}' cargada correctamente.", key);
         }
 
-        return fileValue;
+        return value;
     }
 
-    /**
-     * @return API Key para RAWG.io
-     */
     public static String getRawgApiKey() {
         return get("RAWG_API_KEY");
     }
 
-    /**
-     * @return URL del backend Supabase
-     */
     public static String getSupabaseUrl() {
         return get("SUPABASE_URL");
     }
 
-    /**
-     * @return clave de acceso (anon/key) para Supabase
-     */
     public static String getSupabaseKey() {
         return get("SUPABASE_KEY");
     }
