@@ -1,8 +1,8 @@
-name: Build JavaFX Universal JAR
+name: Build & Package Multi-Platform JavaFX Application
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   workflow_dispatch:
 
 env:
