@@ -22,69 +22,36 @@ jobs:
     - name: Build project with Maven
       run: mvn -B clean package
 
-    # ============================
-    #  JAVAFX WINDOWS (DLL)
-    # ============================
-    - name: Download JavaFX for Windows
+    # DESCARGA Y PREPARA JAVAFX
+    - name: Download JavaFX SDK
       run: |
-        wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_windows-x64_bin-sdk.zip -O fx-win.zip
-        unzip fx-win.zip
-        mv javafx-sdk-21.0.3/lib javafx-windows
+        wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_linux-x64_bin-sdk.zip -O fx.zip
+        unzip -o fx.zip
+        mv javafx-sdk-21.0.3/lib javafx
 
-    # ============================
-    #  JAVAFX LINUX (.so)
-    # ============================
-    - name: Download JavaFX for Linux
-      run: |
-        wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_linux-x64_bin-sdk.zip -O fx-linux.zip
-        unzip fx-linux.zip
-        mv javafx-sdk-21.0.3/lib javafx-linux
-
-    # ============================
-    #  JAVAFX MAC (.dylib)
-    # ============================
-    - name: Download JavaFX for Mac
-      run: |
-        wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_osx-x64_bin-sdk.zip -O fx-mac.zip
-        unzip fx-mac.zip
-        mv javafx-sdk-21.0.3/lib javafx-mac
-
-    # ============================
-    #  CREATE RUN SCRIPTS
-    # ============================
-
+    # SCRIPTS DE EJECUCIÓN WINDOWS
     - name: Create Windows run script
       run: |
-        echo "java --enable-native-access=ALL-UNNAMED --module-path javafx-windows --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > run-windows.bat
+        echo "java --module-path javafx --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > run.bat
 
-    - name: Create Linux run script
+    # SCRIPTS DE EJECUCIÓN LINUX/MAC
+    - name: Create Linux/Mac run script
       run: |
-        echo "java --enable-native-access=ALL-UNNAMED --module-path javafx-linux --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > run-linux.sh
-        chmod +x run-linux.sh
+        echo "java --module-path javafx --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > run.sh
+        chmod +x run.sh
 
-    - name: Create Mac run script
-      run: |
-        echo "java --enable-native-access=ALL-UNNAMED --module-path javafx-mac --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > run-mac.sh
-        chmod +x run-mac.sh
-
-    # ============================
-    #  PACKAGE ZIP UNIVERSAL
-    # ============================
-    - name: Prepare release ZIP
+    # EMPAQUETAR TODO
+    - name: Prepare release archive
       run: |
         mkdir release
         cp target/rom-raider-1.0-SNAPSHOT.jar release/
-        cp -r javafx-windows release/
-        cp -r javafx-linux release/
-        cp -r javafx-mac release/
-        cp run-windows.bat run-linux.sh run-mac.sh release/
-        cd release && zip -r romraider-universal.zip .
+        cp -r javafx release/
+        cp run.bat run.sh release/
+        cd release && zip -r romraider.zip .
 
-    # ============================
-    #  UPLOAD ARTIFACT
-    # ============================
+    # SUBIR ARTIFACTO
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: romraider-universal
-        path: release/romraider-universal.zip
+        path: release/romraider.zip
