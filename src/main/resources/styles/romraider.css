@@ -1,109 +1,249 @@
-/* Estilo base */
 .root {
-    -fx-background-color: linear-gradient(to bottom, #f4f6f8, #dce3ea);
-    -fx-font-family: "Segoe UI", sans-serif;
-    -fx-text-fill: #2e2e2e;
+    -fx-background-image: url("/assets/background-pattern.jpg");
+    -fx-background-repeat: repeat;           /* Repite el patrón en mosaico */
+    -fx-background-color: rgba(10, 10, 10, 0.9); /* Capa oscura semitransparente sobre la imagen */
+    -fx-background-blend-mode: overlay;      /* Mezcla imagen y color para un efecto tipo Photoshop */
+    -fx-text-fill: #e8e8e8;
 }
 
-/* Etiquetas */
+.image-view {
+    -fx-border-color: #0ff;
+    -fx-border-width: 3;
+    -fx-border-radius: 75;                   /* Radio alto para simular un borde circular */
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;       /* Permite que se vea el fondo general */
+}
+
+.vbox {
+    -fx-background-color: transparent;
+}
+
 .label {
-    -fx-text-fill: #2c3e50;
-    -fx-font-size: 16px;
+    -fx-text-fill: #e0e0e0;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
 
-/* Botones */
 .button {
-    -fx-background-color: linear-gradient(to bottom, #4a90e2, #357ABD);
-    -fx-text-fill: #ffffff;
+    -fx-background-color: linear-gradient(to bottom, #555, #2a2a2a);
+        /* Gradiente vertical */
+    -fx-text-fill: #f5f5f5;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
-    -fx-border-color: #2c3e50;
-    -fx-border-width: 1;
+    -fx-border-color: #33eaff;
+    -fx-border-width: 1.2;
     -fx-border-radius: 6;
     -fx-background-radius: 6;
-    -fx-padding: 10 20;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 2, 0.1, 1, 1);
+    -fx-padding: 8 16;
+    -fx-effect: dropshadow(gaussian, rgba(51, 234, 255, 0.4), 6, 0.3, 0, 0);
+        /* Sombra suave */
+    -fx-cursor: hand;                         /* Cursor tipo botón web */
 }
 
 .button:hover {
-    -fx-background-color: #2c70b5;
-    -fx-cursor: hand;
+    -fx-background-color: linear-gradient(to bottom, #666, #333);
+    -fx-border-color: #66f3ff;
+    -fx-effect: dropshadow(gaussian, rgba(102, 243, 255, 0.6), 10, 0.4, 0, 0);
 }
 
-/* Campos de texto */
+.button:pressed {
+    -fx-background-color: #111;              /* Simula efecto de botón presionado */
+    -fx-border-color: #00cde0;
+}
+
+.button.small {
+    -fx-padding: 6 10;                       /* Versión compacta del botón estándar */
+    -fx-border-width: 1;
+}
+
+.button.small:hover {
+    -fx-background-color: #333;
+}
+
 .text-field, .password-field {
-    -fx-background-color: #ffffff;
-    -fx-text-fill: #2e2e2e;
-    -fx-border-color: #b0bec5;
-    -fx-border-radius: 4;
+    -fx-background-color: #181818;
+    -fx-text-fill: #f0f0f0;
+    -fx-border-color: #333;
+    -fx-border-radius: 4;                    /* Estética moderna con bordes suaves */
     -fx-background-radius: 4;
+    -fx-prompt-text-fill: #666;              /* Color del placeholder */
     -fx-padding: 6;
 }
 
-/* Menu bar */
 .menu-bar {
-    -fx-background-color: #e0e0e0;
-    -fx-border-color: #b0bec5;
-    -fx-border-width: 0 0 1 0;
+    -fx-background-color: linear-gradient(to bottom, #151515, #0d0d0d 60%, #151515);
+        /* Gradiente para dar sensación de relieve */
+    -fx-border-color: #33eaff;
+    -fx-border-width: 0 0 1 0;               /* Línea inferior */
+    -fx-effect: dropshadow(gaussian, rgba(51, 234, 255, 0.15), 5, 0.3, 0, 2);
+        /* Sombra muy suave bajo la barra */
 }
 
-/* Tooltips */
+.menu {
+    -fx-text-fill: #e0e0e0;
+}
+
+.menu:hover {
+    -fx-background-color: #202020;
+}
+
 .tooltip {
-    -fx-background-color: #2c3e50;
-    -fx-text-fill: #ffffff;
+    -fx-background-color: #202020;           /* Sustituye el fondo estándar amarillento */
+    -fx-text-fill: #f5f5f5;
     -fx-font-size: 12px;
     -fx-padding: 6;
     -fx-border-radius: 4;
 }
 
-/* ListViews */
 .list-view {
-    -fx-background-color: #ffffff;
-    -fx-border-color: #b0bec5;
-    -fx-control-inner-background: #ffffff;
-    -fx-text-fill: #2e2e2e;
+    -fx-background-color: #0f0f0f;
+    -fx-control-inner-background: #0f0f0f;   /* Asegura color consistente dentro de la lista */
+    -fx-border-color: #2b3a48;
+    -fx-text-fill: #e0e0e0;
     -fx-padding: 4;
 }
 
-.list-cell:filled:selected, .list-cell:filled:selected:hover {
-    -fx-background-color: #ddeeff;
-    -fx-text-fill: #000000;
+.list-cell {
+    -fx-text-fill: #ccc;
 }
 
-/* CheckBoxes */
+.list-cell:filled:selected, .list-cell:filled:selected:hover {
+    -fx-background-color: #33eaff44;         /* Notación con transparencia (44 ≈ 27%) */
+    -fx-text-fill: #ffffff;
+}
+
+.text-area {
+    -fx-background-color: #101010;
+    -fx-control-inner-background: #101010;
+    -fx-text-fill: #e0e0e0;
+    -fx-border-color: #222;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
 .check-box {
-    -fx-text-fill: #2e2e2e;
+    -fx-text-fill: #d6d9df;
     -fx-font-size: 14px;
 }
 
-/* TabPane y Tabs */
+.check-box:selected .box {
+    -fx-background-color: #33eaff;
+    -fx-border-color: #0097a7;
+    -fx-effect: dropshadow(gaussian, rgba(51, 234, 255, 0.3), 4, 0.2, 0, 0);
+}
+
 .tab-pane {
-    -fx-background-color: #f4f6f8;
+    -fx-background-color: transparent;
 }
 
 .tab {
-    -fx-background-insets: 0;
-    -fx-padding: 8 12 8 12;
+    -fx-background-color: #181818;
+    -fx-text-fill: #aaa;
+    -fx-padding: 8 12;
 }
 
 .tab:selected {
-    -fx-background-color: #ffffff;
-    -fx-text-fill: #000000;
+    -fx-background-color: #0f0f0f;
+    -fx-text-fill: #33eaff;                  /* Destaca claramente la pestaña activa */
+    -fx-border-color: #33eaff;
 }
 
-/* ComboBoxes */
 .combo-box {
-    -fx-background-color: #ffffff;
-    -fx-border-color: #b0bec5;
-    -fx-text-fill: #2e2e2e;
+    -fx-background-color: #181818;
+    -fx-border-color: #2b3a48;
+    -fx-text-fill: #e0e0e0;
 }
 
-/* Scrollbars */
+.combo-box:hover {
+    -fx-border-color: #33eaff;
+}
+
 .scroll-bar {
     -fx-background-color: transparent;
 }
 
 .scroll-bar .thumb {
-    -fx-background-color: #b0bec5;
+    -fx-background-color: #333;
+    -fx-background-radius: 4;                /* Deslizador más moderno */
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #33eaff44;         /* Ligero color cian con transparencia */
+}
+
+.label.offline {
+    -fx-text-fill: #ff6666;
+    -fx-font-weight: bold;                   /* Señal visual clara de estado crítico */
+}
+
+.split-pane, .anchor-pane, .border-pane {
+    -fx-background-color: transparent;
+}
+
+.context-menu {
+    -fx-background-color: linear-gradient(to bottom, #141414, #0d0d0d);
+    -fx-border-color: #33eaff;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(51, 234, 255, 0.25), 8, 0.3, 0, 2);
+        /* Sombra más marcada para resaltar el menú flotante */
+}
+
+.menu-item {
+    -fx-text-fill: #e0e0e0;
+    -fx-padding: 6 12;
+    -fx-font-size: 13px;
+}
+
+.menu-item:hover {
+    -fx-background-color: #33eaff22;         /* Ligero realce al pasar el ratón */
+    -fx-text-fill: #33eaff;
+}
+
+.menu-item:disabled {
+    -fx-opacity: 0.4;                        /* Se desactiva visualmente sin ocultarlo */
+    -fx-text-fill: #666;
+}
+
+.chart {
+    -fx-background-color: transparent;
+}
+
+.chart-plot-background {
+    -fx-background-color: #0f0f0f;           /* Fondo oscuro para que los colores resalten */
+}
+
+.chart-legend {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.axis-label, .chart-title {
+    -fx-text-fill: #e0e0e0;
+}
+
+.axis-tick-mark, .axis {
+    -fx-tick-label-fill: #b0b0b0;
+}
+
+/* Colores personalizados para barras */
+.default-color0.chart-bar { -fx-bar-fill: #33eaff; }
+.default-color1.chart-bar { -fx-bar-fill: #00bcd4; }
+.default-color2.chart-bar { -fx-bar-fill: #0097a7; }
+
+/* Colores personalizados del gráfico de tarta */
+.default-color0.chart-pie { -fx-pie-color: #33eaff; }
+.default-color1.chart-pie { -fx-pie-color: #444; }
+.default-color2.chart-pie { -fx-pie-color: #00bcd4; }
+.default-color3.chart-pie { -fx-pie-color: #0097a7; }
+
+.chart-pie-label {
+    -fx-fill: #f5f5f5;                        /* Visibilidad alta sobre fondos oscuros */
+    -fx-font-size: 12px;
+}
+
+.chart-legend-item-symbol {
+    -fx-background-radius: 4;                 /* Iconos redondeados, más suaves visualmente */
 }
