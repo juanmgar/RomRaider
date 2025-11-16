@@ -28,17 +28,17 @@ jobs:
 
     - name: Download JavaFX Windows x64
       run: |
-        wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_windows-x64_bin-sdk.zip -O fx_win.zip
+        wget https://download2.gluonhq.com/openjfx/21.0.9/openjfx-21.0.9_windows-x64_bin-sdk.zip -O fx_win.zip
         unzip -o fx_win.zip -d fx_win
 
     - name: Download JavaFX Linux x64
       run: |
-        wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_linux-x64_bin-sdk.zip -O fx_linux.zip
+        wget https://download2.gluonhq.com/openjfx/21.0.9/openjfx-21.0.9_linux-x64_bin-sdk.zip -O fx_linux.zip
         unzip -o fx_linux.zip -d fx_linux
 
     - name: Download JavaFX MacOS aarch64
       run: |
-        wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_osx-aarch64_bin-sdk.zip -O fx_mac.zip
+        wget https://download2.gluonhq.com/openjfx/21.0.9/openjfx-21.0.9_osx-aarch64_bin-sdk.zip -O fx_mac.zip
         unzip -o fx_mac.zip -d fx_mac
 
     ######################################################
@@ -49,7 +49,7 @@ jobs:
       run: |
         mkdir dist_windows
         cp target/rom-raider-1.0-SNAPSHOT.jar dist_windows/
-        cp -r fx_win/javafx-sdk-21.0.3 dist_windows/javafx
+        cp -r fx_win/javafx-sdk-21.0.9 dist_windows/javafx
         echo "java --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > dist_windows/run.bat
         cd dist_windows && zip -r ../romraider_windows.zip .
 
@@ -57,7 +57,7 @@ jobs:
       run: |
         mkdir dist_linux
         cp target/rom-raider-1.0-SNAPSHOT.jar dist_linux/
-        cp -r fx_linux/javafx-sdk-21.0.3 dist_linux/javafx
+        cp -r fx_linux/javafx-sdk-21.0.9 dist_linux/javafx
         echo "java --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > dist_linux/run.sh
         chmod +x dist_linux/run.sh
         cd dist_linux && zip -r ../romraider_linux.zip .
@@ -66,7 +66,7 @@ jobs:
       run: |
         mkdir dist_mac
         cp target/rom-raider-1.0-SNAPSHOT.jar dist_mac/
-        cp -r fx_mac/javafx-sdk-21.0.3 dist_mac/javafx
+        cp -r fx_mac/javafx-sdk-21.0.9 dist_mac/javafx
         echo "java --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > dist_mac/run.sh
         chmod +x dist_mac/run.sh
         cd dist_mac && zip -r ../romraider_mac.zip .
