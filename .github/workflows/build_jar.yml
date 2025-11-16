@@ -1,0 +1,115 @@
+name: Build JavaFX Universal JAR
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  RAWG_API_KEY: ${{ secrets.RAWG_API_KEY }}
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
+
+    ###################################################################
+    # GENERAR secrets.properties **ANTES** DEL PACKAGE FINAL
+    ###################################################################
+    - name: Inject secrets.properties into resources folder
+      run: |
+        mkdir -p src/main/resources/config
+        echo "SUPABASE_URL=${SUPABASE_URL}" > src/main/resources/config/secrets.properties
+        echo "SUPABASE_KEY=${SUPABASE_KEY}" >> src/main/resources/config/secrets.properties
+        echo "RAWG_API_KEY=${RAWG_API_KEY}" >> src/main/resources/config/secrets.properties
+
+    ###################################################################
+    # CONSTRUIR EL JAR (el JAR final ya incluye secrets.properties)
+    ###################################################################
+    - name: Build project with Maven
+      run: mvn -B clean package
+
+    ###################################################################
+    # DESCARGAR JAVAFX SDK PARA WINDOWS / LINUX / MAC
+    ###################################################################
+    - name: Download JavaFX Windows x64
+      run: |
+        wget https://download2.gluonhq.com/openjfx/21.0.9/openjfx-21.0.9_windows-x64_bin-sdk.zip -O fx_win.zip
+        unzip -o fx_win.zip -d fx_win
+
+    - name: Download JavaFX Linux x64
+      run: |
+        wget https://download2.gluonhq.com/openjfx/21.0.9/openjfx-21.0.9_linux-x64_bin-sdk.zip -O fx_linux.zip
+        unzip -o fx_linux.zip -d fx_linux
+
+    - name: Download JavaFX MacOS aarch64
+      run: |
+        wget https://download2.gluonhq.com/openjfx/21.0.9/openjfx-21.0.9_osx-aarch64_bin-sdk.zip -O fx_mac.zip
+        unzip -o fx_mac.zip -d fx_mac
+
+    ###################################################################
+    # CREAR ZIP WINDOWS
+    ###################################################################
+    - name: Prepare Windows ZIP
+      run: |
+        mkdir dist_windows
+        cp target/rom-raider-1.0-SNAPSHOT.jar dist_windows/
+        cp -r fx_win/javafx-sdk-21.0.9 dist_windows/javafx
+        echo "java --enable-native-access=ALL-UNNAMED --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > dist_windows/ROMRaider.bat
+        cd dist_windows && zip -r ../romraider_windows.zip .
+
+    ###################################################################
+    # CREAR ZIP LINUX
+    ###################################################################
+    - name: Prepare Linux ZIP
+      run: |
+        mkdir dist_linux
+        cp target/rom-raider-1.0-SNAPSHOT.jar dist_linux/
+        cp -r fx_linux/javafx-sdk-21.0.9 dist_linux/javafx
+        echo "java --enable-native-access=ALL-UNNAMED --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > dist_linux/romraider.sh
+        chmod +x dist_linux/romraider.sh
+        cd dist_linux && zip -r ../romraider_linux.zip .
+
+    ###################################################################
+    # CREAR ZIP MAC
+    ###################################################################
+    - name: Prepare Mac ZIP
+      run: |
+        mkdir dist_mac
+        cp target/rom-raider-1.0-SNAPSHOT.jar dist_mac/
+        cp -r fx_mac/javafx-sdk-21.0.9 dist_mac/javafx
+        echo "java --enable-native-access=ALL-UNNAMED --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > dist_mac/romraider.command
+        chmod +x dist_mac/romraider.command
+        cd dist_mac && zip -r ../romraider_mac.zip .
+
+    ###################################################################
+    # SUBIR ARTIFACTOS FINALES
+    ###################################################################
+    - name: Upload Windows artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: romraider-windows
+        path: romraider_windows.zip
+
+    - name: Upload Linux artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: romraider-linux
+        path: romraider_linux.zip
+
+    - name: Upload Mac artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: romraider-mac
+        path: romraider_mac.zip
