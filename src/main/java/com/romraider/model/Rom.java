@@ -10,6 +10,7 @@ import jakarta.xml.bind.annotation.*;
  * <ul>
  *     <li>Título del juego</li>
  *     <li>Descripción</li>
+ *     <li>Ruta de la ROM</li>
  *     <li>Ruta de imagen local</li>
  *     <li>Marcadores (favorito / jugado)</li>
  *     <li>Plataforma asociada</li>
@@ -35,6 +36,9 @@ public class Rom {
     @Column(length = 4000)
     private String descripcion;
 
+    @Column(nullable = false)
+    private String ruta;
+
     private String imagen;
 
     private boolean favorito;
@@ -49,17 +53,22 @@ public class Rom {
     public Rom() {
     }
 
-    public Rom(String titulo, String descripcion, String imagen, boolean favorito, boolean jugado, Plataforma plataforma) {
+    public Rom(String titulo, String descripcion, String ruta, String imagen,
+               boolean favorito, boolean jugado, Plataforma plataforma) {
+
         this.titulo = titulo;
         this.descripcion = descripcion;
+        this.ruta = ruta;
         this.imagen = imagen;
         this.favorito = favorito;
         this.jugado = jugado;
         this.plataforma = plataforma;
     }
 
-    public Rom(int id, String titulo, String descripcion, String imagen, boolean favorito, boolean jugado, Plataforma plataforma) {
-        this(titulo, descripcion, imagen, favorito, jugado, plataforma);
+    public Rom(int id, String titulo, String descripcion, String ruta, String imagen,
+               boolean favorito, boolean jugado, Plataforma plataforma) {
+
+        this(titulo, descripcion, ruta, imagen, favorito, jugado, plataforma);
         this.id = id;
     }
 
@@ -73,6 +82,10 @@ public class Rom {
 
     public String getDescripcion() {
         return descripcion;
+    }
+
+    public String getRuta() {
+        return ruta;
     }
 
     public String getImagen() {
@@ -101,6 +114,10 @@ public class Rom {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public void setRuta(String ruta) {
+        this.ruta = ruta;
     }
 
     public void setImagen(String imagen) {

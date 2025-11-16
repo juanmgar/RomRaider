@@ -279,6 +279,7 @@ public class MainController {
             rom.setDescripcion("(Scanned ROM)");
             rom.setFavorito(false);
             rom.setJugado(false);
+            rom.setRuta(destFile.getAbsolutePath());
             rom.setImagen(null);
             rom.setPlataforma(plataforma);
 
@@ -931,6 +932,55 @@ public class MainController {
             MessageUtils.showError("Could not open the Credits window.");
         }
     }
+
+    @FXML
+    public void handleOpenRomFolder() {
+        String selectedTitle = romListView.getSelectionModel().getSelectedItem();
+        if (selectedTitle == null) {
+            MessageUtils.showWarning("Please select a ROM first.");
+            return;
+        }
+
+        Rom rom = roms.stream()
+                .filter(r -> r.getTitulo().equals(selectedTitle))
+                .findFirst()
+                .orElse(null);
+
+        if (rom == null || rom.getRuta() == null || rom.getRuta().isBlank()) {
+            MessageUtils.showWarning("ROM path not available.");
+            return;
+        }
+
+        File romFile = new File(rom.getRuta());
+        File folder = romFile.getParentFile();
+
+        if (folder == null || !folder.exists()) {
+            MessageUtils.showError("ROM folder not found:\n" + rom.getRuta());
+            return;
+        }
+
+        try {
+            // WINDOWS
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                new ProcessBuilder("explorer.exe", folder.getAbsolutePath()).start();
+            }
+            // macOS
+            else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+                new ProcessBuilder("open", folder.getAbsolutePath()).start();
+            }
+            // Linux
+            else {
+                new ProcessBuilder("xdg-open", folder.getAbsolutePath()).start();
+            }
+
+            logger.info("Opened ROM folder: {}", folder.getAbsolutePath());
+
+        } catch (Exception e) {
+            logger.error("Could not open folder", e);
+            MessageUtils.showError("Could not open folder:\n" + e.getMessage());
+        }
+    }
+
 
     private Image getDefaultImage() {
         return new Image(getClass().getResourceAsStream("/assets/no-image.png"));

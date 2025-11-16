@@ -23,8 +23,14 @@
             </HBox>
 
             <HBox spacing="10">
+                <Label text="ROM Path:"/>
+                <TextField fx:id="rutaField" prefWidth="300"/>
+                <Button text="Browse" onAction="#handleBrowseRom"/>
+            </HBox>
+
+            <HBox spacing="10">
                 <Label text="Image:"/>
-                <TextField fx:id="imageField" prefWidth="250"/>
+                <TextField fx:id="imageField" prefWidth="300"/>
                 <Button text="Browse" onAction="#handleBrowseImage"/>
             </HBox>
 

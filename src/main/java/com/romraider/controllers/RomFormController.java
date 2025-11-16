@@ -40,6 +40,8 @@ public class RomFormController {
     @FXML
     private TextField imageField;
     @FXML
+    private TextField rutaField;
+    @FXML
     private CheckBox favoriteCheckBox;
     @FXML
     private CheckBox playedCheckBox;
@@ -63,7 +65,7 @@ public class RomFormController {
 
         // Validación reactiva conforme el usuario escribe
         titleField.textProperty().addListener((obs, oldVal, newVal) -> validate());
-        imageField.textProperty().addListener((obs, oldVal, newVal) -> validate());
+        rutaField.textProperty().addListener((obs, oldVal, newVal) -> validate());
         platformComboBox.valueProperty().addListener((obs, oldVal, newVal) -> validate());
     }
 
@@ -78,6 +80,7 @@ public class RomFormController {
         titleField.setText(rom.getTitulo());
         descriptionArea.setText(rom.getDescripcion());
         imageField.setText(rom.getImagen());
+        rutaField.setText(rom.getRuta());
         favoriteCheckBox.setSelected(rom.isFavorito());
         playedCheckBox.setSelected(rom.isJugado());
         platformComboBox.setValue(rom.getPlataforma());
@@ -120,6 +123,19 @@ public class RomFormController {
         }
     }
 
+    @FXML
+    public void handleBrowseRom() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select ROM File");
+
+        File selectedFile = fileChooser.showOpenDialog(titleField.getScene().getWindow());
+
+        if (selectedFile != null) {
+            rutaField.setText(selectedFile.getAbsolutePath());
+            validate();
+        }
+    }
+
     /**
      * Guarda la ROM creada o editada después de validar los campos.
      */
@@ -138,6 +154,7 @@ public class RomFormController {
         rom.setTitulo(titleField.getText().trim());
         rom.setDescripcion(descriptionArea.getText().trim());
         rom.setImagen(imageField.getText().trim());
+        rom.setRuta(rutaField.getText().trim());
         rom.setFavorito(favoriteCheckBox.isSelected());
         rom.setJugado(playedCheckBox.isSelected());
         rom.setPlataforma(selectedPlatform);
@@ -163,10 +180,10 @@ public class RomFormController {
      */
     private void validate() {
         boolean isTitleValid = titleField.getText() != null && !titleField.getText().trim().isEmpty();
-        boolean isImageValid = imageField.getText() != null && !imageField.getText().trim().isEmpty();
+        boolean isPathValid = rutaField.getText() != null && !rutaField.getText().trim().isEmpty();  // ⭐ obligatorio
         boolean isPlatformValid = platformComboBox.getValue() != null;
 
-        saveButton.setDisable(!(isTitleValid && isImageValid && isPlatformValid));
+        saveButton.setDisable(!(isTitleValid && isPathValid && isPlatformValid));
     }
 
     /**
@@ -179,8 +196,8 @@ public class RomFormController {
             MessageUtils.showWarning("Title is required.");
             return false;
         }
-        if (imageField.getText().trim().isEmpty()) {
-            MessageUtils.showWarning("Image is required.");
+        if (rutaField.getText().trim().isEmpty()) {
+            MessageUtils.showWarning("ROM file path is required.");
             return false;
         }
         if (platformComboBox.getValue() == null) {

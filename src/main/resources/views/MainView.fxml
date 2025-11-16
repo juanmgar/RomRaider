@@ -149,6 +149,19 @@
                 <HBox spacing="10" alignment="CENTER_RIGHT">
                     <Pane HBox.hgrow="ALWAYS"/>
 
+                    <Button onAction="#handleOpenRomFolder" text="Open Folder">
+                        <graphic>
+                            <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                                <image>
+                                    <Image url="@/assets/open.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Open ROM folder"/>
+                        </tooltip>
+                    </Button>
+
                     <!-- Edit -->
                     <Button onAction="#handleEditRom" text="Edit">
                         <graphic>
@@ -178,7 +191,7 @@
                     </Button>
 
                     <!-- RAWG -->
-                    <Button onAction="#handleUpdateFromAPI" text="Update ROM info">
+                    <Button onAction="#handleUpdateFromAPI" text="Update info">
                         <graphic>
                             <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
                                 <image>

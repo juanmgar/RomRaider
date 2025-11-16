@@ -135,6 +135,8 @@ public class SupabaseSyncService {
                 r.setImagen(obj.optString("imagen"));
                 r.setFavorito(obj.optBoolean("favorito"));
                 r.setJugado(obj.optBoolean("jugado"));
+                r.setRuta(obj.optString("ruta", null));
+
                 r.setPlataforma(plataformaService.buscarPorId(idMap.get(remotePlatformId)));
 
                 romService.guardar(r);
@@ -198,6 +200,7 @@ public class SupabaseSyncService {
                             .put("imagen", r.getImagen())
                             .put("favorito", r.isFavorito())
                             .put("jugado", r.isJugado())
+                            .put("ruta", r.getRuta())
                             .put("user_id", userId)
                             .put("plataforma_id", remotePlatId);
 
