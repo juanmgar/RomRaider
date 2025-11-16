@@ -1,34 +1,42 @@
+/* === FONDO GLOBAL === */
 .root {
     -fx-background-image: url("/assets/background-pattern.jpg");
-    -fx-background-repeat: repeat;           /* Repite el patrón en mosaico */
-    -fx-background-color: rgba(10, 10, 10, 0.9); /* Capa oscura semitransparente sobre la imagen */
-    -fx-background-blend-mode: overlay;      /* Mezcla imagen y color para un efecto tipo Photoshop */
+    -fx-background-repeat: repeat;
+    -fx-background-color: rgba(10, 10, 10, 0.9);
+    -fx-background-blend-mode: overlay;
     -fx-text-fill: #e8e8e8;
 }
 
+/* === Círculo del logo === */
 .image-view {
     -fx-border-color: #0ff;
     -fx-border-width: 3;
-    -fx-border-radius: 75;                   /* Radio alto para simular un borde circular */
+    -fx-border-radius: 75;
 }
 
+/* === PANEL DERECHO (ScrollPane + VBox interno) === */
 .scroll-pane {
-    -fx-background-color: transparent;       /* Permite que se vea el fondo general */
+    -fx-background-color: transparent;
+}
+
+.scroll-pane>.viewport {
+    -fx-background-color: transparent;
 }
 
 .vbox {
     -fx-background-color: transparent;
 }
 
+/* === ETIQUETAS === */
 .label {
     -fx-text-fill: #e0e0e0;
     -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
 
+/* === BOTONES === */
 .button {
     -fx-background-color: linear-gradient(to bottom, #555, #2a2a2a);
-        /* Gradiente vertical */
     -fx-text-fill: #f5f5f5;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
@@ -38,8 +46,7 @@
     -fx-background-radius: 6;
     -fx-padding: 8 16;
     -fx-effect: dropshadow(gaussian, rgba(51, 234, 255, 0.4), 6, 0.3, 0, 0);
-        /* Sombra suave */
-    -fx-cursor: hand;                         /* Cursor tipo botón web */
+    -fx-cursor: hand;
 }
 
 .button:hover {
@@ -49,12 +56,13 @@
 }
 
 .button:pressed {
-    -fx-background-color: #111;              /* Simula efecto de botón presionado */
+    -fx-background-color: #111;
     -fx-border-color: #00cde0;
 }
 
+/* === BOTONES PEQUEÑOS (íconos) === */
 .button.small {
-    -fx-padding: 6 10;                       /* Versión compacta del botón estándar */
+    -fx-padding: 6 10;
     -fx-border-width: 1;
 }
 
@@ -62,23 +70,24 @@
     -fx-background-color: #333;
 }
 
-.text-field, .password-field {
+/* === CAMPOS DE TEXTO === */
+.text-field,
+.password-field {
     -fx-background-color: #181818;
     -fx-text-fill: #f0f0f0;
     -fx-border-color: #333;
-    -fx-border-radius: 4;                    /* Estética moderna con bordes suaves */
+    -fx-border-radius: 4;
     -fx-background-radius: 4;
-    -fx-prompt-text-fill: #666;              /* Color del placeholder */
+    -fx-prompt-text-fill: #666;
     -fx-padding: 6;
 }
 
+/* === MENU BAR === */
 .menu-bar {
     -fx-background-color: linear-gradient(to bottom, #151515, #0d0d0d 60%, #151515);
-        /* Gradiente para dar sensación de relieve */
     -fx-border-color: #33eaff;
-    -fx-border-width: 0 0 1 0;               /* Línea inferior */
+    -fx-border-width: 0 0 1 0;
     -fx-effect: dropshadow(gaussian, rgba(51, 234, 255, 0.15), 5, 0.3, 0, 2);
-        /* Sombra muy suave bajo la barra */
 }
 
 .menu {
@@ -89,17 +98,19 @@
     -fx-background-color: #202020;
 }
 
+/* === TOOLTIP === */
 .tooltip {
-    -fx-background-color: #202020;           /* Sustituye el fondo estándar amarillento */
+    -fx-background-color: #202020;
     -fx-text-fill: #f5f5f5;
     -fx-font-size: 12px;
     -fx-padding: 6;
     -fx-border-radius: 4;
 }
 
+/* === LISTAS === */
 .list-view {
     -fx-background-color: #0f0f0f;
-    -fx-control-inner-background: #0f0f0f;   /* Asegura color consistente dentro de la lista */
+    -fx-control-inner-background: #0f0f0f;
     -fx-border-color: #2b3a48;
     -fx-text-fill: #e0e0e0;
     -fx-padding: 4;
@@ -109,11 +120,13 @@
     -fx-text-fill: #ccc;
 }
 
-.list-cell:filled:selected, .list-cell:filled:selected:hover {
-    -fx-background-color: #33eaff44;         /* Notación con transparencia (44 ≈ 27%) */
+.list-cell:filled:selected,
+.list-cell:filled:selected:hover {
+    -fx-background-color: #33eaff44;
     -fx-text-fill: #ffffff;
 }
 
+/* === ÁREA DE DETALLE (TextArea o similares) === */
 .text-area {
     -fx-background-color: #101010;
     -fx-control-inner-background: #101010;
@@ -123,6 +136,7 @@
     -fx-background-radius: 4;
 }
 
+/* === CHECKBOXES === */
 .check-box {
     -fx-text-fill: #d6d9df;
     -fx-font-size: 14px;
@@ -134,6 +148,7 @@
     -fx-effect: dropshadow(gaussian, rgba(51, 234, 255, 0.3), 4, 0.2, 0, 0);
 }
 
+/* === TABPANE Y TABS === */
 .tab-pane {
     -fx-background-color: transparent;
 }
@@ -146,10 +161,11 @@
 
 .tab:selected {
     -fx-background-color: #0f0f0f;
-    -fx-text-fill: #33eaff;                  /* Destaca claramente la pestaña activa */
+    -fx-text-fill: #33eaff;
     -fx-border-color: #33eaff;
 }
 
+/* === COMBOBOX === */
 .combo-box {
     -fx-background-color: #181818;
     -fx-border-color: #2b3a48;
@@ -160,36 +176,65 @@
     -fx-border-color: #33eaff;
 }
 
+/* === SCROLLBAR === */
 .scroll-bar {
     -fx-background-color: transparent;
 }
 
 .scroll-bar .thumb {
     -fx-background-color: #333;
-    -fx-background-radius: 4;                /* Deslizador más moderno */
+    -fx-background-radius: 4;
 }
 
 .scroll-bar .thumb:hover {
-    -fx-background-color: #33eaff44;         /* Ligero color cian con transparencia */
+    -fx-background-color: #33eaff44;
 }
 
+/* === ESTADOS “Offline” === */
 .label.offline {
     -fx-text-fill: #ff6666;
-    -fx-font-weight: bold;                   /* Señal visual clara de estado crítico */
+    -fx-font-weight: bold;
 }
 
-.split-pane, .anchor-pane, .border-pane {
+/* === AJUSTES GENERALES === */
+.split-pane,
+.anchor-pane,
+.border-pane {
     -fx-background-color: transparent;
 }
 
+/* === MENU BAR === */
+.menu-bar {
+    -fx-background-color: linear-gradient(to bottom, #101010, #0a0a0a);
+    -fx-border-color: #33eaff;
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(gaussian, rgba(51, 234, 255, 0.15), 5, 0.3, 0, 2);
+}
+
+/* === MENÚS DE NIVEL SUPERIOR === */
+.menu-bar .menu {
+    -fx-padding: 6 14;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e8e8e8;
+    -fx-background-color: transparent;
+}
+
+.menu-bar .menu:hover {
+    -fx-background-color: #1e1e1e;
+    -fx-text-fill: #33eaff;
+    -fx-cursor: hand;
+}
+
+/* === MENÚS DESPLEGABLES (submenús) === */
 .context-menu {
     -fx-background-color: linear-gradient(to bottom, #141414, #0d0d0d);
     -fx-border-color: #33eaff;
     -fx-border-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(51, 234, 255, 0.25), 8, 0.3, 0, 2);
-        /* Sombra más marcada para resaltar el menú flotante */
 }
 
+/* === OPCIONES DE MENÚ (MenuItems) === */
 .menu-item {
     -fx-text-fill: #e0e0e0;
     -fx-padding: 6 12;
@@ -197,53 +242,77 @@
 }
 
 .menu-item:hover {
-    -fx-background-color: #33eaff22;         /* Ligero realce al pasar el ratón */
+    -fx-background-color: #33eaff22;
     -fx-text-fill: #33eaff;
 }
 
+/* === ELEMENTOS DESHABILITADOS === */
 .menu-item:disabled {
-    -fx-opacity: 0.4;                        /* Se desactiva visualmente sin ocultarlo */
+    -fx-opacity: 0.4;
     -fx-text-fill: #666;
 }
 
+/* === ESTADÍSTICAS === */
+/* Fondo oscuro general */
 .chart {
     -fx-background-color: transparent;
 }
 
 .chart-plot-background {
-    -fx-background-color: #0f0f0f;           /* Fondo oscuro para que los colores resalten */
+    -fx-background-color: #0f0f0f;
 }
 
 .chart-legend {
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: #e0e0e0;
     -fx-font-size: 13px;
-    -fx-font-weight: bold;
 }
 
-.axis-label, .chart-title {
+.axis-label,
+.chart-title {
     -fx-text-fill: #e0e0e0;
 }
 
-.axis-tick-mark, .axis {
+.axis-tick-mark,
+.axis {
     -fx-tick-label-fill: #b0b0b0;
 }
 
-/* Colores personalizados para barras */
-.default-color0.chart-bar { -fx-bar-fill: #33eaff; }
-.default-color1.chart-bar { -fx-bar-fill: #00bcd4; }
-.default-color2.chart-bar { -fx-bar-fill: #0097a7; }
+/* Barras del gráfico de barras */
+.default-color0.chart-bar {
+    -fx-bar-fill: #33eaff;
+}
 
-/* Colores personalizados del gráfico de tarta */
-.default-color0.chart-pie { -fx-pie-color: #33eaff; }
-.default-color1.chart-pie { -fx-pie-color: #444; }
-.default-color2.chart-pie { -fx-pie-color: #00bcd4; }
-.default-color3.chart-pie { -fx-pie-color: #0097a7; }
+.default-color1.chart-bar {
+    -fx-bar-fill: #00bcd4;
+}
 
+.default-color2.chart-bar {
+    -fx-bar-fill: #0097a7;
+}
+
+/* Sectores del gráfico de tarta */
+.default-color0.chart-pie {
+    -fx-pie-color: #33eaff;
+}
+
+.default-color1.chart-pie {
+    -fx-pie-color: #444;
+}
+
+.default-color2.chart-pie {
+    -fx-pie-color: #00bcd4;
+}
+
+.default-color3.chart-pie {
+    -fx-pie-color: #0097a7;
+}
+
+/* Bordes sutiles */
 .chart-pie-label {
-    -fx-fill: #f5f5f5;                        /* Visibilidad alta sobre fondos oscuros */
+    -fx-fill: #f5f5f5;
     -fx-font-size: 12px;
 }
 
 .chart-legend-item-symbol {
-    -fx-background-radius: 4;                 /* Iconos redondeados, más suaves visualmente */
+    -fx-background-radius: 4;
 }
