@@ -27,7 +27,7 @@ jobs:
       run: |
         wget https://download2.gluonhq.com/openjfx/21.0.3/openjfx-21.0.3_linux-x64_bin-sdk.zip -O javafx.zip
         unzip javafx.zip
-        mv javafx-sdk-21.0.3/javafx-sdk-21.0.3/lib javafx
+        mv javafx-sdk-21.0.3/lib javafx
 
     # CREAR SCRIPT DE EJECUCIÓN WINDOWS
     - name: Create Windows run script
