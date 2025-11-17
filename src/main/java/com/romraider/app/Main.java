@@ -2,7 +2,6 @@ package com.romraider.app;
 
 import com.romraider.db.DataInitializer;
 import com.romraider.db.JpaUtil;
-import com.romraider.utils.AppInitializer;
 import com.romraider.utils.SceneUtils;
 import com.romraider.utils.SoundUtils;
 import javafx.animation.PauseTransition;
@@ -47,7 +46,7 @@ public class Main extends Application {
         AppInitializer.initialize();
 
         // Si quisieras cargar datos por defecto:
-        // DataInitializer.initializeWithDefaults();
+        DataInitializer.initializeWithDefaults();
 
         // --- Pantalla de Splash con logo ---
         ImageView imageView = new ImageView(
