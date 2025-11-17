@@ -23,6 +23,7 @@ public class SupabaseAuthService {
     private static final Logger logger = LoggerFactory.getLogger(SupabaseAuthService.class);
 
     private static String accessToken;
+    private static String refreshToken;
     private static String userId;
     private static String currentUserEmail;
 
@@ -48,6 +49,11 @@ public class SupabaseAuthService {
 
         if (response != null && response.has(APIsConstants.ACCESS_TOKEN)) {
             accessToken = response.getString(APIsConstants.ACCESS_TOKEN);
+
+            if (response.has("refresh_token")) {
+                refreshToken = response.getString("refresh_token");
+            }
+
             userId = extractUserIdFromToken(accessToken);
             currentUserEmail = email;
 
@@ -85,6 +91,7 @@ public class SupabaseAuthService {
      */
     public static void logout() {
         accessToken = null;
+        refreshToken = null;
         userId = null;
         currentUserEmail = null;
 
@@ -102,8 +109,15 @@ public class SupabaseAuthService {
         }
 
         try {
-            accessToken = token;
-            userId = extractUserIdFromToken(token);
+            refreshToken = token;
+
+            // intentar refrescar access token
+            if (!refreshAccessToken()) {
+                logger.warn("No se pudo refrescar el access token. Sesión expirada.");
+                return false;
+            }
+
+            userId = extractUserIdFromToken(accessToken);
 
             if (userId == null) {
                 logger.warn("No se pudo extraer el UserID desde el token almacenado");
@@ -116,7 +130,7 @@ public class SupabaseAuthService {
             conn.setRequestMethod(APIsConstants.GET);
             conn.setRequestProperty(APIsConstants.APIKEY, SUPABASE_KEY);
             conn.setRequestProperty(APIsConstants.AUTHORIZATION,
-                    APIsConstants.BEARER_PREFIX + token);
+                    APIsConstants.BEARER_PREFIX + accessToken);
 
             int status = conn.getResponseCode();
 
@@ -133,7 +147,7 @@ public class SupabaseAuthService {
             } else {
                 logger.warn("Restauración fallida. Supabase devolvió HTTP {}", status);
                 currentUserEmail = "(unknown)";
-                return true; // No invalidamos el token, solo avisamos
+                return true;
             }
 
         } catch (Exception e) {
@@ -144,6 +158,10 @@ public class SupabaseAuthService {
 
     public static String getAccessToken() {
         return accessToken;
+    }
+
+    public static String getRefreshToken() {
+        return refreshToken;
     }
 
     public static String getUserId() {
@@ -218,6 +236,38 @@ public class SupabaseAuthService {
         } catch (Exception e) {
             logger.error("No se pudo extraer el userId desde el token JWT", e);
             return null;
+        }
+    }
+
+    /**
+     * refresca el accessToken usando el refreshToken
+     */
+    private static boolean refreshAccessToken() {
+        try {
+            JSONObject body = new JSONObject()
+                    .put("refresh_token", refreshToken);
+
+            JSONObject response = sendSupabaseRequest(
+                    "/auth/v1/token?grant_type=refresh_token",
+                    body
+            );
+
+            if (response == null || !response.has("access_token")) {
+                return false;
+            }
+
+            accessToken = response.getString("access_token");
+
+            if (response.has("refresh_token")) {
+                refreshToken = response.getString("refresh_token");
+            }
+
+            logger.info("Access token refrescado correctamente.");
+            return true;
+
+        } catch (Exception e) {
+            logger.error("Error refrescando el access token", e);
+            return false;
         }
     }
 }

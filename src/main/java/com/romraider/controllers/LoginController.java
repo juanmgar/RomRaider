@@ -95,7 +95,7 @@ public class LoginController {
 
             // Guardar token de sesión si el usuario lo desea
             if (rememberMeCheck.isSelected()) {
-                SessionManager.saveSession(SupabaseAuthService.getAccessToken());
+                SessionManager.saveSession(SupabaseAuthService.getRefreshToken());
                 logger.info("Sesión guardada en disco para auto-login futuro");
             }
 
