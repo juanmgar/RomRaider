@@ -26,7 +26,6 @@ public class SupabaseAuthService {
     private static String userId;
     private static String currentUserEmail;
 
-    private static final String APIKEY = "apikey";
     private static final String SUPABASE_URL = SecretsLoader.getSupabaseUrl();
     private static final String SUPABASE_KEY = SecretsLoader.getSupabaseKey();
 
@@ -39,16 +38,16 @@ public class SupabaseAuthService {
         logger.info("Intentando iniciar sesión con el usuario: {}", email);
 
         JSONObject body = new JSONObject()
-                .put("email", email)
-                .put("password", password);
+                .put(APIsConstants.EMAIL, email)
+                .put(APIsConstants.PASSWORD, password);
 
         JSONObject response = sendSupabaseRequest(
                 "/auth/v1/token?grant_type=password",
                 body
         );
 
-        if (response != null && response.has("access_token")) {
-            accessToken = response.getString("access_token");
+        if (response != null && response.has(APIsConstants.ACCESS_TOKEN)) {
+            accessToken = response.getString(APIsConstants.ACCESS_TOKEN);
             userId = extractUserIdFromToken(accessToken);
             currentUserEmail = email;
 
@@ -67,8 +66,8 @@ public class SupabaseAuthService {
         logger.info("Intentando registrar usuario: {}", email);
 
         JSONObject body = new JSONObject()
-                .put("email", email)
-                .put("password", password);
+                .put(APIsConstants.EMAIL, email)
+                .put(APIsConstants.PASSWORD, password);
 
         JSONObject response = sendSupabaseRequest("/auth/v1/signup", body);
 
@@ -114,9 +113,10 @@ public class SupabaseAuthService {
             // Consultamos la API para obtener el email del usuario
             URL url = new URL(SUPABASE_URL + "/auth/v1/user");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty(APIKEY, SUPABASE_KEY);
-            conn.setRequestProperty("Authorization", "Bearer " + token);
+            conn.setRequestMethod(APIsConstants.GET);
+            conn.setRequestProperty(APIsConstants.APIKEY, SUPABASE_KEY);
+            conn.setRequestProperty(APIsConstants.AUTHORIZATION,
+                    APIsConstants.BEARER_PREFIX + token);
 
             int status = conn.getResponseCode();
 
@@ -124,7 +124,7 @@ public class SupabaseAuthService {
                 String body = new String(conn.getInputStream().readAllBytes());
                 JSONObject json = new JSONObject(body);
 
-                currentUserEmail = json.optString("email", "(unknown)");
+                currentUserEmail = json.optString(APIsConstants.EMAIL, "(unknown)");
 
                 logger.info("Sesión restaurada correctamente. UserID: {}, Email: {}",
                         userId, currentUserEmail);
@@ -165,10 +165,11 @@ public class SupabaseAuthService {
             URL url = new URL(SUPABASE_URL + endpoint);
             conn = (HttpURLConnection) url.openConnection();
 
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty(APIKEY, SUPABASE_KEY);
-            conn.setRequestProperty("Authorization", "Bearer " + accessToken);
-            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestMethod(APIsConstants.POST);
+            conn.setRequestProperty(APIsConstants.APIKEY, SUPABASE_KEY);
+            conn.setRequestProperty(APIsConstants.AUTHORIZATION,
+                    APIsConstants.BEARER_PREFIX + accessToken);
+            conn.setRequestProperty(APIsConstants.CONTENT_TYPE, APIsConstants.CONTENT_TYPE_JSON);
             conn.setDoOutput(true);
 
             // Envío del JSON al servidor
@@ -212,7 +213,7 @@ public class SupabaseAuthService {
             String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]));
             JSONObject payload = new JSONObject(payloadJson);
 
-            return payload.optString("sub", null);
+            return payload.optString(APIsConstants.SUB, null);
 
         } catch (Exception e) {
             logger.error("No se pudo extraer el userId desde el token JWT", e);

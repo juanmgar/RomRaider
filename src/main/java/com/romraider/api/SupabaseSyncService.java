@@ -99,10 +99,10 @@ public class SupabaseSyncService {
             String key = SecretsLoader.getSupabaseKey();
 
             JSONArray plataformasJson =
-                    getJsonArray(baseUrl + "/rest/v1/plataformas?user_id=eq." + userId + "&select=*", key);
+                    getJsonArray(baseUrl + "/rest/v1/plataformas?user_id=eq." + userId + APIsConstants.SELECT_ALL, key);
 
             JSONArray romsJson =
-                    getJsonArray(baseUrl + "/rest/v1/roms?user_id=eq." + userId + "&select=*", key);
+                    getJsonArray(baseUrl + "/rest/v1/roms?user_id=eq." + userId + APIsConstants.SELECT_ALL, key);
 
             // Se elimina primero lo local para evitar conflictos
             romService.eliminarTodas();
@@ -115,27 +115,27 @@ public class SupabaseSyncService {
                 JSONObject obj = (JSONObject) o;
 
                 Plataforma p = new Plataforma();
-                p.setNombre(obj.optString("nombre"));
-                p.setExtensionRom(obj.optString("extension_rom"));
-                p.setCarpeta(obj.optString("carpeta"));
+                p.setNombre(obj.optString(APIsConstants.NOMBRE));
+                p.setExtensionRom(obj.optString(APIsConstants.EXTENSION_ROM));
+                p.setCarpeta(obj.optString(APIsConstants.CARPETA));
 
                 plataformaService.guardar(p);
-                idMap.put(obj.optString("id"), p.getId());
+                idMap.put(obj.optString(APIsConstants.ID), p.getId());
             }
 
             for (Object o : romsJson) {
                 JSONObject obj = (JSONObject) o;
 
-                String remotePlatformId = obj.optString("plataforma_id");
+                String remotePlatformId = obj.optString(APIsConstants.PLATAFORMA_ID);
                 if (!idMap.containsKey(remotePlatformId)) continue;
 
                 Rom r = new Rom();
-                r.setTitulo(obj.optString("titulo"));
-                r.setDescripcion(obj.optString("descripcion"));
-                r.setImagen(obj.optString("imagen"));
-                r.setFavorito(obj.optBoolean("favorito"));
-                r.setJugado(obj.optBoolean("jugado"));
-                r.setRuta(obj.optString("ruta", null));
+                r.setTitulo(obj.optString(APIsConstants.TITULO));
+                r.setDescripcion(obj.optString(APIsConstants.DESCRIPCION));
+                r.setImagen(obj.optString(APIsConstants.IMAGEN));
+                r.setFavorito(obj.optBoolean(APIsConstants.FAVORITO));
+                r.setJugado(obj.optBoolean(APIsConstants.JUGADO));
+                r.setRuta(obj.optString(APIsConstants.RUTA, null));
 
                 r.setPlataforma(plataformaService.buscarPorId(idMap.get(remotePlatformId)));
 
@@ -169,15 +169,15 @@ public class SupabaseSyncService {
             // Primero se suben las plataformas
             for (Plataforma p : plataformas) {
                 JSONObject json = new JSONObject()
-                        .put("nombre", p.getNombre())
-                        .put("extension_rom", p.getExtensionRom())
-                        .put("carpeta", p.getCarpeta())
-                        .put("user_id", userId);
+                        .put(APIsConstants.NOMBRE, p.getNombre())
+                        .put(APIsConstants.EXTENSION_ROM, p.getExtensionRom())
+                        .put(APIsConstants.CARPETA, p.getCarpeta())
+                        .put(APIsConstants.USER_ID, userId);
 
                 JSONArray response = postJson(baseUrl + "/rest/v1/plataformas", key, json, true);
 
                 if (response != null && !response.isEmpty()) {
-                    String remoteId = response.getJSONObject(0).optString("id", null);
+                    String remoteId = response.getJSONObject(0).optString(APIsConstants.ID, null);
                     remoteIds.put(p.getId(), remoteId);
 
                 } else {
@@ -195,14 +195,14 @@ public class SupabaseSyncService {
 
                 for (Rom r : p.getRoms()) {
                     JSONObject json = new JSONObject()
-                            .put("titulo", r.getTitulo())
-                            .put("descripcion", r.getDescripcion())
-                            .put("imagen", r.getImagen())
-                            .put("favorito", r.isFavorito())
-                            .put("jugado", r.isJugado())
-                            .put("ruta", r.getRuta())
-                            .put("user_id", userId)
-                            .put("plataforma_id", remotePlatId);
+                            .put(APIsConstants.TITULO, r.getTitulo())
+                            .put(APIsConstants.DESCRIPCION, r.getDescripcion())
+                            .put(APIsConstants.IMAGEN, r.getImagen())
+                            .put(APIsConstants.FAVORITO, r.isFavorito())
+                            .put(APIsConstants.JUGADO, r.isJugado())
+                            .put(APIsConstants.RUTA, r.getRuta())
+                            .put(APIsConstants.USER_ID, userId)
+                            .put(APIsConstants.PLATAFORMA_ID, remotePlatId);
 
                     postJson(baseUrl + "/rest/v1/roms", key, json, false);
                 }
@@ -222,7 +222,7 @@ public class SupabaseSyncService {
      * Ejecuta una petición GET y devuelve un JSONArray.
      */
     private static JSONArray getJsonArray(String url, String apiKey) throws IOException {
-        HttpURLConnection conn = openConnection(url, "GET", apiKey);
+        HttpURLConnection conn = openConnection(url, APIsConstants.GET, apiKey);
 
         try (InputStream is = conn.getInputStream()) {
             String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
@@ -236,11 +236,12 @@ public class SupabaseSyncService {
     private static JSONArray postJson(String url, String apiKey, JSONObject json, boolean expectReturn) throws IOException {
 
         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("apikey", apiKey);
-        conn.setRequestProperty("Authorization", "Bearer " + SupabaseAuthService.getAccessToken());
-        conn.setRequestProperty("Content-Type", "application/json");
-        if (expectReturn) conn.setRequestProperty("Prefer", "return=representation");
+        conn.setRequestMethod(APIsConstants.POST);
+        conn.setRequestProperty(APIsConstants.APIKEY, apiKey);
+        conn.setRequestProperty(APIsConstants.AUTHORIZATION,
+                APIsConstants.BEARER_PREFIX + SupabaseAuthService.getAccessToken());
+        conn.setRequestProperty(APIsConstants.CONTENT_TYPE, APIsConstants.CONTENT_TYPE_JSON);
+        if (expectReturn) conn.setRequestProperty(APIsConstants.PREFER, APIsConstants.RETURN_REPRESENTATION);
         conn.setDoOutput(true);
 
         // Supabase requiere array JSON para inserciones múltiples
@@ -278,8 +279,9 @@ public class SupabaseSyncService {
     private static HttpURLConnection openConnection(String url, String method, String apiKey) throws IOException {
         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
         conn.setRequestMethod(method);
-        conn.setRequestProperty("apikey", apiKey);
-        conn.setRequestProperty("Authorization", "Bearer " + SupabaseAuthService.getAccessToken());
+        conn.setRequestProperty(APIsConstants.APIKEY, apiKey);
+        conn.setRequestProperty(APIsConstants.AUTHORIZATION,
+                APIsConstants.BEARER_PREFIX + SupabaseAuthService.getAccessToken());
         return conn;
     }
 
@@ -289,7 +291,7 @@ public class SupabaseSyncService {
     private static void borrarDatosRemotos(String userId, String baseUrl, String apiKey) throws IOException {
         for (String table : List.of("roms", "plataformas")) {
             HttpURLConnection conn =
-                    openConnection(baseUrl + "/rest/v1/" + table + "?user_id=eq." + userId, "DELETE", apiKey);
+                    openConnection(baseUrl + "/rest/v1/" + table + "?user_id=eq." + userId, APIsConstants.DELETE, apiKey);
             conn.getResponseCode(); // ejecución directa sin uso de respuesta
         }
     }

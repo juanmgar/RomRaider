@@ -73,7 +73,7 @@ public class RawgApiClient {
 
             HttpURLConnection conn =
                     (HttpURLConnection) new URL(searchUrl).openConnection();
-            conn.setRequestMethod("GET");
+            conn.setRequestMethod(APIsConstants.GET);
 
             // Leer la respuesta JSON de la API de búsqueda
             StringBuilder json = new StringBuilder();
@@ -98,7 +98,7 @@ public class RawgApiClient {
             String detailUrl = "https://api.rawg.io/api/games/" + gameId + "?key=" + rawgKey;
             HttpURLConnection detailConn =
                     (HttpURLConnection) new URL(detailUrl).openConnection();
-            detailConn.setRequestMethod("GET");
+            detailConn.setRequestMethod(APIsConstants.GET);
 
             StringBuilder detailJson = new StringBuilder();
             try (BufferedReader detailReader =
