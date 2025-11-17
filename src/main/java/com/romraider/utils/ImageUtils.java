@@ -91,25 +91,18 @@ public class ImageUtils {
         return destFile.getAbsolutePath();
     }
 
-    /**
-     * Carga una imagen desde el disco. Si no existe, devuelve una imagen por defecto.
-     *
-     * @param path ruta absoluta de la imagen
-     * @return instancia de {@link Image} correspondiente
-     */
-    public static Image loadRomImageOrDefault(String path) {
-        File imageFile = new File(path);
-
-        /*
-         * Se intenta cargar la imagen local. Si no existe,
-         * se usa la imagen "no-image.png" desde los recursos.
-         */
-        if (imageFile.exists()) {
-            return new Image("file:" + imageFile.getAbsolutePath(), true);
-        } else {
-            return new Image(
-                    ImageUtils.class.getResourceAsStream("/assets/no-image.png")
-            );
+    public static boolean deleteImageIfExists(String imagePath) {
+        if (imagePath == null || imagePath.isBlank()) {
+            return false;
         }
+
+        File file = new File(imagePath);
+
+        if (file.exists() && file.isFile()) {
+            return file.delete();
+        }
+
+        return false;
     }
+
 }

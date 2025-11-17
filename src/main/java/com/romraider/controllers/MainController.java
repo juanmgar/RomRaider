@@ -3,6 +3,7 @@ package com.romraider.controllers;
 import com.romraider.api.RawgApiClient;
 import com.romraider.api.SupabaseAuthService;
 import com.romraider.api.SupabaseSyncService;
+import com.romraider.app.AppInitializer;
 import com.romraider.auth.SessionManager;
 import com.romraider.model.Plataforma;
 import com.romraider.model.Rom;
@@ -350,7 +351,7 @@ public class MainController {
                         plataformaService.eliminarTodas();
 
                         for (Plataforma plataforma : plataformasImportadas) {
-                            // ⚙️ Garantizar que la lista de ROMs sea mutable
+                            // Garantizar que la lista de ROMs sea mutable
                             if (!(plataforma.getRoms() instanceof java.util.ArrayList)) {
                                 plataforma.setRoms(new ArrayList<>(plataforma.getRoms()));
                             }
@@ -766,6 +767,14 @@ public class MainController {
             if (result != ButtonType.OK) return;
 
             try {
+                List<Rom> romsToDelete = romService.obtenerPorPlataforma(selected.getId());
+
+                romsToDelete.forEach(rom -> {
+                    if (rom.getImagen() != null && !rom.getImagen().isBlank()) {
+                        ImageUtils.deleteImageIfExists(rom.getImagen());
+                    }
+                });
+
                 romService.eliminarPorPlataforma(selected.getId());
                 plataformaService.eliminar(selected.getId());
 
@@ -890,6 +899,7 @@ public class MainController {
             if (result != ButtonType.OK) return;
 
             romService.eliminar(selectedRom.getId());
+            ImageUtils.deleteImageIfExists(selectedRom.getImagen());
             logger.info("ROM eliminada: {}", selectedRom.getTitulo());
 
             cargarRomsPorPlataforma(plataformaSeleccionada);
