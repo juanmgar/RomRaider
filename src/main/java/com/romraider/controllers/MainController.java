@@ -25,6 +25,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -464,11 +465,18 @@ public class MainController {
                 return;
             }
 
-            // Crear overlay con spinner semitransparente
+            // Crear mensaje
+            Label mensaje = new Label("Updating all roms info...");
+            mensaje.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+
+            // Crear overlay con spinner y mensaje
             ProgressIndicator spinner = new ProgressIndicator();
             spinner.setPrefSize(80, 80);
 
-            StackPane overlay = new StackPane(spinner);
+            VBox content = new VBox(15, spinner, mensaje); // 15 = separación
+            content.setAlignment(Pos.CENTER);
+
+            StackPane overlay = new StackPane(content);
             overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6)");
             StackPane.setAlignment(spinner, Pos.CENTER);
 
@@ -569,11 +577,18 @@ public class MainController {
     @FXML
     public void handleSync() {
 
-        // Overlay semitransparente para bloquear interacción
+        // Crear mensaje
+        Label mensaje = new Label("Synchronizing with the cloud...");
+        mensaje.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+
+        // Crear overlay con spinner y mensaje
         ProgressIndicator spinner = new ProgressIndicator();
         spinner.setPrefSize(80, 80);
 
-        StackPane overlay = new StackPane(spinner);
+        VBox content = new VBox(15, spinner, mensaje); // 15 = separación
+        content.setAlignment(Pos.CENTER);
+
+        StackPane overlay = new StackPane(content);
         overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6)");
         StackPane.setAlignment(spinner, Pos.CENTER);
 
