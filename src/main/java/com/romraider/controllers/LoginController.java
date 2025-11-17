@@ -5,11 +5,17 @@ import com.romraider.api.SupabaseSyncService;
 import com.romraider.auth.SessionManager;
 import com.romraider.service.PlataformaService;
 import com.romraider.service.RomService;
+import com.romraider.utils.MessageUtils;
 import com.romraider.utils.NetworkUtils;
 import com.romraider.utils.SceneUtils;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,29 +94,28 @@ public class LoginController {
         String password = passwordField.getText().trim();
 
         logger.info("Intentando login para usuario '{}'", email);
+
+        // Login normal, sin spinner
         boolean success = SupabaseAuthService.login(email, password);
 
-        if (success) {
-            logger.info("Login exitoso para {}", email);
-
-            // Guardar token de sesión si el usuario lo desea
-            if (rememberMeCheck.isSelected()) {
-                SessionManager.saveSession(SupabaseAuthService.getRefreshToken());
-                logger.info("Sesión guardada en disco para auto-login futuro");
-            }
-
-            // Sincronización inicial tras login
-            SupabaseSyncService.syncWithSupabase();
-
-            // Abrir pantalla principal
-            Stage stage = (Stage) usernameField.getScene().getWindow();
-            SceneUtils.switchToMainView(stage);
-
-        } else {
+        if (!success) {
             messageLabel.setText("Invalid username or password");
             logger.warn("Login fallido para {}", email);
+            return;
         }
+
+        logger.info("Login exitoso para {}", email);
+
+        // Guardar sesión si procede
+        if (rememberMeCheck.isSelected()) {
+            SessionManager.saveSession(SupabaseAuthService.getRefreshToken());
+            logger.info("Sesión guardada en disco para auto-login futuro");
+        }
+
+        // Spinner durante la sincronización ---
+        mostrarSpinnerSincronizacionYSync();
     }
+
 
     /**
      * Maneja el registro de un nuevo usuario en Supabase.
@@ -150,4 +155,61 @@ public class LoginController {
 
         logger.info("Modo offline activado con éxito. Datos locales reinicializados.");
     }
+
+    private void mostrarSpinnerSincronizacionYSync() {
+
+        // Crear mensaje
+        Label mensaje = new Label("Synchronizing with the cloud...");
+        mensaje.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+
+        ProgressIndicator spinner = new ProgressIndicator();
+        spinner.setPrefSize(80, 80);
+
+        VBox content = new VBox(15, spinner, mensaje);
+        content.setAlignment(Pos.CENTER);
+
+        StackPane overlay = new StackPane(content);
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6)");
+        StackPane.setAlignment(spinner, Pos.CENTER);
+
+        Pane root = (Pane) usernameField.getScene().getRoot();
+        root.getChildren().add(overlay);
+
+        loginButton.setDisable(true);
+        registerButton.setDisable(true);
+
+        // Ejecutar sincronización en segundo plano
+        Task<Void> syncTask = new Task<>() {
+            @Override
+            protected Void call() {
+                logger.info("Iniciando sincronización inicial tras login...");
+                SupabaseSyncService.syncWithSupabase();
+                return null;
+            }
+        };
+
+        syncTask.setOnSucceeded(e -> {
+            root.getChildren().remove(overlay);
+            loginButton.setDisable(false);
+            registerButton.setDisable(false);
+
+            // Cambiar a pantalla principal
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+            SceneUtils.switchToMainView(stage);
+        });
+
+        syncTask.setOnFailed(e -> {
+            root.getChildren().remove(overlay);
+            loginButton.setDisable(false);
+            registerButton.setDisable(false);
+
+            MessageUtils.showError(
+                    "Synchronization failed: " + syncTask.getException().getMessage()
+            );
+            logger.error("Sincronización fallida", syncTask.getException());
+        });
+
+        new Thread(syncTask).start();
+    }
+
 }
