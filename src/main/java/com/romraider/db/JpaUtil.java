@@ -1,6 +1,6 @@
 package com.romraider.db;
 
-import com.romraider.utils.AppInitializer;
+import com.romraider.app.AppInitializer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;

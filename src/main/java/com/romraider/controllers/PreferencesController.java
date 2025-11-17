@@ -1,6 +1,6 @@
 package com.romraider.controllers;
 
-import com.romraider.utils.AppInitializer;
+import com.romraider.app.AppInitializer;
 import com.romraider.utils.MessageUtils;
 import com.romraider.utils.PropertyUtils;
 import javafx.fxml.FXML;

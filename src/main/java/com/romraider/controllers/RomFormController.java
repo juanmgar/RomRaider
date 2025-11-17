@@ -180,7 +180,7 @@ public class RomFormController {
      */
     private void validate() {
         boolean isTitleValid = titleField.getText() != null && !titleField.getText().trim().isEmpty();
-        boolean isPathValid = rutaField.getText() != null && !rutaField.getText().trim().isEmpty();  // ⭐ obligatorio
+        boolean isPathValid = rutaField.getText() != null && !rutaField.getText().trim().isEmpty();
         boolean isPlatformValid = platformComboBox.getValue() != null;
 
         saveButton.setDisable(!(isTitleValid && isPathValid && isPlatformValid));
