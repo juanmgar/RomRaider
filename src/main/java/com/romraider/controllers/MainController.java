@@ -41,10 +41,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.romraider.db.DataInitializer.insertOrUpdateDefaultPlatforms;
 
 public class MainController {
 
@@ -73,8 +73,6 @@ public class MainController {
     @FXML
     private CheckBox playedCheckBox;
     @FXML
-    private MenuItem loginLogoutMenuItem;
-    @FXML
     private TextField searchField;
     @FXML
     private ImageView romImage;
@@ -97,11 +95,9 @@ public class MainController {
 
         logger.info("ListView before clear: {}", platformListView);
         if (!online || !loggedIn) {
-            platformListView.setDisable(true);
-            romListView.setDisable(true);
-            platformListView.getItems().clear();
-            romListView.getItems().clear();
             syncLabel.setText("Offline mode");
+            insertOrUpdateDefaultPlatforms();
+            cargarPlataformas();
         } else {
             // Mostrar última fecha de sincronización si estamos en modo online
             LocalDateTime lastSync = SyncStateUtils.getLastSync();
@@ -150,7 +146,12 @@ public class MainController {
             roms = new java.util.ArrayList<>(romService.obtenerPorPlataforma(plataforma.getId()));
         }
 
-        romTitulos.setAll(roms.stream().map(Rom::getTitulo).toList());
+        List<String> titulosOrdenados = roms.stream()
+                .map(Rom::getTitulo)
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .toList();
+
+        romTitulos.setAll(titulosOrdenados);
 
         if (romFiltradas == null) {
             romFiltradas = new FilteredList<>(romTitulos, s -> true);
@@ -230,50 +231,138 @@ public class MainController {
 
         String baseFolder = Paths.get(System.getProperty("user.home"), baseFolderRelativa).toString();
 
-        List<Plataforma> plataformas = plataformaService.obtenerTodas();
-        Map<String, Plataforma> extensionMap = plataformas.stream()
-                .collect(Collectors.toMap(
-                        p -> p.getExtensionRom().toLowerCase(),
-                        p -> p
-                ));
+        Label mensaje = new Label("Scanning folder...");
+        mensaje.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
 
-        try {
-            Files.walk(selectedDir.toPath())
-                    .filter(Files::isRegularFile)
-                    .forEach(path -> processRomFile(path, baseFolder, extensionMap));
+        ProgressIndicator spinner = new ProgressIndicator();
+        spinner.setPrefSize(80, 80);
 
+        VBox content = new VBox(15, spinner, mensaje);
+        content.setAlignment(Pos.CENTER);
+
+        StackPane overlay = new StackPane(content);
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6)");
+
+        Pane root = (Pane) menuBar.getScene().getRoot();
+        root.getChildren().add(overlay);
+
+
+        Task<String> scanTask = new Task<>() {
+            @Override
+            protected String call() {
+
+                List<Plataforma> plataformas = plataformaService.obtenerTodas();
+                Map<String, Plataforma> extensionMap = plataformas.stream()
+                        .collect(Collectors.toMap(
+                                p -> p.getExtensionRom().toLowerCase(),
+                                p -> p
+                        ));
+
+                int[] romsAdded = {0};
+                Set<Plataforma> plataformasAfectadas = new HashSet<>();
+
+                try {
+                    Files.walk(selectedDir.toPath())
+                            .filter(Files::isRegularFile)
+                            .forEach(path -> {
+                                try {
+                                    String filename = path.getFileName().toString();
+                                    int dotIndex = filename.lastIndexOf('.');
+                                    if (dotIndex == -1) return;
+
+                                    String extension = filename.substring(dotIndex).toLowerCase();
+                                    Plataforma plataforma = extensionMap.get(extension);
+
+                                    if (plataforma == null) return;
+
+                                    // Antes de procesar comprobar si existe
+                                    String titulo = filename.substring(0, dotIndex);
+                                    boolean exists = romService.existeRomConTituloYPlataforma(titulo, plataforma.getId());
+                                    if (exists) return;
+
+                                    // Procesar y guardar
+                                    processRomFile(path, baseFolder, extensionMap);
+
+                                    romsAdded[0]++;
+                                    plataformasAfectadas.add(plataforma);
+
+                                } catch (Exception ex) {
+                                    logger.error("Error processing file {}", path, ex);
+                                }
+                            });
+
+                } catch (IOException e) {
+                    logger.error("Error scanning folder", e);
+                    throw new RuntimeException("Error scanning the selected folder.", e);
+                }
+
+                String plataformasTexto = plataformasAfectadas.stream()
+                        .map(Plataforma::getNombre)
+                        .sorted()
+                        .collect(Collectors.joining("\n- ", "- ", ""));
+
+                String summary = String.format(
+                        "Scan completed.\n" +
+                                "Added ROMs: %d\n" +
+                                "Platforms affected (%d):\n%s",
+                        romsAdded[0],
+                        plataformasAfectadas.size(),
+                        plataformasAfectadas.isEmpty() ? "- None" : plataformasTexto
+                );
+
+
+                // Resumen a devolver al hilo de UI
+                return summary;
+            }
+        };
+
+        scanTask.setOnSucceeded(e -> {
+            root.getChildren().remove(overlay);
             cargarPlataformas();
-            MessageUtils.showInfo("Scan completed successfully.");
-            logger.info("ROM scan finished");
-        } catch (IOException e) {
-            logger.error("Error scanning folder", e);
-            MessageUtils.showError("Error scanning the selected folder.");
-        }
+
+            String summary = scanTask.getValue();
+            MessageUtils.showInfo(summary);
+            logger.info(summary);
+        });
+
+        scanTask.setOnFailed(e -> {
+            root.getChildren().remove(overlay);
+
+            Throwable ex = scanTask.getException();
+            logger.error("Scan failed", ex);
+
+            MessageUtils.showError("Scan failed: " + ex.getMessage());
+        });
+
+
+        new Thread(scanTask).start();
     }
 
+
     private void processRomFile(Path path, String baseFolder, Map<String, Plataforma> extensionMap) {
-        String filename = path.getFileName().toString();
-        int dotIndex = filename.lastIndexOf('.');
-        String extension = (dotIndex != -1) ? filename.substring(dotIndex).toLowerCase() : "";
-        String titulo = (dotIndex != -1) ? filename.substring(0, dotIndex) : filename;
-
-        Plataforma plataforma = extensionMap.get(extension);
-        if (plataforma == null) {
-            logger.debug("Skipping unsupported file: {}", filename);
-            return;
-        }
-
-        if (romService.existeRomConTituloYPlataforma(titulo, plataforma.getId())) {
-            logger.info("ROM already exists: '{}' for platform '{}'", titulo, plataforma.getNombre());
-            return;
-        }
-
-        File targetDir = new File(baseFolder, plataforma.getCarpeta());
-        targetDir.mkdirs();
-
-        File destFile = new File(targetDir, filename);
         try {
+            String filename = path.getFileName().toString();
+            int dotIndex = filename.lastIndexOf('.');
+            String extension = (dotIndex != -1) ? filename.substring(dotIndex).toLowerCase() : "";
+            String titulo = (dotIndex != -1) ? filename.substring(0, dotIndex) : filename;
+
+            Plataforma plataforma = extensionMap.get(extension);
+            if (plataforma == null) {
+                logger.debug("Skipping unsupported file: {}", filename);
+                return;
+            }
+
+            if (romService.existeRomConTituloYPlataforma(titulo, plataforma.getId())) {
+                logger.info("ROM already exists: '{}' for platform '{}'", titulo, plataforma.getNombre());
+                return;
+            }
+
+            File targetDir = new File(baseFolder, plataforma.getCarpeta());
+            targetDir.mkdirs();
+
+            File destFile = new File(targetDir, filename);
             Files.move(path, destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
             logger.info("Moved ROM file: {} → {}", path, destFile);
 
             Rom rom = new Rom();
@@ -285,31 +374,54 @@ public class MainController {
             rom.setImagen(null);
             rom.setPlataforma(plataforma);
 
+            // Auto-update RAWG
             PropertyUtils config = AppInitializer.loadConfig();
             if ("true".equalsIgnoreCase(config.get("romraider.api.autoupdate"))) {
-                RawgApiClient.RomInfo info = RawgApiClient.obtenerInfo(titulo);
-                if (info != null) {
-                    if (info.descripcion != null) {
-                        rom.setDescripcion(info.descripcion);
-                    }
+                try {
+                    RawgApiClient.RomInfo info = RawgApiClient.obtenerInfo(titulo);
 
-                    if (info.imageUrl != null) {
-                        String localPath = ImageUtils.downloadAndSaveImage(info.imageUrl, titulo, rom.getId());
-                        if (localPath != null) {
-                            rom.setImagen(localPath);
+                    if (info != null) {
+                        // DESCRIPCIÓN (truncar antes de guardar)
+                        if (info.descripcion != null) {
+                            String desc = info.descripcion;
+                            if (desc.length() > 3999) {
+                                logger.warn("Description over 4000 chars for '{}', truncating.", titulo);
+                                desc = desc.substring(0, 3999);
+                            }
+                            rom.setDescripcion(desc);
                         }
+
+                        // IMAGEN
+                        if (info.imageUrl != null) {
+                            try {
+                                String localPath = ImageUtils.downloadAndSaveImage(info.imageUrl, titulo, rom.getId());
+                                rom.setImagen(localPath);
+                            } catch (Exception e) {
+                                logger.error("Failed downloading image for '{}'", titulo, e);
+                            }
+                        }
+
+                        logger.info("ROM '{}' updated with RAWG data", titulo);
                     }
 
-                    logger.info("ROM '{}' updated with RAWG data", titulo);
+                } catch (Exception rawgException) {
+                    logger.error("RAWG update failed for '{}': {}", titulo, rawgException.getMessage());
                 }
             }
 
-            romService.guardar(rom);
-            logger.info("ROM inserted into database: {}", titulo);
-        } catch (IOException e) {
-            logger.error("Failed to move file: {}", filename, e);
+            // Guardar en BD
+            try {
+                romService.guardar(rom);
+                logger.info("ROM inserted into database: {}", titulo);
+            } catch (Exception dbException) {
+                logger.error("ERROR saving ROM '{}': {}", titulo, dbException.getMessage());
+            }
+
+        } catch (Exception fatal) {
+            logger.error("Unexpected error processing ROM '{}': {}", path.getFileName(), fatal.getMessage());
         }
     }
+
 
     @FXML
     public void handleExport() {
@@ -333,18 +445,45 @@ public class MainController {
 
     @FXML
     public void handleImport() {
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Import XML");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML Files", "*.xml"));
         File selectedFile = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
 
-        if (selectedFile != null) {
-            Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmAlert.setTitle("Confirm Import");
-            confirmAlert.setHeaderText("This will delete all existing platforms and ROMs.");
-            confirmAlert.setContentText("Are you sure you want to proceed?");
-            confirmAlert.showAndWait().ifPresent(response -> {
-                if (response == ButtonType.OK) {
+        if (selectedFile == null) return;
+
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirm Import");
+        confirmAlert.setHeaderText("This will delete all existing platforms and ROMs.");
+        confirmAlert.setContentText("Are you sure you want to proceed?");
+
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response != ButtonType.OK) return;
+
+            logger.info("Starting XML import with spinner...");
+
+            // Crear overlay
+            Label mensaje = new Label("Importing collection...");
+            mensaje.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+
+            ProgressIndicator spinner = new ProgressIndicator();
+            spinner.setPrefSize(80, 80);
+
+            VBox content = new VBox(15, spinner, mensaje);
+            content.setAlignment(Pos.CENTER);
+
+            StackPane overlay = new StackPane(content);
+            overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6)");
+
+            Pane root = (Pane) menuBar.getScene().getRoot();
+            root.getChildren().add(overlay);
+
+            // Tarea en segundo plano
+            Task<Void> importTask = new Task<>() {
+                @Override
+                protected Void call() {
+
                     try {
                         List<Plataforma> plataformasImportadas =
                                 new ArrayList<>(XMLUtils.importarDesdeXml(selectedFile));
@@ -352,8 +491,8 @@ public class MainController {
                         plataformaService.eliminarTodas();
 
                         for (Plataforma plataforma : plataformasImportadas) {
-                            // Garantizar que la lista de ROMs sea mutable
-                            if (!(plataforma.getRoms() instanceof java.util.ArrayList)) {
+
+                            if (!(plataforma.getRoms() instanceof ArrayList)) {
                                 plataforma.setRoms(new ArrayList<>(plataforma.getRoms()));
                             }
 
@@ -364,19 +503,37 @@ public class MainController {
                             plataformaService.guardar(plataforma);
                         }
 
-                        cargarPlataformas();
-                        romListView.setItems(FXCollections.observableArrayList());
-                        MessageUtils.showInfo("Import completed successfully.");
-                        logger.info("Imported collection from: {}", selectedFile.getAbsolutePath());
                     } catch (Exception e) {
                         logger.error("Error importing XML", e);
-                        MessageUtils.showError("Error importing XML: " + e.getMessage());
+                        throw new RuntimeException("Error importing XML: " + e.getMessage(), e);
                     }
-                }
-            });
-        }
-    }
 
+                    return null;
+                }
+            };
+
+            importTask.setOnSucceeded(ev -> {
+                root.getChildren().remove(overlay);
+
+                romListView.setItems(FXCollections.observableArrayList());
+
+                cargarPlataformas();
+                MessageUtils.showInfo("Import completed successfully.");
+                logger.info("Imported collection from: {}", selectedFile.getAbsolutePath());
+            });
+
+            importTask.setOnFailed(ev -> {
+                root.getChildren().remove(overlay);
+
+                Throwable ex = importTask.getException();
+                logger.error("Import failed", ex);
+
+                MessageUtils.showError("Import failed: " + ex.getMessage());
+            });
+
+            new Thread(importTask).start();
+        });
+    }
 
     /**
      * Actualiza una única ROM seleccionada usando la API de RAWG.io.
