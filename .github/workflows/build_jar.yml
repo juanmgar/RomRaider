@@ -38,7 +38,7 @@ jobs:
     # CONSTRUIR EL JAR (el JAR final ya incluye secrets.properties)
     ###################################################################
     - name: Build project with Maven
-      run: mvn -B clean package
+      run: mvn -B clean verify
 
     ###################################################################
     # DESCARGAR JAVAFX SDK PARA WINDOWS / LINUX / MAC
