@@ -17,7 +17,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -25,7 +24,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -231,21 +229,8 @@ public class MainController {
 
         String baseFolder = Paths.get(System.getProperty("user.home"), baseFolderRelativa).toString();
 
-        Label mensaje = new Label("Scanning folder...");
-        mensaje.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
-
-        ProgressIndicator spinner = new ProgressIndicator();
-        spinner.setPrefSize(80, 80);
-
-        VBox content = new VBox(15, spinner, mensaje);
-        content.setAlignment(Pos.CENTER);
-
-        StackPane overlay = new StackPane(content);
-        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6)");
-
         Pane root = (Pane) menuBar.getScene().getRoot();
-        root.getChildren().add(overlay);
-
+        StackPane overlay = OverlayUtils.showLoading(root, "Scanning folder...");
 
         Task<String> scanTask = new Task<>() {
             @Override
@@ -304,7 +289,7 @@ public class MainController {
                 String summary = String.format(
                         "Scan completed.\n" +
                                 "Added ROMs: %d\n" +
-                                "Platforms affected (%d):\n%s",
+                                "Platforms affected: %d\n%s",
                         romsAdded[0],
                         plataformasAfectadas.size(),
                         plataformasAfectadas.isEmpty() ? "- None" : plataformasTexto
@@ -317,7 +302,7 @@ public class MainController {
         };
 
         scanTask.setOnSucceeded(e -> {
-            root.getChildren().remove(overlay);
+            OverlayUtils.hideLoading(root, overlay);
             cargarPlataformas();
 
             String summary = scanTask.getValue();
@@ -326,14 +311,13 @@ public class MainController {
         });
 
         scanTask.setOnFailed(e -> {
-            root.getChildren().remove(overlay);
+            OverlayUtils.hideLoading(root, overlay);
 
             Throwable ex = scanTask.getException();
             logger.error("Scan failed", ex);
 
             MessageUtils.showError("Scan failed: " + ex.getMessage());
         });
-
 
         new Thread(scanTask).start();
     }
@@ -463,23 +447,9 @@ public class MainController {
 
             logger.info("Starting XML import with spinner...");
 
-            // Crear overlay
-            Label mensaje = new Label("Importing collection...");
-            mensaje.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
-
-            ProgressIndicator spinner = new ProgressIndicator();
-            spinner.setPrefSize(80, 80);
-
-            VBox content = new VBox(15, spinner, mensaje);
-            content.setAlignment(Pos.CENTER);
-
-            StackPane overlay = new StackPane(content);
-            overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6)");
-
             Pane root = (Pane) menuBar.getScene().getRoot();
-            root.getChildren().add(overlay);
+            StackPane overlay = OverlayUtils.showLoading(root, "Importing collection...");
 
-            // Tarea en segundo plano
             Task<Void> importTask = new Task<>() {
                 @Override
                 protected Void call() {
@@ -513,7 +483,7 @@ public class MainController {
             };
 
             importTask.setOnSucceeded(ev -> {
-                root.getChildren().remove(overlay);
+                OverlayUtils.hideLoading(root, overlay);
 
                 romListView.setItems(FXCollections.observableArrayList());
 
@@ -523,7 +493,7 @@ public class MainController {
             });
 
             importTask.setOnFailed(ev -> {
-                root.getChildren().remove(overlay);
+                OverlayUtils.hideLoading(root, overlay);
 
                 Throwable ex = importTask.getException();
                 logger.error("Import failed", ex);
@@ -622,28 +592,11 @@ public class MainController {
                 return;
             }
 
-            // Crear mensaje
-            Label mensaje = new Label("Updating all roms info...");
-            mensaje.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
-
-            // Crear overlay con spinner y mensaje
-            ProgressIndicator spinner = new ProgressIndicator();
-            spinner.setPrefSize(80, 80);
-
-            VBox content = new VBox(15, spinner, mensaje); // 15 = separación
-            content.setAlignment(Pos.CENTER);
-
-            StackPane overlay = new StackPane(content);
-            overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6)");
-            StackPane.setAlignment(spinner, Pos.CENTER);
-
             Pane root = (Pane) menuBar.getScene().getRoot();
-            root.getChildren().add(overlay);
+            StackPane overlay = OverlayUtils.showLoading(root, "Updating all roms info...");
 
-            // Bloquear los botones principales durante la operación
             syncButton.setDisable(true);
 
-            // Tarea en segundo plano para evitar bloquear la UI
             Task<Void> updateTask = new Task<>() {
                 @Override
                 protected Void call() {
@@ -691,7 +644,7 @@ public class MainController {
                     final int fTotal = total;
 
                     Platform.runLater(() -> {
-                        root.getChildren().remove(overlay);
+                        OverlayUtils.hideLoading(root, overlay);
                         syncButton.setDisable(false);
 
                         String summary = String.format(
@@ -715,7 +668,7 @@ public class MainController {
 
             updateTask.setOnFailed(e -> {
                 Platform.runLater(() -> {
-                    root.getChildren().remove(overlay);
+                    OverlayUtils.hideLoading(root, overlay);
                     syncButton.setDisable(false);
                     MessageUtils.showError("RAWG.io update failed: " + updateTask.getException().getMessage());
                 });
@@ -734,26 +687,10 @@ public class MainController {
     @FXML
     public void handleSync() {
 
-        // Crear mensaje
-        Label mensaje = new Label("Synchronizing with the cloud...");
-        mensaje.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
-
-        // Crear overlay con spinner y mensaje
-        ProgressIndicator spinner = new ProgressIndicator();
-        spinner.setPrefSize(80, 80);
-
-        VBox content = new VBox(15, spinner, mensaje); // 15 = separación
-        content.setAlignment(Pos.CENTER);
-
-        StackPane overlay = new StackPane(content);
-        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6)");
-        StackPane.setAlignment(spinner, Pos.CENTER);
-
         Pane root = (Pane) menuBar.getScene().getRoot();
-        root.getChildren().add(overlay);
+        StackPane overlay = OverlayUtils.showLoading(root, "Synchronizing with the cloud...");
         syncButton.setDisable(true);
 
-        // Hilo en segundo plano de sincronización
         Task<Void> syncTask = new Task<>() {
             @Override
             protected Void call() {
@@ -764,7 +701,7 @@ public class MainController {
         };
 
         syncTask.setOnSucceeded(e -> {
-            root.getChildren().remove(overlay);
+            OverlayUtils.hideLoading(root, overlay);
             syncButton.setDisable(false);
 
             LocalDateTime lastSync = SyncStateUtils.getLastSync();
@@ -779,7 +716,7 @@ public class MainController {
         });
 
         syncTask.setOnFailed(e -> {
-            root.getChildren().remove(overlay);
+            OverlayUtils.hideLoading(root, overlay);
             syncButton.setDisable(false);
 
             MessageUtils.showError("Synchronization failed: " + syncTask.getException().getMessage());
@@ -836,6 +773,7 @@ public class MainController {
             Stage stage = new Stage();
             stage.setTitle("Statistics");
             stage.initModality(Modality.APPLICATION_MODAL);
+            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(PATH_ROMRAIDER_ICON)));
             stage.setResizable(false);
             stage.setScene(statScene);
             stage.show();
