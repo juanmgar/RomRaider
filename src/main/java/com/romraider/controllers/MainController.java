@@ -1,6 +1,5 @@
 package com.romraider.controllers;
 
-import com.romraider.api.RawgApiClient;
 import com.romraider.api.SupabaseAuthService;
 import com.romraider.api.SupabaseSyncService;
 import com.romraider.app.AppInitializer;
@@ -8,6 +7,7 @@ import com.romraider.auth.SessionManager;
 import com.romraider.model.Plataforma;
 import com.romraider.model.Rom;
 import com.romraider.service.PlataformaService;
+import com.romraider.service.RawgRomUpdateService;
 import com.romraider.service.RomService;
 import com.romraider.utils.*;
 import javafx.application.Platform;
@@ -52,6 +52,7 @@ public class MainController {
 
     private final PlataformaService plataformaService = new PlataformaService();
     private final RomService romService = new RomService();
+    private final RawgRomUpdateService rawgRomUpdateService = new RawgRomUpdateService(romService);
 
     private Plataforma plataformaSeleccionada;
     private List<Rom> roms;
@@ -322,7 +323,6 @@ public class MainController {
         new Thread(scanTask).start();
     }
 
-
     private void processRomFile(Path path, String baseFolder, Map<String, Plataforma> extensionMap) {
         try {
             String filename = path.getFileName().toString();
@@ -361,36 +361,8 @@ public class MainController {
             // Auto-update RAWG
             PropertyUtils config = AppInitializer.loadConfig();
             if ("true".equalsIgnoreCase(config.get("romraider.api.autoupdate"))) {
-                try {
-                    RawgApiClient.RomInfo info = RawgApiClient.obtenerInfo(titulo);
-
-                    if (info != null) {
-                        // DESCRIPCIÓN (truncar antes de guardar)
-                        if (info.descripcion != null) {
-                            String desc = info.descripcion;
-                            if (desc.length() > 3999) {
-                                logger.warn("Description over 4000 chars for '{}', truncating.", titulo);
-                                desc = desc.substring(0, 3999);
-                            }
-                            rom.setDescripcion(desc);
-                        }
-
-                        // IMAGEN
-                        if (info.imageUrl != null) {
-                            try {
-                                String localPath = ImageUtils.downloadAndSaveImage(info.imageUrl, titulo, rom.getId());
-                                rom.setImagen(localPath);
-                            } catch (Exception e) {
-                                logger.error("Failed downloading image for '{}'", titulo, e);
-                            }
-                        }
-
-                        logger.info("ROM '{}' updated with RAWG data", titulo);
-                    }
-
-                } catch (Exception rawgException) {
-                    logger.error("RAWG update failed for '{}': {}", titulo, rawgException.getMessage());
-                }
+                rawgRomUpdateService.updateRomFromRawg(rom, false);
+                // No hace falta gestionar aquí el resultado, se loggea en el servicio
             }
 
             // Guardar en BD
@@ -405,7 +377,6 @@ public class MainController {
             logger.error("Unexpected error processing ROM '{}': {}", path.getFileName(), fatal.getMessage());
         }
     }
-
 
     @FXML
     public void handleExport() {
@@ -519,7 +490,6 @@ public class MainController {
             return;
         }
 
-        // Buscar ROM seleccionada en la lista en memoria
         Rom rom = roms.stream()
                 .filter(r -> r.getTitulo().equals(selectedTitle))
                 .findFirst()
@@ -530,39 +500,18 @@ public class MainController {
             return;
         }
 
-        logger.info("Solicitando datos RAWG.io para '{}'", rom.getTitulo());
-        RawgApiClient.RomInfo info = RawgApiClient.obtenerInfo(rom.getTitulo());
+        RawgRomUpdateService.UpdateResult result =
+                rawgRomUpdateService.updateRomFromRawg(rom, true);
 
-        try {
-            if (info != null && info.descripcion != null) {
-
-                // Actualizar descripción
-                rom.setDescripcion(info.descripcion);
-                logger.info("Descripción actualizada correctamente");
-
-                // Descargar imagen si existe
-                if (info.imageUrl != null) {
-                    String localPath =
-                            ImageUtils.downloadAndSaveImage(info.imageUrl, rom.getTitulo(), rom.getId());
-
-                    if (localPath != null) {
-                        rom.setImagen(localPath);
-                        logger.info("Imagen descargada y almacenada en '{}'", localPath);
-                    }
-                }
-
-                romService.guardar(rom);
+        switch (result.getStatus()) {
+            case UPDATED -> {
                 mostrarDetallesRom(rom.getTitulo());
-
                 MessageUtils.showInfo("ROM data updated from RAWG.io");
-
-            } else {
-                MessageUtils.showWarning("No data found on RAWG.io");
             }
-
-        } catch (Exception e) {
-            logger.error("Error descargando o procesando datos de RAWG.io", e);
-            MessageUtils.showError("Failed to download image from RAWG.io: " + e.getMessage());
+            case NOT_FOUND -> MessageUtils.showWarning("No data found on RAWG.io");
+            case ERROR -> MessageUtils.showError(
+                    "Failed to update from RAWG.io: " + result.getErrorMessage()
+            );
         }
     }
 
@@ -605,43 +554,20 @@ public class MainController {
                     int notFound = 0;
 
                     for (Rom rom : allRoms) {
-                        try {
-                            logger.info("Obteniendo datos de RAWG.io para '{}'", rom.getTitulo());
-                            RawgApiClient.RomInfo info = RawgApiClient.obtenerInfo(rom.getTitulo());
+                        RawgRomUpdateService.UpdateResult result =
+                                rawgRomUpdateService.updateRomFromRawg(rom, true);
 
-                            if (info != null && info.descripcion != null) {
-                                rom.setDescripcion(info.descripcion);
-                                logger.info("Descripción actualizada para '{}'", rom.getTitulo());
-
-                                if (info.imageUrl != null) {
-                                    String localPath = ImageUtils.downloadAndSaveImage(
-                                            info.imageUrl,
-                                            rom.getTitulo(),
-                                            rom.getId()
-                                    );
-                                    if (localPath != null) {
-                                        rom.setImagen(localPath);
-                                        logger.info("Imagen actualizada para '{}'", rom.getTitulo());
-                                    }
-                                }
-
-                                romService.guardar(rom);
-                                updated++;
-
-                            } else {
-                                notFound++;
-                                logger.warn("Sin datos en RAWG.io para '{}'", rom.getTitulo());
-                            }
-
-                        } catch (Exception e) {
-                            logger.error("Error actualizando '{}'", rom.getTitulo(), e);
+                        if (result.getStatus() == RawgRomUpdateService.Status.UPDATED) {
+                            updated++;
+                        } else if (result.getStatus() == RawgRomUpdateService.Status.NOT_FOUND) {
+                            notFound++;
                         }
+                        // Los ERROR se loggean dentro del servicio, aquí no contamos nada extra
                     }
 
-                    // Resultados finales pasados al hilo de UI
-                    final int fUpdated = updated;
-                    final int fNotFound = notFound;
-                    final int fTotal = total;
+                    int fUpdated = updated;
+                    int fNotFound = notFound;
+                    int fTotal = total;
 
                     Platform.runLater(() -> {
                         OverlayUtils.hideLoading(root, overlay);
@@ -1100,7 +1026,6 @@ public class MainController {
             MessageUtils.showError("Could not open folder:\n" + e.getMessage());
         }
     }
-
 
     private Image getDefaultImage() {
         return new Image(getClass().getResourceAsStream("/assets/no-image.png"));
