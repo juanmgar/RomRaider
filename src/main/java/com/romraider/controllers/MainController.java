@@ -16,9 +16,6 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -26,7 +23,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +43,6 @@ import static com.romraider.db.DataInitializer.insertOrUpdateDefaultPlatforms;
 public class MainController {
 
     private static final Logger logger = LoggerFactory.getLogger(MainController.class);
-    private static final String PATH_ROMRAIDER_STYLES = "/styles/romraider.css";
-    private static final String PATH_ROMRAIDER_ICON = "/assets/romraider-icon.png";
 
     private final PlataformaService plataformaService = new PlataformaService();
     private final RomService romService = new RomService();
@@ -658,25 +652,16 @@ public class MainController {
     @FXML
     public void handleSettings() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/PreferencesView.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.setTitle("Preferences");
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setResizable(false);
-
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(
-                    SceneUtils.class.getResource(PATH_ROMRAIDER_STYLES).toExternalForm()
+            Stage owner = (Stage) menuBar.getScene().getWindow();
+            DialogUtils.Dialog<?> dialog = DialogUtils.createDialog(
+                    "/views/PreferencesView.fxml",
+                    "Preferences",
+                    owner,
+                    false,
+                    true
             );
-
-            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(PATH_ROMRAIDER_ICON)));
-            stage.setScene(scene);
-            stage.showAndWait();
-
+            dialog.showAndWait();
             logger.info("Ventana de preferencias abierta");
-
         } catch (IOException e) {
             logger.error("Error al abrir ventana de preferencias", e);
         }
@@ -688,22 +673,15 @@ public class MainController {
     @FXML
     public void handleViewStatistics() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/StatisticsView.fxml"));
-            Parent statisticsRoot = loader.load();
-
-            Scene statScene = new Scene(statisticsRoot);
-            statScene.getStylesheets().add(
-                    getClass().getResource(PATH_ROMRAIDER_STYLES).toExternalForm()
+            Stage owner = (Stage) menuBar.getScene().getWindow();
+            DialogUtils.Dialog<?> dialog = DialogUtils.createDialog(
+                    "/views/StatisticsView.fxml",
+                    "Statistics",
+                    owner,
+                    false,
+                    true
             );
-
-            Stage stage = new Stage();
-            stage.setTitle("Statistics");
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(PATH_ROMRAIDER_ICON)));
-            stage.setResizable(false);
-            stage.setScene(statScene);
-            stage.show();
-
+            dialog.show(); // no bloquea, igual que antes
         } catch (IOException e) {
             logger.error("Error al cargar la vista de estadísticas", e);
         }
@@ -715,17 +693,15 @@ public class MainController {
     @FXML
     public void handleAddPlatform() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/PlataformaFormView.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.setTitle("Add Platform");
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setResizable(false);
-            stage.setScene(new Scene(root));
-            stage.getIcons().add(new Image(getClass().getResourceAsStream(PATH_ROMRAIDER_ICON)));
-            stage.showAndWait();
-
+            Stage owner = (Stage) menuBar.getScene().getWindow();
+            DialogUtils.Dialog<?> dialog = DialogUtils.createDialog(
+                    "/views/PlataformaFormView.fxml",
+                    "Add Platform",
+                    owner,
+                    false,
+                    false // si no quieres aplicar CSS aquí
+            );
+            dialog.showAndWait();
             cargarPlataformas();
 
         } catch (IOException e) {
@@ -752,19 +728,21 @@ public class MainController {
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/PlataformaFormView.fxml"));
-            Parent root = loader.load();
+            Stage owner = (Stage) menuBar.getScene().getWindow();
 
-            PlataformaFormController controller = loader.getController();
+            DialogUtils.Dialog<PlataformaFormController> dialog =
+                    DialogUtils.createDialog(
+                            "/views/PlataformaFormView.fxml",
+                            "Edit Platform",
+                            owner,
+                            false,
+                            false
+                    );
+
+            PlataformaFormController controller = dialog.getController();
             controller.setPlataformaToEdit(selected);
 
-            Stage stage = new Stage();
-            stage.setTitle("Edit Platform");
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setResizable(false);
-            stage.setScene(new Scene(root));
-            stage.getIcons().add(new Image(getClass().getResourceAsStream(PATH_ROMRAIDER_ICON)));
-            stage.showAndWait();
+            dialog.showAndWait();
 
             cargarPlataformas();
             if (platformListView.getItems().contains(selected)) {
@@ -839,16 +817,22 @@ public class MainController {
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/RomFormView.fxml"));
-            Parent root = loader.load();
+            Stage owner = (Stage) menuBar.getScene().getWindow();
 
-            Stage stage = new Stage();
-            stage.setTitle("Add ROM");
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setResizable(false);
-            stage.setScene(new Scene(root));
-            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(PATH_ROMRAIDER_ICON)));
-            stage.showAndWait();
+            DialogUtils.Dialog<RomFormController> dialog =
+                    DialogUtils.createDialog(
+                            "/views/RomFormView.fxml",
+                            "Add ROM",
+                            owner,
+                            false,
+                            false  // si quieres aplicar romraider.css, pon true
+                    );
+
+            // Si el formulario necesita saber la plataforma actual, puedes pasarla aquí
+            RomFormController controller = dialog.getController();
+            // controller.setPlataforma(plataformaSeleccionada); // solo si tienes algo así
+
+            dialog.showAndWait();
 
             cargarRomsPorPlataforma(plataformaSeleccionada);
 
@@ -880,20 +864,21 @@ public class MainController {
         }
 
         try {
-            FXMLLoader loader =
-                    new FXMLLoader(getClass().getResource("/views/RomFormView.fxml"));
+            Stage owner = (Stage) menuBar.getScene().getWindow();
 
-            Parent root = loader.load();
-            RomFormController controller = loader.getController();
+            DialogUtils.Dialog<RomFormController> dialog =
+                    DialogUtils.createDialog(
+                            "/views/RomFormView.fxml",
+                            "Edit ROM",
+                            owner,
+                            false,
+                            false   // pon true si quieres aplicar romraider.css
+                    );
+
+            RomFormController controller = dialog.getController();
             controller.setRomToEdit(selectedRom);
 
-            Stage stage = new Stage();
-            stage.setTitle("Edit ROM");
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setResizable(false);
-            stage.setScene(new Scene(root));
-            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(PATH_ROMRAIDER_ICON)));
-            stage.showAndWait();
+            dialog.showAndWait();
 
             cargarRomsPorPlataforma(plataformaSeleccionada);
             mostrarDetallesRom(selectedRom.getTitulo());
@@ -954,23 +939,18 @@ public class MainController {
     @FXML
     public void handleCredits() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/CreditsView.fxml"));
-            Parent root = loader.load();
+            Stage owner = (Stage) menuBar.getScene().getWindow();
 
-            Stage stage = new Stage();
-            stage.setTitle("Credits");
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setResizable(false);
+            DialogUtils.Dialog<?> dialog =
+                    DialogUtils.createDialog(
+                            "/views/CreditsView.fxml",
+                            "Credits",
+                            owner,
+                            false,
+                            true   // aquí sí interesa aplicar romraider.css
+                    );
 
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(
-                    SceneUtils.class.getResource(PATH_ROMRAIDER_STYLES).toExternalForm()
-            );
-
-            stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(PATH_ROMRAIDER_ICON)));
-            stage.setScene(scene);
-            stage.showAndWait();
-
+            dialog.showAndWait();
             logger.info("Ventana de créditos abierta correctamente");
 
         } catch (IOException e) {
