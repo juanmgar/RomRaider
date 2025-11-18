@@ -112,7 +112,7 @@ public class LoginController {
             logger.info("Sesión guardada en disco para auto-login futuro");
         }
 
-        // Spinner durante la sincronización ---
+        // Spinner durante la sincronización
         mostrarSpinnerSincronizacionYSync();
     }
 

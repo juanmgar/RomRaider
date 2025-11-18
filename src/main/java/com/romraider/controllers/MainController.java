@@ -356,7 +356,6 @@ public class MainController {
             PropertyUtils config = AppInitializer.loadConfig();
             if ("true".equalsIgnoreCase(config.get("romraider.api.autoupdate"))) {
                 rawgRomUpdateService.updateRomFromRawg(rom, false);
-                // No hace falta gestionar aquí el resultado, se loggea en el servicio
             }
 
             // Guardar en BD
@@ -556,7 +555,6 @@ public class MainController {
                         } else if (result.getStatus() == RawgRomUpdateService.Status.NOT_FOUND) {
                             notFound++;
                         }
-                        // Los ERROR se loggean dentro del servicio, aquí no contamos nada extra
                     }
 
                     int fUpdated = updated;
@@ -681,7 +679,7 @@ public class MainController {
                     false,
                     true
             );
-            dialog.show(); // no bloquea, igual que antes
+            dialog.show();
         } catch (IOException e) {
             logger.error("Error al cargar la vista de estadísticas", e);
         }
@@ -699,7 +697,7 @@ public class MainController {
                     "Add Platform",
                     owner,
                     false,
-                    false // si no quieres aplicar CSS aquí
+                    false
             );
             dialog.showAndWait();
             cargarPlataformas();
@@ -825,12 +823,8 @@ public class MainController {
                             "Add ROM",
                             owner,
                             false,
-                            false  // si quieres aplicar romraider.css, pon true
+                            false
                     );
-
-            // Si el formulario necesita saber la plataforma actual, puedes pasarla aquí
-            RomFormController controller = dialog.getController();
-            // controller.setPlataforma(plataformaSeleccionada); // solo si tienes algo así
 
             dialog.showAndWait();
 
@@ -872,7 +866,7 @@ public class MainController {
                             "Edit ROM",
                             owner,
                             false,
-                            false   // pon true si quieres aplicar romraider.css
+                            false
                     );
 
             RomFormController controller = dialog.getController();
@@ -947,7 +941,7 @@ public class MainController {
                             "Credits",
                             owner,
                             false,
-                            true   // aquí sí interesa aplicar romraider.css
+                            true
                     );
 
             dialog.showAndWait();
