@@ -64,7 +64,7 @@ public class SceneUtils {
      */
     public static void switchToLoginView(Stage stage) {
         try {
-            logger.info("Cargando LoginView.fxml");
+            logger.info("Probando Cargando LoginView.fxml");
 
             FXMLLoader loader = new FXMLLoader(SceneUtils.class.getResource("/views/LoginView.fxml"));
             Parent root = loader.load();
