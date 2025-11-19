@@ -39,7 +39,7 @@ class ImageUtilsTest {
                 fileName.matches("Super_Mario_Bros_+EU_+\\d+\\.png"),
                 "El nombre de archivo no cumple el patrón esperado"
         );
-        
+
     }
 
     @Test
