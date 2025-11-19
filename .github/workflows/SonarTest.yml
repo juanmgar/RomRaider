@@ -48,7 +48,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # lo pone GitHub por defecto
           SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}    # lo creas en SonarCloud
         run: |
-          mvn -B clean verify \
-            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=TU_PROJECT_KEY \
-            -Dsonar.organization=TU_ORGANIZATION
+          mvn -B verify sonar:sonar -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+
