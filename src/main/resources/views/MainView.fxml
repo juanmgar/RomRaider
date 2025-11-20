@@ -25,6 +25,9 @@
                     </Menu>
                     <Menu text="Settings">
                         <MenuItem text="Preferences" onAction="#handleSettings"/>
+                    </Menu>
+                    <Menu text="Help">
+                        <MenuItem text="User Guide" onAction="#handleHelp"/>
                         <MenuItem text="About" onAction="#handleCredits"/>
                     </Menu>
                 </menus>

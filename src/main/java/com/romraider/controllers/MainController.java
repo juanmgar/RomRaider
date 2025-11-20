@@ -16,11 +16,13 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -950,6 +952,28 @@ public class MainController {
         } catch (IOException e) {
             logger.error("Error abriendo ventana de créditos", e);
             MessageUtils.showError("Could not open the Credits window.");
+        }
+    }
+
+    /**
+     * Muestra la ventana del manual de ayuda.
+     */
+    @FXML
+    public void handleHelp() {
+        try {
+            DialogUtils.Dialog<?> dialog = DialogUtils.createDialog(
+                    "/views/HelpManualView.fxml",
+                    "Manual de Usuario",
+                    null,
+                    true,
+                    true
+            );
+
+            dialog.show();
+            logger.info("Ventana de ayuda abierta correctamente");
+
+        } catch (Exception e) {
+            logger.error("Error al abrir la ventana de ayuda", e);
         }
     }
 

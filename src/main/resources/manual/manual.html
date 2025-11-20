@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Manual de Usuario - Rom Manager</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        h1 {
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .toc {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+        }
+        .toc ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 0.95em;
+        }
+        .note {
+            border-left: 4px solid #0078d7;
+            background: #f0f7ff;
+            padding: 10px 15px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Manual de Usuario</h1>
+<p><strong>Aplicación:</strong> Rom Manager<br>
+    <strong>Versión:</strong> 1.0.0<br>
+    <strong>Autor:</strong> Juan Manuel Sierra García</p>
+
+<div class="toc">
+    <h2>Índice</h2>
+    <ul>
+        <li><a href="#intro">1. Introducción</a></li>
+        <li><a href="#requisitos">2. Requisitos del sistema</a></li>
+        <li><a href="#inicio">3. Primer inicio de la aplicación</a></li>
+        <li><a href="#plataformas">4. Gestión de plataformas</a></li>
+        <li><a href="#roms">5. Gestión de ROMs</a>
+            <ul>
+                <li><a href="#roms-add">5.1 Añadir una ROM</a></li>
+                <li><a href="#roms-edit">5.2 Editar una ROM</a></li>
+                <li><a href="#roms-open-folder">5.3 Abrir carpeta de la ROM</a></li>
+            </ul>
+        </li>
+        <li><a href="#backup">6. Copias de seguridad y sincronización</a></li>
+        <li><a href="#problemas">7. Preguntas frecuentes y problemas comunes</a></li>
+    </ul>
+</div>
+
+<h2 id="intro">1. Introducción</h2>
+<p>
+    Esta aplicación permite gestionar de forma sencilla una biblioteca de ROMs organizadas por plataformas
+    (consolas, sistemas, emuladores, etc.). Desde la interfaz principal podrás:
+</p>
+<ul>
+    <li>Crear y editar plataformas.</li>
+    <li>Añadir, modificar y eliminar ROMs.</li>
+    <li>Marcar juegos como favoritos o jugados.</li>
+    <li>Sincronizar la información con servicios externos (por ejemplo, Supabase).</li>
+</ul>
+
+<div class="note">
+    <strong>Nota:</strong> Este manual describe el uso básico de la aplicación. Algunas funciones avanzadas
+    pueden no estar disponibles en todas las versiones.
+</div>
+
+<h2 id="requisitos">2. Requisitos del sistema</h2>
+<ul>
+    <li>Java 17 o superior instalado.</li>
+    <li>Sistema operativo Windows, Linux o macOS.</li>
+    <li>Conexión a Internet opcional para funciones online (por ejemplo, descarga de información desde APIs externas).
+    </li>
+</ul>
+
+<h2 id="inicio">3. Primer inicio de la aplicación</h2>
+<ol>
+    <li>Ejecuta el archivo <code>.jar</code> o el lanzador correspondiente a tu sistema operativo.</li>
+    <li>La primera vez se creará una base de datos local (por ejemplo, H2) con las tablas necesarias.</li>
+    <li>Verás una ventana principal con la lista de plataformas a la izquierda y las ROMs a la derecha.</li>
+</ol>
+
+<h2 id="plataformas">4. Gestión de plataformas</h2>
+<p>
+    Las plataformas representan las consolas o sistemas (por ejemplo: Super Nintendo, PlayStation, MAME).
+</p>
+<ul>
+    <li><strong>Añadir plataforma:</strong> usa el botón <em>“Nueva plataforma”</em> y rellena nombre, extensión de ROM,
+        carpeta por defecto, etc.
+    </li>
+    <li><strong>Editar plataforma:</strong> selecciona una plataforma y haz clic en <em>“Editar”</em>.</li>
+    <li><strong>Eliminar plataforma:</strong> selecciona la plataforma y haz clic en <em>“Eliminar”</em>.
+        Si tiene ROMs asociadas, se te pedirá confirmación.
+    </li>
+</ul>
+
+<h2 id="roms">5. Gestión de ROMs</h2>
+<p>
+    Las ROMs son los archivos de los juegos. Cada ROM está asociada a una plataforma.
+</p>
+
+<h3 id="roms-add">5.1 Añadir una ROM</h3>
+<ol>
+    <li>Selecciona primero la plataforma en el panel correspondiente.</li>
+    <li>Pulsa el botón <em>“Añadir ROM”</em>.</li>
+    <li>En el formulario, introduce:
+        <ul>
+            <li><strong>Título</strong> del juego.</li>
+            <li><strong>Descripción</strong> opcional.</li>
+            <li><strong>Ruta del archivo</strong> de la ROM (se puede seleccionar con un diálogo de fichero).</li>
+            <li>Opcionalmente, marca si es <strong>favorito</strong> o si ya está <strong>jugado</strong>.</li>
+        </ul>
+    </li>
+    <li>Confirma con <em>“Guardar”</em>.</li>
+</ol>
+
+<h3 id="roms-edit">5.2 Editar una ROM</h3>
+<ol>
+    <li>Selecciona la ROM en la tabla.</li>
+    <li>Pulsa el botón <em>“Editar ROM”</em> o haz doble clic en la fila (si está configurado así).</li>
+    <li>Modifica los campos necesarios.</li>
+    <li>Guarda los cambios.</li>
+</ol>
+
+<h3 id="roms-open-folder">5.3 Abrir carpeta de la ROM</h3>
+<p>
+    En la vista de detalle de una ROM puedes encontrar el botón <strong>“Abrir carpeta”</strong>.
+</p>
+<ul>
+    <li>Al pulsarlo, se abrirá el explorador de archivos del sistema directamente en la carpeta donde se encuentra la
+        ROM.
+    </li>
+    <li>Si la ruta no es válida, se mostrará un mensaje de error.</li>
+</ul>
+
+<h2 id="backup">6. Copias de seguridad y sincronización</h2>
+<p>
+    La aplicación puede ofrecer funciones de:
+</p>
+<ul>
+    <li><strong>Copia de seguridad local:</strong> exportar la base de datos o los datos a un fichero.</li>
+    <li><strong>Sincronización con Supabase u otros servicios:</strong> subir plataformas y ROMs para mantener una copia
+        remota.
+    </li>
+</ul>
+<p>
+    Para iniciar la sincronización, utiliza el menú <em>“Herramientas → Sincronizar”</em> (o el menú correspondiente
+    en tu versión).
+</p>
+
+<h2 id="problemas">7. Preguntas frecuentes y problemas comunes</h2>
+
+<h3>7.1 No se abre la aplicación</h3>
+<ul>
+    <li>Comprueba que tienes instalada la versión correcta de Java.</li>
+    <li>Verifica que tu antivirus no esté bloqueando el ejecutable.</li>
+</ul>
+
+<h3>7.2 No puedo añadir ROMs</h3>
+<ul>
+    <li>Asegúrate de haber creado al menos una plataforma.</li>
+    <li>Comprueba que la ruta del archivo de la ROM existe y es accesible.</li>
+</ul>
+
+<h3>7.3 Errores de conexión en la sincronización</h3>
+<ul>
