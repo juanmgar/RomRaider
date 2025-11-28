@@ -139,6 +139,13 @@
             <ScrollPane fitToWidth="true" style="-fx-padding: 10;">
                 <VBox spacing="10">
                     <Label text="%main.details.label" style="-fx-font-size: 16px;"/>
+
+                    <!-- Plataforma -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="%main.details.platform"/>
+                        <Label fx:id="romPlatformLabel" style="-fx-font-weight: bold;"/>
+                    </HBox>
+
                     <StackPane prefHeight="250" prefWidth="250" minHeight="250" maxHeight="250" alignment="CENTER">
                         <ImageView fx:id="romImage"
                                    fitHeight="250" fitWidth="250"

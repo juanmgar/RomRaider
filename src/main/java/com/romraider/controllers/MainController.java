@@ -75,6 +75,8 @@ public class MainController {
     private Label userLabel;
     @FXML
     private Label syncLabel;
+    @FXML
+    private Label romPlatformLabel;
 
     @FXML
     public void initialize() {
@@ -166,6 +168,13 @@ public class MainController {
                             ? rom.getDescripcion()
                             : I18nUtils.get("main.rom.noDescription")
             );
+
+            if (rom.getPlataforma() != null) {
+                romPlatformLabel.setText(rom.getPlataforma().getNombre());
+            } else {
+                romPlatformLabel.setText(I18nUtils.get("main.platform.none"));
+            }
+
             favoriteCheckBox.setSelected(rom.isFavorito());
             playedCheckBox.setSelected(rom.isJugado());
 
