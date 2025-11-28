@@ -59,7 +59,7 @@ public final class DialogUtils {
                                              boolean resizable,
                                              boolean applyStyles) throws IOException {
 
-        FXMLLoader loader = new FXMLLoader(DialogUtils.class.getResource(fxmlPath));
+        FXMLLoader loader = new FXMLLoader(DialogUtils.class.getResource(fxmlPath), I18nUtils.getBundle());
         Parent root = loader.load();
         T controller = loader.getController();
 

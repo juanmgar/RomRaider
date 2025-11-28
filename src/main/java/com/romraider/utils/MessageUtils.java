@@ -11,7 +11,7 @@ import java.util.Optional;
  * Utilidad para mostrar diálogos emergentes (alertas, avisos, confirmaciones)
  * en la interfaz JavaFX.
  *
- * Todas las ventanas que se muestran al usuario son en inglés.
+ * Los textos visibles para el usuario se obtienen del sistema de internacionalización (I18n).
  * Los mensajes de log generados desde esta clase son en español.
  */
 public class MessageUtils {
@@ -25,7 +25,7 @@ public class MessageUtils {
      */
     public static void showError(String message) {
         logger.error("Mostrando mensaje de error al usuario: {}", message);
-        showAlert(Alert.AlertType.ERROR, "Error", message);
+        showAlert(Alert.AlertType.ERROR, I18nUtils.get("message.error.title"), message);
     }
 
     /**
@@ -35,7 +35,7 @@ public class MessageUtils {
      */
     public static void showInfo(String message) {
         logger.info("Mostrando mensaje informativo al usuario: {}", message);
-        showAlert(Alert.AlertType.INFORMATION, "Information", message);
+        showAlert(Alert.AlertType.INFORMATION, I18nUtils.get("message.info.title"), message);
     }
 
     /**
@@ -45,7 +45,7 @@ public class MessageUtils {
      */
     public static void showWarning(String message) {
         logger.warn("Mostrando mensaje de advertencia al usuario: {}", message);
-        showAlert(Alert.AlertType.WARNING, "Warning", message);
+        showAlert(Alert.AlertType.WARNING, I18nUtils.get("message.warning.title"), message);
     }
 
     /**
@@ -58,7 +58,7 @@ public class MessageUtils {
         logger.debug("Mostrando cuadro de confirmación al usuario: {}", message);
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
+        alert.setTitle(I18nUtils.get("message.confirm.title"));
         alert.setHeaderText(null);
         alert.setContentText(message);
 
@@ -70,7 +70,7 @@ public class MessageUtils {
      * Método interno para crear y mostrar una alerta JavaFX.
      *
      * @param type tipo de alerta (error, info, warning...)
-     * @param title título de la ventana (en inglés)
+     * @param title título de la ventana (i18n)
      * @param message contenido del mensaje
      */
     private static void showAlert(Alert.AlertType type, String title, String message) {

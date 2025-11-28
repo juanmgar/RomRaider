@@ -21,26 +21,25 @@
         </ImageView>
     </StackPane>
 
-    <Label text="Access your collection anytime, anywhere." style="-fx-font-size: 14px; -fx-text-fill: #555555;"/>
+    <Label text="%login.subtitle" style="-fx-font-size: 14px; -fx-text-fill: #555555;"/>
 
     <VBox spacing="8" maxWidth="300">
-        <TextField fx:id="usernameField" promptText="Email"/>
-        <PasswordField fx:id="passwordField" promptText="Password"/>
+        <TextField fx:id="usernameField" promptText="%login.email"/>
+        <PasswordField fx:id="passwordField" promptText="%login.password"/>
 
         <HBox spacing="10">
-            <Button fx:id="loginButton" text="Login" onAction="#handleLogin" prefWidth="140"/>
-            <Button fx:id="registerButton" text="Register" onAction="#handleRegister" prefWidth="140"/>
+            <Button fx:id="loginButton" text="%login.button.login" onAction="#handleLogin" prefWidth="140"/>
+            <Button fx:id="registerButton" text="%login.button.register" onAction="#handleRegister" prefWidth="140"/>
         </HBox>
 
-        <CheckBox fx:id="rememberMeCheck" text="Remember me"/>
-
+        <CheckBox fx:id="rememberMeCheck" text="%login.rememberMe"/>
         <Label fx:id="messageLabel" textFill="red" wrapText="true"/>
     </VBox>
 
     <Separator prefWidth="320"/>
 
     <VBox spacing="5" alignment="CENTER">
-        <Label text="No internet connection?" style="-fx-text-fill: #666666;"/>
-        <Button text="Continue in Offline Mode" onAction="#handleOffline"/>
+        <Label text="%login.noInternet" style="-fx-text-fill: #666666;"/>
+        <Button text="%login.offline" onAction="#handleOffline"/>
     </VBox>
 </VBox>

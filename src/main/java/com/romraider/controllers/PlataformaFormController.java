@@ -2,6 +2,7 @@ package com.romraider.controllers;
 
 import com.romraider.model.Plataforma;
 import com.romraider.service.PlataformaService;
+import com.romraider.utils.I18nUtils;
 import com.romraider.utils.MessageUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -99,7 +100,7 @@ public class PlataformaFormController {
         plataformaService.guardar(plataforma);
 
         logger.info("Plataforma '{}' guardada correctamente", plataforma.getNombre());
-        MessageUtils.showInfo("Platform saved successfully.");
+        MessageUtils.showInfo(I18nUtils.get("platformForm.saveSuccess"));
         closeWindow();
     }
 
@@ -121,17 +122,15 @@ public class PlataformaFormController {
      */
     private boolean validateFields() {
         if (nameField.getText().trim().isEmpty()) {
-            MessageUtils.showWarning("Name is required.");
+            MessageUtils.showWarning(I18nUtils.get("platformForm.errorName"));
             return false;
         }
         if (!extField.getText().trim().matches("^\\.[a-zA-Z0-9]{1,10}$")) {
-            MessageUtils.showWarning(
-                    "Invalid extension format. Must start with '.' and contain up to 10 alphanumeric characters."
-            );
+            MessageUtils.showWarning(I18nUtils.get("platformForm.errorExtension"));
             return false;
         }
         if (folderField.getText().trim().isEmpty()) {
-            MessageUtils.showWarning("Folder path is required.");
+            MessageUtils.showWarning(I18nUtils.get("platformForm.errorFolder"));
             return false;
         }
         return true;

@@ -2,6 +2,8 @@ package com.romraider.app;
 
 import com.romraider.db.DataInitializer;
 import com.romraider.db.JpaUtil;
+import com.romraider.utils.I18nUtils;
+import com.romraider.utils.PropertyUtils;
 import com.romraider.utils.SceneUtils;
 import com.romraider.utils.SoundUtils;
 import javafx.animation.PauseTransition;
@@ -50,6 +52,12 @@ public class Main extends Application {
         // Inicializa propiedades, carpetas y configuración general
         AppInitializer.initialize();
 
+        PropertyUtils config = AppInitializer.loadConfig();
+        String lang = config.getOrDefault("romraider.language", "es");
+
+        I18nUtils.load(lang);
+        logger.info("Idioma de la aplicación: {}", lang);
+
         // Si quisieras cargar datos por defecto:
         DataInitializer.initializeWithDefaults();
 
@@ -95,12 +103,12 @@ public class Main extends Application {
 
     private boolean confirmClose() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Salir de ROM Raider");
-        alert.setHeaderText("¿Has guardado los cambios?");
-        alert.setContentText("Si sales ahora, podrías perder cambios no guardados.");
+        alert.setTitle(I18nUtils.get("app.exit.title"));
+        alert.setHeaderText(I18nUtils.get("app.exit.header"));
+        alert.setContentText(I18nUtils.get("app.exit.content"));
 
-        ButtonType guardarBtn = new ButtonType("He guardado, salir");
-        ButtonType cancelarBtn = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType guardarBtn = new ButtonType(I18nUtils.get("app.exit.confirm"));
+        ButtonType cancelarBtn = new ButtonType(I18nUtils.get("app.exit.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
         alert.getButtonTypes().setAll(guardarBtn, cancelarBtn);
 

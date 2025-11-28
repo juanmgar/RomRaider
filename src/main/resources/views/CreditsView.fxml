@@ -8,21 +8,21 @@
 
     <center>
         <VBox spacing="10" alignment="CENTER" style="-fx-padding: 30;">
-            <Label text="ROM Raider" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-            <Label text="Retro ROM manager for multiple platforms" />
-            <Label text="Final project for the Vocational Training Program in Multiplatform App Development (DAM)" />
-            <Label text="Developed by JuanMa Sierra García" />
-            <Label text="Built using JavaFX, Hibernate, Supabase, and the RAWG.io API"/>
-            <Hyperlink text="Background image by kjpargeter on Freepik"
+            <Label text="%credits.title" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+            <Label text="%credits.subtitle" />
+            <Label text="%credits.damDescription" />
+            <Label text="%credits.author" />
+            <Label text="%credits.stack"/>
+            <Hyperlink text="%credits.bgCredit"
                        onAction="#handleOpenFreepik"
                        style="-fx-text-fill: #33eaff; -fx-font-size: 12px; -fx-underline: true;" />
-            <Label text="2025 © All rights reserved" />
+            <Label text="%credits.rights" />
         </VBox>
     </center>
 
     <bottom>
         <HBox alignment="CENTER" style="-fx-padding: 10;">
-            <Button text="Close" onAction="#handleCloseCredits"/>
+            <Button text="%credits.close.button" onAction="#handleCloseCredits"/>
         </HBox>
     </bottom>
 

@@ -11,30 +11,30 @@
     <center>
         <VBox spacing="15" style="-fx-padding: 20;">
 
-            <Label text="ROM Copy Folder" style="-fx-font-weight: bold;"/>
+            <Label text="%preferences.copyFolder" style="-fx-font-weight: bold;"/>
             <HBox spacing="10">
                 <TextField fx:id="copyPathField" prefWidth="300"/>
-                <Button text="Browse" onAction="#handleBrowseFolder"/>
+                <Button text="%preferences.browse" onAction="#handleBrowseFolder"/>
             </HBox>
 
             <Separator/>
 
-            <Label text="Language" style="-fx-font-weight: bold;"/>
+            <Label text="%preferences.language" style="-fx-font-weight: bold;"/>
             <ComboBox fx:id="languageCombo" prefWidth="150"/>
 
             <Separator/>
 
             <Separator/>
 
-            <CheckBox fx:id="autoUpdateCheckBox" text="Enable automatic data updates from RAWG.io"/>
+            <CheckBox fx:id="autoUpdateCheckBox" text="%preferences.autoUpdateRawg"/>
 
         </VBox>
     </center>
 
     <bottom>
         <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding: 10;">
-            <Button text="Save" onAction="#handleSave"/>
-            <Button text="Cancel" onAction="#handleCancel"/>
+            <Button text="%preferences.save" onAction="#handleSave"/>
+            <Button text="%preferences.cancel" onAction="#handleCancel"/>
         </HBox>
     </bottom>
 

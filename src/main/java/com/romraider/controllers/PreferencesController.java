@@ -1,6 +1,7 @@
 package com.romraider.controllers;
 
 import com.romraider.app.AppInitializer;
+import com.romraider.utils.I18nUtils;
 import com.romraider.utils.MessageUtils;
 import com.romraider.utils.PropertyUtils;
 import javafx.fxml.FXML;
@@ -115,17 +116,16 @@ public class PreferencesController {
 
             config.set("romraider.api.autoupdate", String.valueOf(autoUpdate));
             config.set("romraider.roms.default-folder", relativePath);
-            String selectedLanguage = languageCombo.getValue();
-            config.set("romraider.language", selectedLanguage);
+            config.set("romraider.language", languageCombo.getValue());
 
             config.save("ROM Raider Configuration");
 
             logger.info("Preferencias guardadas con éxito");
-            MessageUtils.showInfo("Preferences saved successfully.");
+            MessageUtils.showInfo(I18nUtils.get("preferences.saveSuccess"));
 
         } catch (IOException e) {
             logger.error("Error guardando preferencias", e);
-            MessageUtils.showError("Error saving preferences: " + e.getMessage());
+            MessageUtils.showError(I18nUtils.get("preferences.saveError") + ": " + e.getMessage());
         }
 
         closeWindow();

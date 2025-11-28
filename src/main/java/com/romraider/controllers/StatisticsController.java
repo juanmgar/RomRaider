@@ -4,6 +4,7 @@ import com.romraider.model.Plataforma;
 import com.romraider.model.Rom;
 import com.romraider.service.PlataformaService;
 import com.romraider.service.RomService;
+import com.romraider.utils.I18nUtils;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
@@ -68,16 +69,30 @@ public class StatisticsController {
         List<Rom> roms = romService.obtenerTodas();
 
         // Contadores globales
-        totalRomsLabel.setText("Total ROMs: " + roms.size());
-        totalPlatformsLabel.setText("Total Platforms: " + plataformas.size());
 
         long playedCount = roms.stream().filter(Rom::isJugado).count();
         long favoriteCount = roms.stream().filter(Rom::isFavorito).count();
 
-        romsPlayedLabel.setText("ROMs Played: " + playedCount);
-        romsFavoritedLabel.setText("ROMs Favorited: " + favoriteCount);
+        // Labels
+        totalRomsLabel.setText(String.format(
+                I18nUtils.get("statistics.totalRoms"), roms.size()
+        ));
 
-        logger.info("ROMs totales: {}, jugadas: {}, favoritas: {}", roms.size(), playedCount, favoriteCount);
+        totalPlatformsLabel.setText(String.format(
+                I18nUtils.get("statistics.totalPlatforms"), plataformas.size()
+        ));
+
+        romsPlayedLabel.setText(String.format(
+                I18nUtils.get("statistics.romsPlayed"), playedCount
+        ));
+
+        romsFavoritedLabel.setText(String.format(
+                I18nUtils.get("statistics.romsFavorited"), favoriteCount
+        ));
+
+        logger.info("ROMs totales: {}, jugadas: {}, favoritas: {}",
+                roms.size(), playedCount, favoriteCount);
+
 
         /*
          *
@@ -95,7 +110,7 @@ public class StatisticsController {
                         ));
 
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("ROMs per Platform");
+        series.setName(I18nUtils.get("statistics.romsPerPlatform"));
 
         romsPorPlataforma.forEach((platform, count) -> {
             logger.debug("Plataforma '{}' tiene {} ROMs", platform, count);
@@ -109,16 +124,25 @@ public class StatisticsController {
          *  PIE CHART: Jugadas / No jugadas
          *
          */
-        playedPieChart.getData().add(new PieChart.Data("Played", playedCount));
-        playedPieChart.getData().add(new PieChart.Data("Not Played", roms.size() - playedCount));
+        playedPieChart.getData().add(new PieChart.Data(
+                I18nUtils.get("statistics.played"), playedCount
+        ));
+        playedPieChart.getData().add(new PieChart.Data(
+                I18nUtils.get("statistics.notPlayed"), roms.size() - playedCount
+        ));
+
 
         /*
          *
          *  PIE CHART: Favoritas / No favoritas
          *
          */
-        favoritesPieChart.getData().add(new PieChart.Data("Favorite", favoriteCount));
-        favoritesPieChart.getData().add(new PieChart.Data("Not Favorite", roms.size() - favoriteCount));
+        favoritesPieChart.getData().add(new PieChart.Data(
+                I18nUtils.get("statistics.favorite"), favoriteCount
+        ));
+        favoritesPieChart.getData().add(new PieChart.Data(
+                I18nUtils.get("statistics.notFavorite"), roms.size() - favoriteCount
+        ));
 
         logger.info("Estadísticas cargadas correctamente.");
     }

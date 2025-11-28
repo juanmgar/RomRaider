@@ -9,20 +9,20 @@
     <center>
         <VBox spacing="15" style="-fx-padding: 20;">
 
-            <Label text="Platform Details" style="-fx-font-weight: bold;"/>
+            <Label text="%platformForm.title" style="-fx-font-weight: bold;"/>
 
             <HBox spacing="10">
-                <Label text="Name:"/>
+                <Label text="%platformForm.name"/>
                 <TextField fx:id="nameField" prefWidth="300"/>
             </HBox>
 
             <HBox spacing="10">
-                <Label text="Extension (e.g., .nes):"/>
+                <Label text="%platformForm.extension"/>
                 <TextField fx:id="extField" prefWidth="300"/>
             </HBox>
 
             <HBox spacing="10">
-                <Label text="Folder name:"/>
+                <Label text="%platformForm.folder"/>
                 <TextField fx:id="folderField" prefWidth="300"/>
             </HBox>
 
@@ -31,8 +31,8 @@
 
     <bottom>
         <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding: 10;">
-            <Button fx:id="saveButton" text="Save" onAction="#handleSave" disable="true"/>
-            <Button text="Cancel" onAction="#handleCancel"/>
+            <Button fx:id="saveButton" text="%platformForm.save" onAction="#handleSave" disable="true"/>
+            <Button text="%platformForm.cancel" onAction="#handleCancel"/>
         </HBox>
     </bottom>
 

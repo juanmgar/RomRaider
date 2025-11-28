@@ -4,6 +4,7 @@ import com.romraider.model.Plataforma;
 import com.romraider.model.Rom;
 import com.romraider.service.PlataformaService;
 import com.romraider.service.RomService;
+import com.romraider.utils.I18nUtils;
 import com.romraider.utils.ImageUtils;
 import com.romraider.utils.MessageUtils;
 import javafx.collections.FXCollections;
@@ -94,7 +95,7 @@ public class RomFormController {
     @FXML
     public void handleBrowseImage() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select ROM Image");
+        fileChooser.setTitle(I18nUtils.get("romForm.selectImage"));
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
         );
@@ -118,7 +119,7 @@ public class RomFormController {
 
             } catch (IOException e) {
                 logger.error("Error al copiar imagen seleccionada", e);
-                MessageUtils.showError("Failed to copy image: " + e.getMessage());
+                MessageUtils.showError(I18nUtils.get("romForm.errorCopyImage") + ": " + e.getMessage());
             }
         }
     }
@@ -126,7 +127,7 @@ public class RomFormController {
     @FXML
     public void handleBrowseRom() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select ROM File");
+        fileChooser.setTitle(I18nUtils.get("romForm.selectRomFile"));
 
         File selectedFile = fileChooser.showOpenDialog(titleField.getScene().getWindow());
 
@@ -147,7 +148,7 @@ public class RomFormController {
 
         Plataforma selectedPlatform = platformComboBox.getValue();
         if (selectedPlatform == null) {
-            MessageUtils.showWarning("Platform is required.");
+            MessageUtils.showWarning(I18nUtils.get("romForm.platformRequired"));
             return;
         }
 
@@ -162,7 +163,7 @@ public class RomFormController {
         romService.guardar(rom);
 
         logger.info("ROM '{}' guardada correctamente", rom.getTitulo());
-        MessageUtils.showInfo("ROM saved successfully.");
+        MessageUtils.showInfo(I18nUtils.get("romForm.saved"));
         closeWindow();
     }
 
@@ -193,15 +194,15 @@ public class RomFormController {
      */
     private boolean validateFields() {
         if (titleField.getText().trim().isEmpty()) {
-            MessageUtils.showWarning("Title is required.");
+            MessageUtils.showWarning(I18nUtils.get("romForm.titleRequired"));
             return false;
         }
         if (rutaField.getText().trim().isEmpty()) {
-            MessageUtils.showWarning("ROM file path is required.");
+            MessageUtils.showWarning(I18nUtils.get("romForm.pathRequired"));
             return false;
         }
         if (platformComboBox.getValue() == null) {
-            MessageUtils.showWarning("Platform is required.");
+            MessageUtils.showWarning(I18nUtils.get("romForm.platformRequired"));
             return false;
         }
         return true;

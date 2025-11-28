@@ -10,38 +10,38 @@
     <center>
         <VBox spacing="15" style="-fx-padding: 20;">
 
-            <Label text="ROM Details" style="-fx-font-weight: bold;"/>
+            <Label text="%romForm.title" style="-fx-font-weight: bold;"/>
 
             <HBox spacing="10">
-                <Label text="Title:"/>
+                <Label text="%romForm.name"/>
                 <TextField fx:id="titleField" prefWidth="300"/>
             </HBox>
 
             <HBox spacing="10">
-                <Label text="Description:"/>
+                <Label text="%romForm.description"/>
                 <TextArea fx:id="descriptionArea" prefWidth="300" prefHeight="100"/>
             </HBox>
 
             <HBox spacing="10">
-                <Label text="ROM Path:"/>
+                <Label text="%romForm.romPath"/>
                 <TextField fx:id="rutaField" prefWidth="300"/>
-                <Button text="Browse" onAction="#handleBrowseRom"/>
+                <Button text="%romForm.browseRom" onAction="#handleBrowseRom"/>
             </HBox>
 
             <HBox spacing="10">
-                <Label text="Image:"/>
+                <Label text="%romForm.image"/>
                 <TextField fx:id="imageField" prefWidth="300"/>
-                <Button text="Browse" onAction="#handleBrowseImage"/>
+                <Button text="%romForm.browseImage" onAction="#handleBrowseImage"/>
             </HBox>
 
             <HBox spacing="10">
-                <Label text="Platform:"/>
+                <Label text="%romForm.platform"/>
                 <ComboBox fx:id="platformComboBox" prefWidth="250"/>
             </HBox>
 
             <HBox spacing="10">
-                <CheckBox fx:id="favoriteCheckBox" text="Favorite"/>
-                <CheckBox fx:id="playedCheckBox" text="Played"/>
+                <CheckBox fx:id="favoriteCheckBox" text="%romForm.favorite"/>
+                <CheckBox fx:id="playedCheckBox" text="%romForm.played"/>
             </HBox>
 
         </VBox>
@@ -49,8 +49,8 @@
 
     <bottom>
         <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding: 10;">
-            <Button fx:id="saveButton" text="Save" onAction="#handleSave" disable="true"/>
-            <Button text="Cancel" onAction="#handleCancel"/>
+            <Button fx:id="saveButton" text="%romForm.save" onAction="#handleSave" disable="true"/>
+            <Button text="%romForm.cancel" onAction="#handleCancel"/>
         </HBox>
     </bottom>
 

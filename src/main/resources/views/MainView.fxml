@@ -8,79 +8,167 @@
            fx:controller="com.romraider.controllers.MainController">
     <BorderPane fx:id="mainBorderPane">
 
-    <top>
-        <VBox>
-            <MenuBar fx:id="menuBar">
-                <menus>
-                    <Menu text="File">
-                        <MenuItem text="Scan Folder" onAction="#handleScanFolder"/>
-                        <MenuItem text="Update all ROMS' info" onAction="#handleUpdateAllFromAPI"/>
-                        <MenuItem text="Export" onAction="#handleExport"/>
-                        <MenuItem text="Import" onAction="#handleImport"/>
-                        <SeparatorMenuItem/>
-                        <MenuItem fx:id="loginLogoutMenuItem" text="Logout" onAction="#handleLoginLogout"/>
-                    </Menu>
-                    <Menu text="View">
-                        <MenuItem text="Statistics" onAction="#handleViewStatistics"/>
-                    </Menu>
-                    <Menu text="Settings">
-                        <MenuItem text="Preferences" onAction="#handleSettings"/>
-                    </Menu>
-                    <Menu text="Help">
-                        <MenuItem text="User Guide" onAction="#handleHelp"/>
-                        <MenuItem text="About" onAction="#handleCredits"/>
-                    </Menu>
-                </menus>
-            </MenuBar>
-            <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 10;">
-                <Label text="ROM RAIDER" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-                <Pane HBox.hgrow="ALWAYS"/>
+        <top>
+            <VBox>
+                <MenuBar fx:id="menuBar">
+                    <menus>
+                        <Menu text="%menu.file">
+                            <MenuItem text="%menu.file.scanFolder" onAction="#handleScanFolder"/>
+                            <MenuItem text="%menu.file.updateAllRoms" onAction="#handleUpdateAllFromAPI"/>
+                            <MenuItem text="%menu.file.export" onAction="#handleExport"/>
+                            <MenuItem text="%menu.file.import" onAction="#handleImport"/>
+                            <SeparatorMenuItem/>
+                            <MenuItem fx:id="loginLogoutMenuItem"
+                                      text="%menu.file.logout"
+                                      onAction="#handleLoginLogout"/>
+                        </Menu>
+                        <Menu text="%menu.view">
+                            <MenuItem text="%menu.view.statistics" onAction="#handleViewStatistics"/>
+                        </Menu>
+                        <Menu text="%menu.settings">
+                            <MenuItem text="%menu.settings.preferences" onAction="#handleSettings"/>
+                        </Menu>
+                        <Menu text="%menu.help">
+                            <MenuItem text="%menu.help.userGuide" onAction="#handleHelp"/>
+                            <MenuItem text="%menu.help.about" onAction="#handleCredits"/>
+                        </Menu>
+                    </menus>
+                </MenuBar>
+                <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 10;">
+                    <Label text="%main.title" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                    <Pane HBox.hgrow="ALWAYS"/>
 
-                <!-- Backup to Cloud -->
-                <Button fx:id="syncButton" onAction="#handleSync" text="Sync">
-                    <graphic>
-                        <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
-                            <image>
-                                <Image url="@/assets/sync.png"/>
-                            </image>
-                        </ImageView>
-                    </graphic>
-                    <tooltip>
-                        <Tooltip text="Synchronize with the cloud"/>
-                    </tooltip>
-                </Button>
+                    <!-- Backup to Cloud -->
+                    <Button fx:id="syncButton" onAction="#handleSync" text="%main.sync.button">
+                        <graphic>
+                            <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                                <image>
+                                    <Image url="@/assets/sync.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="%main.sync.tooltip"/>
+                        </tooltip>
+                    </Button>
 
-                <Label fx:id="userLabel"/>
-            </HBox>
+                    <Label fx:id="userLabel"/>
+                </HBox>
 
-        </VBox>
-    </top>
+            </VBox>
+        </top>
 
 
-    <center>
-        <VBox spacing="10" style="-fx-padding: 10;">
-            <TextField fx:id="searchField" promptText="Search ROMs..." onKeyReleased="#handleSearch"/>
-            <HBox spacing="10">
-                <VBox spacing="5">
-                    <Label text="Platforms" style="-fx-font-weight: bold;"/>
-                    <ListView fx:id="platformListView" prefWidth="150"/>
+        <center>
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <TextField fx:id="searchField" promptText="%main.search.prompt" onKeyReleased="#handleSearch"/>
+                <HBox spacing="10">
                     <VBox spacing="5">
-                        <!-- Add Platform -->
-                        <Button onAction="#handleAddPlatform" maxWidth="Infinity" text="Add">
+                        <Label text="%main.platforms.label" style="-fx-font-weight: bold;"/>
+                        <ListView fx:id="platformListView" prefWidth="150"/>
+                        <VBox spacing="5">
+                            <!-- Add Platform -->
+                            <Button onAction="#handleAddPlatform" maxWidth="Infinity" text="%main.platform.add">
+                                <graphic>
+                                    <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                                        <image>
+                                            <Image url="@/assets/new.png"/>
+                                        </image>
+                                    </ImageView>
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip text="%main.platform.add.tooltip"/>
+                                </tooltip>
+                            </Button>
+
+                            <!-- Edit Platform -->
+                            <Button onAction="#handleEditPlatform" maxWidth="Infinity" text="%main.platform.edit">
+                                <graphic>
+                                    <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                                        <image>
+                                            <Image url="@/assets/edit.png"/>
+                                        </image>
+                                    </ImageView>
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip text="%main.platform.edit.tooltip"/>
+                                </tooltip>
+                            </Button>
+
+                            <!-- Delete Platform -->
+                            <Button onAction="#handleDeletePlatform" maxWidth="Infinity" text="%main.platform.delete">
+                                <graphic>
+                                    <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                                        <image>
+                                            <Image url="@/assets/delete.png"/>
+                                        </image>
+                                    </ImageView>
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip text="%main.platform.delete.tooltip"/>
+                                </tooltip>
+                            </Button>
+                        </VBox>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="%main.roms.label" style="-fx-font-weight: bold;"/>
+                        <ListView fx:id="romListView" HBox.hgrow="ALWAYS"/>
+
+                        <HBox alignment="CENTER_RIGHT">
+                            <!-- Add ROM -->
+                            <Button onAction="#handleAddRom" text="%main.rom.add">
+                                <graphic>
+                                    <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                                        <image>
+                                            <Image url="@/assets/new.png"/>
+                                        </image>
+                                    </ImageView>
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip text="%main.rom.add.tooltip"/>
+                                </tooltip>
+                            </Button>
+                        </HBox>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </center>
+
+        <right>
+            <ScrollPane fitToWidth="true" style="-fx-padding: 10;">
+                <VBox spacing="10">
+                    <Label text="%main.details.label" style="-fx-font-size: 16px;"/>
+                    <StackPane prefHeight="250" prefWidth="250" minHeight="250" maxHeight="250" alignment="CENTER">
+                        <ImageView fx:id="romImage"
+                                   fitHeight="250" fitWidth="250"
+                                   preserveRatio="true" smooth="true"
+                                   style="-fx-background-color: #f5f5f5; -fx-border-color: #ccc; -fx-border-radius: 4; -fx-background-radius: 4;"/>
+                    </StackPane>
+                    <Label text="%main.details.description"/>
+                    <TextArea fx:id="romDescription" wrapText="true" editable="false" prefRowCount="6"/>
+
+                    <CheckBox text="%main.favorite.checkbox" fx:id="favoriteCheckBox" disable="true"/>
+                    <CheckBox text="%main.played.checkbox" fx:id="playedCheckBox" disable="true"/>
+
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <Pane HBox.hgrow="ALWAYS"/>
+
+                        <Button onAction="#handleOpenRomFolder" text="%main.openFolder.button">
                             <graphic>
                                 <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
                                     <image>
-                                        <Image url="@/assets/new.png"/>
+                                        <Image url="@/assets/open.png"/>
                                     </image>
                                 </ImageView>
                             </graphic>
                             <tooltip>
-                                <Tooltip text="Add a new platform to your collection"/>
+                                <Tooltip text="%main.openFolder.tooltip"/>
                             </tooltip>
                         </Button>
 
-                        <!-- Edit Platform -->
-                        <Button onAction="#handleEditPlatform" maxWidth="Infinity" text="Edit">
+                        <!-- Edit -->
+                        <Button onAction="#handleEditRom" text="%main.editRom.button">
                             <graphic>
                                 <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
                                     <image>
@@ -89,12 +177,12 @@
                                 </ImageView>
                             </graphic>
                             <tooltip>
-                                <Tooltip text="Edit the selected platform"/>
+                                <Tooltip text="%main.editRom.tooltip"/>
                             </tooltip>
                         </Button>
 
-                        <!-- Delete Platform -->
-                        <Button onAction="#handleDeletePlatform" maxWidth="Infinity" text="Delete">
+                        <!-- Delete -->
+                        <Button onAction="#handleDeleteRom" text="%main.deleteRom.button">
                             <graphic>
                                 <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
                                     <image>
@@ -103,117 +191,31 @@
                                 </ImageView>
                             </graphic>
                             <tooltip>
-                                <Tooltip text="Delete the selected platform"/>
+                                <Tooltip text="%main.deleteRom.tooltip"/>
                             </tooltip>
                         </Button>
-                    </VBox>
-                </VBox>
 
-                <VBox spacing="5" HBox.hgrow="ALWAYS">
-                    <Label text="ROMs" style="-fx-font-weight: bold;"/>
-                    <ListView fx:id="romListView" HBox.hgrow="ALWAYS"/>
-
-                    <HBox alignment="CENTER_RIGHT">
-                        <!-- Add ROM -->
-                        <Button onAction="#handleAddRom" text="Add">
+                        <!-- RAWG -->
+                        <Button onAction="#handleUpdateFromAPI" text="%main.updateRom.button">
                             <graphic>
                                 <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
                                     <image>
-                                        <Image url="@/assets/new.png"/>
+                                        <Image url="@/assets/cloud.png"/>
                                     </image>
                                 </ImageView>
                             </graphic>
                             <tooltip>
-                                <Tooltip text="Add a new ROM"/>
+                                <Tooltip text="%main.updateRom.tooltip"/>
                             </tooltip>
                         </Button>
                     </HBox>
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <Pane HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="syncLabel" style="-fx-text-fill: gray; -fx-font-size: 11px;"/>
+                    </HBox>
                 </VBox>
-            </HBox>
-        </VBox>
-    </center>
+            </ScrollPane>
+        </right>
 
-    <right>
-        <ScrollPane fitToWidth="true" style="-fx-padding: 10;">
-            <VBox spacing="10">
-                <Label text="ROM Details" style="-fx-font-size: 16px;"/>
-                <StackPane prefHeight="250" prefWidth="250" minHeight="250" maxHeight="250" alignment="CENTER">
-                    <ImageView fx:id="romImage"
-                               fitHeight="250" fitWidth="250"
-                               preserveRatio="true" smooth="true"
-                               style="-fx-background-color: #f5f5f5; -fx-border-color: #ccc; -fx-border-radius: 4; -fx-background-radius: 4;"/>
-                </StackPane>
-                <Label text="Description:"/>
-                <TextArea fx:id="romDescription" wrapText="true" editable="false" prefRowCount="6"/>
-
-                <CheckBox text="Favorite" fx:id="favoriteCheckBox" disable="true"/>
-                <CheckBox text="Played" fx:id="playedCheckBox" disable="true"/>
-
-                <HBox spacing="10" alignment="CENTER_RIGHT">
-                    <Pane HBox.hgrow="ALWAYS"/>
-
-                    <Button onAction="#handleOpenRomFolder" text="Open Folder">
-                        <graphic>
-                            <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
-                                <image>
-                                    <Image url="@/assets/open.png"/>
-                                </image>
-                            </ImageView>
-                        </graphic>
-                        <tooltip>
-                            <Tooltip text="Open ROM folder"/>
-                        </tooltip>
-                    </Button>
-
-                    <!-- Edit -->
-                    <Button onAction="#handleEditRom" text="Edit">
-                        <graphic>
-                            <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
-                                <image>
-                                    <Image url="@/assets/edit.png"/>
-                                </image>
-                            </ImageView>
-                        </graphic>
-                        <tooltip>
-                            <Tooltip text="Edit selected ROM"/>
-                        </tooltip>
-                    </Button>
-
-                    <!-- Delete -->
-                    <Button onAction="#handleDeleteRom" text="Delete">
-                        <graphic>
-                            <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
-                                <image>
-                                    <Image url="@/assets/delete.png"/>
-                                </image>
-                            </ImageView>
-                        </graphic>
-                        <tooltip>
-                            <Tooltip text="Delete selected ROM"/>
-                        </tooltip>
-                    </Button>
-
-                    <!-- RAWG -->
-                    <Button onAction="#handleUpdateFromAPI" text="Update info">
-                        <graphic>
-                            <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
-                                <image>
-                                    <Image url="@/assets/cloud.png"/>
-                                </image>
-                            </ImageView>
-                        </graphic>
-                        <tooltip>
-                            <Tooltip text="Fetch description and image from RAWG API"/>
-                        </tooltip>
-                    </Button>
-                </HBox>
-                <HBox spacing="10" alignment="CENTER_RIGHT">
-                    <Pane HBox.hgrow="ALWAYS"/>
-                    <Label fx:id="syncLabel" style="-fx-text-fill: gray; -fx-font-size: 11px;"/>
-                </HBox>
-            </VBox>
-        </ScrollPane>
-    </right>
-
-</BorderPane>
+    </BorderPane>
 </StackPane>

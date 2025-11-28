@@ -23,7 +23,6 @@ public class SceneUtils {
 
     private static final int WIDTH = 1000;
     private static final int HEIGHT = 750;
-    private static final String TITLE = "ROM Raider";
     private static final String ICON_PATH = "/assets/romraider-icon.png";
     private static final String STYLESHEET = "/styles/romraider.css";
 
@@ -36,14 +35,17 @@ public class SceneUtils {
         try {
             logger.info("Cargando MainView.fxml");
 
-            FXMLLoader loader = new FXMLLoader(SceneUtils.class.getResource("/views/MainView.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    SceneUtils.class.getResource("/views/MainView.fxml"),
+                    I18nUtils.getBundle()
+            );
             Parent root = loader.load();
 
             Scene scene = new Scene(root, WIDTH, HEIGHT);
             scene.getStylesheets()
                     .add(SceneUtils.class.getResource(STYLESHEET).toExternalForm());
 
-            stage.setTitle(TITLE);
+            stage.setTitle(I18nUtils.get("app.title"));
             stage.setResizable(false);
             stage.getIcons().clear();
             stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(ICON_PATH)));
@@ -66,14 +68,17 @@ public class SceneUtils {
         try {
             logger.info("Probando Cargando LoginView.fxml");
 
-            FXMLLoader loader = new FXMLLoader(SceneUtils.class.getResource("/views/LoginView.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    SceneUtils.class.getResource("/views/LoginView.fxml"),
+                    I18nUtils.getBundle()
+            );
             Parent root = loader.load();
 
             Scene scene = new Scene(root, WIDTH, HEIGHT);
             scene.getStylesheets()
                     .add(SceneUtils.class.getResource(STYLESHEET).toExternalForm());
 
-            stage.setTitle(TITLE);
+            stage.setTitle(I18nUtils.get("app.title"));
             stage.setResizable(false);
             stage.getIcons().clear();
             stage.getIcons().add(new Image(SceneUtils.class.getResourceAsStream(ICON_PATH)));

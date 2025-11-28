@@ -16,13 +16,11 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -86,19 +84,22 @@ public class MainController {
 
         // Si no hay conexión o estamos en modo offline, bloquear sincronización
         syncButton.setDisable(!online || !loggedIn);
-        userLabel.setText(loggedIn ? SupabaseAuthService.getCurrentUserEmail() : "Offline");
+        userLabel.setText(loggedIn
+                ? SupabaseAuthService.getCurrentUserEmail()
+                : I18nUtils.get("main.status.offline"));
 
         logger.info("ListView before clear: {}", platformListView);
         if (!online || !loggedIn) {
-            syncLabel.setText("Offline mode");
+            syncLabel.setText(I18nUtils.get("main.status.offlineMode"));
             insertOrUpdateDefaultPlatforms();
             cargarPlataformas();
         } else {
             // Mostrar última fecha de sincronización si estamos en modo online
             LocalDateTime lastSync = SyncStateUtils.getLastSync();
             String syncText = (lastSync != null)
-                    ? "Last sync: " + lastSync.format(DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy"))
-                    : "Last sync: never";
+                    ? I18nUtils.get("main.sync.lastPrefix")
+                    + lastSync.format(DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy"))
+                    : I18nUtils.get("main.sync.never");
             syncLabel.setText(syncText);
 
             cargarPlataformas();
@@ -121,7 +122,7 @@ public class MainController {
     private void cargarPlataformas() {
         Plataforma todas = new Plataforma();
         todas.setId(-1);
-        todas.setNombre("All Platforms");
+        todas.setNombre(I18nUtils.get("main.platform.all"));
 
         List<Plataforma> plataformas = new java.util.ArrayList<>(plataformaService.obtenerTodas());
         plataformas.add(0, todas);
@@ -160,7 +161,11 @@ public class MainController {
     private void mostrarDetallesRom(String titulo) {
         Rom rom = roms.stream().filter(r -> r.getTitulo().equals(titulo)).findFirst().orElse(null);
         if (rom != null) {
-            romDescription.setText(rom.getDescripcion() != null ? rom.getDescripcion() : "(No description)");
+            romDescription.setText(
+                    rom.getDescripcion() != null
+                            ? rom.getDescripcion()
+                            : I18nUtils.get("main.rom.noDescription")
+            );
             favoriteCheckBox.setSelected(rom.isFavorito());
             playedCheckBox.setSelected(rom.isJugado());
 
@@ -209,7 +214,7 @@ public class MainController {
         PropertyUtils config = AppInitializer.loadConfig();
 
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Select Folder to Scan");
+        directoryChooser.setTitle(I18nUtils.get("main.scan.selectFolderTitle"));
         File selectedDir = directoryChooser.showDialog(menuBar.getScene().getWindow());
 
         if (selectedDir == null || !selectedDir.exists()) {
@@ -219,7 +224,7 @@ public class MainController {
 
         String baseFolderRelativa = config.get("romraider.roms.default-folder");
         if (baseFolderRelativa == null || baseFolderRelativa.isBlank()) {
-            MessageUtils.showError("Default ROM folder not configured.");
+            MessageUtils.showError(I18nUtils.get("main.scan.error.noDefaultFolder"));
             logger.error("Missing configuration: 'romraider.roms.default-folder'");
             return;
         }
@@ -227,7 +232,7 @@ public class MainController {
         String baseFolder = Paths.get(System.getProperty("user.home"), baseFolderRelativa).toString();
 
         Pane root = (Pane) menuBar.getScene().getRoot();
-        StackPane overlay = OverlayUtils.showLoading(root, "Scanning folder...");
+        StackPane overlay = OverlayUtils.showLoading(root, I18nUtils.get("main.scan.overlay"));
 
         Task<String> scanTask = new Task<>() {
             @Override
@@ -275,7 +280,7 @@ public class MainController {
 
                 } catch (IOException e) {
                     logger.error("Error scanning folder", e);
-                    throw new RuntimeException("Error scanning the selected folder.", e);
+                    throw new RuntimeException(I18nUtils.get("main.scan.error.exception"), e);
                 }
 
                 String plataformasTexto = plataformasAfectadas.stream()
@@ -284,14 +289,13 @@ public class MainController {
                         .collect(Collectors.joining("\n- ", "- ", ""));
 
                 String summary = String.format(
-                        "Scan completed.\n" +
-                                "Added ROMs: %d\n" +
-                                "Platforms affected: %d\n%s",
+                        I18nUtils.get("main.scan.summary"),
                         romsAdded[0],
                         plataformasAfectadas.size(),
-                        plataformasAfectadas.isEmpty() ? "- None" : plataformasTexto
+                        plataformasAfectadas.isEmpty()
+                                ? I18nUtils.get("main.scan.summary.none")
+                                : plataformasTexto
                 );
-
 
                 // Resumen a devolver al hilo de UI
                 return summary;
@@ -313,7 +317,7 @@ public class MainController {
             Throwable ex = scanTask.getException();
             logger.error("Scan failed", ex);
 
-            MessageUtils.showError("Scan failed: " + ex.getMessage());
+            MessageUtils.showError(I18nUtils.get("main.scan.failedPrefix") + ex.getMessage());
         });
 
         new Thread(scanTask).start();
@@ -347,7 +351,7 @@ public class MainController {
 
             Rom rom = new Rom();
             rom.setTitulo(titulo);
-            rom.setDescripcion("(Scanned ROM)");
+            rom.setDescripcion(I18nUtils.get("main.rom.scannedPlaceholder"));
             rom.setFavorito(false);
             rom.setJugado(false);
             rom.setRuta(destFile.getAbsolutePath());
@@ -376,19 +380,21 @@ public class MainController {
     @FXML
     public void handleExport() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Export ROM Collection to XML");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML Files", "*.xml"));
+        fileChooser.setTitle(I18nUtils.get("main.export.dialogTitle"));
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(I18nUtils.get("main.export.filter.xml"), "*.xml")
+        );
         File file = fileChooser.showSaveDialog(menuBar.getScene().getWindow());
 
         if (file != null) {
             try {
                 List<Plataforma> plataformas = plataformaService.obtenerTodasConRoms();
                 XMLUtils.exportarAxml(plataformas, file);
-                MessageUtils.showInfo("Export completed successfully.");
+                MessageUtils.showInfo(I18nUtils.get("main.export.success"));
                 logger.info("Exported collection to: {}", file.getAbsolutePath());
             } catch (Exception e) {
                 logger.error("Error exporting XML", e);
-                MessageUtils.showError("Failed to export the collection.");
+                MessageUtils.showError(I18nUtils.get("main.export.failed"));
             }
         }
     }
@@ -397,16 +403,18 @@ public class MainController {
     public void handleImport() {
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Import XML");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML Files", "*.xml"));
+        fileChooser.setTitle(I18nUtils.get("main.import.dialogTitle"));
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(I18nUtils.get("main.import.filter.xml"), "*.xml")
+        );
         File selectedFile = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
 
         if (selectedFile == null) return;
 
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle("Confirm Import");
-        confirmAlert.setHeaderText("This will delete all existing platforms and ROMs.");
-        confirmAlert.setContentText("Are you sure you want to proceed?");
+        confirmAlert.setTitle(I18nUtils.get("main.import.confirm.title"));
+        confirmAlert.setHeaderText(I18nUtils.get("main.import.confirm.header"));
+        confirmAlert.setContentText(I18nUtils.get("main.import.confirm.content"));
 
         confirmAlert.showAndWait().ifPresent(response -> {
             if (response != ButtonType.OK) return;
@@ -414,7 +422,7 @@ public class MainController {
             logger.info("Starting XML import with spinner...");
 
             Pane root = (Pane) menuBar.getScene().getRoot();
-            StackPane overlay = OverlayUtils.showLoading(root, "Importing collection...");
+            StackPane overlay = OverlayUtils.showLoading(root, I18nUtils.get("main.import.overlay"));
 
             Task<Void> importTask = new Task<>() {
                 @Override
@@ -454,7 +462,7 @@ public class MainController {
                 romListView.setItems(FXCollections.observableArrayList());
 
                 cargarPlataformas();
-                MessageUtils.showInfo("Import completed successfully.");
+                MessageUtils.showInfo(I18nUtils.get("main.import.success"));
                 logger.info("Imported collection from: {}", selectedFile.getAbsolutePath());
             });
 
@@ -464,7 +472,7 @@ public class MainController {
                 Throwable ex = importTask.getException();
                 logger.error("Import failed", ex);
 
-                MessageUtils.showError("Import failed: " + ex.getMessage());
+                MessageUtils.showError(I18nUtils.get("main.import.failedPrefix") + ex.getMessage());
             });
 
             new Thread(importTask).start();
@@ -481,7 +489,7 @@ public class MainController {
     public void handleUpdateFromAPI() {
         String selectedTitle = romListView.getSelectionModel().getSelectedItem();
         if (selectedTitle == null) {
-            MessageUtils.showInfo("Please select a ROM to update.");
+            MessageUtils.showInfo(I18nUtils.get("main.updateRom.selectFirst"));
             return;
         }
 
@@ -501,11 +509,11 @@ public class MainController {
         switch (result.getStatus()) {
             case UPDATED -> {
                 mostrarDetallesRom(rom.getTitulo());
-                MessageUtils.showInfo("ROM data updated from RAWG.io");
+                MessageUtils.showInfo(I18nUtils.get("main.updateRom.success"));
             }
-            case NOT_FOUND -> MessageUtils.showWarning("No data found on RAWG.io");
+            case NOT_FOUND -> MessageUtils.showWarning(I18nUtils.get("main.updateRom.notFound"));
             case ERROR -> MessageUtils.showError(
-                    "Failed to update from RAWG.io: " + result.getErrorMessage()
+                    I18nUtils.get("main.updateRom.errorPrefix") + result.getErrorMessage()
             );
         }
     }
@@ -521,9 +529,9 @@ public class MainController {
     public void handleUpdateAllFromAPI() {
 
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle("Update All ROMs");
-        confirmAlert.setHeaderText("This will update all ROM descriptions and images from RAWG.io.");
-        confirmAlert.setContentText("Do you want to continue?");
+        confirmAlert.setTitle(I18nUtils.get("main.updateAll.title"));
+        confirmAlert.setHeaderText(I18nUtils.get("main.updateAll.header"));
+        confirmAlert.setContentText(I18nUtils.get("main.updateAll.content"));
 
         confirmAlert.showAndWait().ifPresent(response -> {
             if (response != ButtonType.OK) return;
@@ -532,12 +540,12 @@ public class MainController {
 
             List<Rom> allRoms = romService.obtenerTodas();
             if (allRoms.isEmpty()) {
-                MessageUtils.showInfo("No ROMs found in the local database.");
+                MessageUtils.showInfo(I18nUtils.get("main.updateAll.noRoms"));
                 return;
             }
 
             Pane root = (Pane) menuBar.getScene().getRoot();
-            StackPane overlay = OverlayUtils.showLoading(root, "Updating all roms info...");
+            StackPane overlay = OverlayUtils.showLoading(root, I18nUtils.get("main.updateAll.overlay"));
 
             syncButton.setDisable(true);
 
@@ -568,7 +576,7 @@ public class MainController {
                         syncButton.setDisable(false);
 
                         String summary = String.format(
-                                "Bulk update completed.\nUpdated: %d\nNot found: %d\nTotal: %d",
+                                I18nUtils.get("main.updateAll.summary"),
                                 fUpdated, fNotFound, fTotal
                         );
 
@@ -590,7 +598,10 @@ public class MainController {
                 Platform.runLater(() -> {
                     OverlayUtils.hideLoading(root, overlay);
                     syncButton.setDisable(false);
-                    MessageUtils.showError("RAWG.io update failed: " + updateTask.getException().getMessage());
+                    MessageUtils.showError(
+                            I18nUtils.get("main.updateAll.errorPrefix")
+                                    + updateTask.getException().getMessage()
+                    );
                 });
             });
 
@@ -608,7 +619,7 @@ public class MainController {
     public void handleSync() {
 
         Pane root = (Pane) menuBar.getScene().getRoot();
-        StackPane overlay = OverlayUtils.showLoading(root, "Synchronizing with the cloud...");
+        StackPane overlay = OverlayUtils.showLoading(root, I18nUtils.get("main.sync.overlay"));
         syncButton.setDisable(true);
 
         Task<Void> syncTask = new Task<>() {
@@ -626,12 +637,14 @@ public class MainController {
 
             LocalDateTime lastSync = SyncStateUtils.getLastSync();
             if (lastSync != null) {
-                syncLabel.setText("Last sync: " +
-                        lastSync.format(DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy")));
+                syncLabel.setText(
+                        I18nUtils.get("main.sync.lastPrefix")
+                                + lastSync.format(DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy"))
+                );
             }
 
             SoundUtils.play(SoundUtils.UPLOAD);
-            MessageUtils.showInfo("Synchronization complete.");
+            MessageUtils.showInfo(I18nUtils.get("main.sync.success"));
             logger.info("Sincronización completada con éxito");
         });
 
@@ -639,7 +652,9 @@ public class MainController {
             OverlayUtils.hideLoading(root, overlay);
             syncButton.setDisable(false);
 
-            MessageUtils.showError("Synchronization failed: " + syncTask.getException().getMessage());
+            MessageUtils.showError(
+                    I18nUtils.get("main.sync.failedPrefix") + syncTask.getException().getMessage()
+            );
             logger.error("La sincronización falló", syncTask.getException());
         });
 
@@ -655,7 +670,7 @@ public class MainController {
             Stage owner = (Stage) menuBar.getScene().getWindow();
             DialogUtils.Dialog<?> dialog = DialogUtils.createDialog(
                     "/views/PreferencesView.fxml",
-                    "Preferences",
+                    I18nUtils.get("preferences.title"),
                     owner,
                     false,
                     true
@@ -676,7 +691,7 @@ public class MainController {
             Stage owner = (Stage) menuBar.getScene().getWindow();
             DialogUtils.Dialog<?> dialog = DialogUtils.createDialog(
                     "/views/StatisticsView.fxml",
-                    "Statistics",
+                    I18nUtils.get("statistics.title"),
                     owner,
                     false,
                     true
@@ -696,7 +711,7 @@ public class MainController {
             Stage owner = (Stage) menuBar.getScene().getWindow();
             DialogUtils.Dialog<?> dialog = DialogUtils.createDialog(
                     "/views/PlataformaFormView.fxml",
-                    "Add Platform",
+                    I18nUtils.get("platformForm.add.title"),
                     owner,
                     false,
                     false
@@ -706,7 +721,7 @@ public class MainController {
 
         } catch (IOException e) {
             logger.error("Error al abrir formulario de plataforma", e);
-            MessageUtils.showError("Could not open the Platform form.");
+            MessageUtils.showError(I18nUtils.get("platformForm.error.open"));
         }
     }
 
@@ -718,12 +733,12 @@ public class MainController {
         Plataforma selected = platformListView.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            MessageUtils.showWarning("Please select a platform to edit.");
+            MessageUtils.showWarning(I18nUtils.get("platformForm.edit.selectFirst"));
             return;
         }
 
         if (selected.getId() == -1) {
-            MessageUtils.showWarning("You cannot edit the 'All' platform.");
+            MessageUtils.showWarning(I18nUtils.get("platformForm.edit.cannotEditAll"));
             return;
         }
 
@@ -733,7 +748,7 @@ public class MainController {
             DialogUtils.Dialog<PlataformaFormController> dialog =
                     DialogUtils.createDialog(
                             "/views/PlataformaFormView.fxml",
-                            "Edit Platform",
+                            I18nUtils.get("platformForm.edit.title"),
                             owner,
                             false,
                             false
@@ -751,7 +766,7 @@ public class MainController {
 
         } catch (IOException e) {
             logger.error("Error al abrir edición de plataforma", e);
-            MessageUtils.showError("Could not open the Platform form.");
+            MessageUtils.showError(I18nUtils.get("platformForm.error.open"));
         }
     }
 
@@ -768,14 +783,16 @@ public class MainController {
         }
 
         if (selected.getId() == -1) {
-            MessageUtils.showWarning("You cannot delete the 'All' platform.");
+            MessageUtils.showWarning(I18nUtils.get("platformForm.delete.cannotDeleteAll"));
             return;
         }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirm Deletion");
-        alert.setHeaderText("Delete platform '" + selected.getNombre() + "'?");
-        alert.setContentText("All associated ROMs will also be deleted. Continue?");
+        alert.setTitle(I18nUtils.get("platformForm.delete.confirm.title"));
+        alert.setHeaderText(
+                String.format(I18nUtils.get("platformForm.delete.confirm.header"), selected.getNombre())
+        );
+        alert.setContentText(I18nUtils.get("platformForm.delete.confirm.content"));
 
         alert.showAndWait().ifPresent(result -> {
             if (result != ButtonType.OK) return;
@@ -801,7 +818,9 @@ public class MainController {
 
             } catch (Exception e) {
                 logger.error("Error eliminando plataforma", e);
-                MessageUtils.showError("Could not delete platform: " + e.getMessage());
+                MessageUtils.showError(
+                        I18nUtils.get("platformForm.delete.errorPrefix") + e.getMessage()
+                );
             }
         });
     }
@@ -812,7 +831,7 @@ public class MainController {
     @FXML
     public void handleAddRom() {
         if (plataformaSeleccionada == null) {
-            MessageUtils.showWarning("Please select a platform first.");
+            MessageUtils.showWarning(I18nUtils.get("romForm.add.selectPlatformFirst"));
             return;
         }
 
@@ -822,7 +841,7 @@ public class MainController {
             DialogUtils.Dialog<RomFormController> dialog =
                     DialogUtils.createDialog(
                             "/views/RomFormView.fxml",
-                            "Add ROM",
+                            I18nUtils.get("romForm.add.title"),
                             owner,
                             false,
                             false
@@ -834,7 +853,7 @@ public class MainController {
 
         } catch (IOException e) {
             logger.error("Error abriendo formulario de ROM", e);
-            MessageUtils.showError("Could not open the ROM form.");
+            MessageUtils.showError(I18nUtils.get("romForm.error.open"));
         }
     }
 
@@ -845,7 +864,7 @@ public class MainController {
     public void handleEditRom() {
         String selectedTitle = romListView.getSelectionModel().getSelectedItem();
         if (selectedTitle == null) {
-            MessageUtils.showInfo("Please select a ROM to edit.");
+            MessageUtils.showInfo(I18nUtils.get("romForm.edit.selectRomFirst"));
             return;
         }
 
@@ -855,7 +874,7 @@ public class MainController {
                 .orElse(null);
 
         if (selectedRom == null) {
-            MessageUtils.showWarning("Selected ROM not found.");
+            MessageUtils.showWarning(I18nUtils.get("romForm.error.notFound"));
             return;
         }
 
@@ -865,7 +884,7 @@ public class MainController {
             DialogUtils.Dialog<RomFormController> dialog =
                     DialogUtils.createDialog(
                             "/views/RomFormView.fxml",
-                            "Edit ROM",
+                            I18nUtils.get("romForm.edit.title"),
                             owner,
                             false,
                             false
@@ -881,7 +900,7 @@ public class MainController {
 
         } catch (IOException e) {
             logger.error("Error abriendo edición de ROM", e);
-            MessageUtils.showError("Could not open the ROM form.");
+            MessageUtils.showError(I18nUtils.get("romForm.error.open"));
         }
     }
 
@@ -893,7 +912,7 @@ public class MainController {
         String selectedTitle = romListView.getSelectionModel().getSelectedItem();
 
         if (selectedTitle == null) {
-            MessageUtils.showWarning("Please select a ROM to delete.");
+            MessageUtils.showWarning(I18nUtils.get("romForm.delete.selectRomFirst"));
             return;
         }
 
@@ -903,14 +922,16 @@ public class MainController {
                 .orElse(null);
 
         if (selectedRom == null) {
-            MessageUtils.showWarning("Selected ROM not found.");
+            MessageUtils.showWarning(I18nUtils.get("romForm.error.notFound"));
             return;
         }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirm Deletion");
-        alert.setHeaderText("Delete ROM '" + selectedRom.getTitulo() + "'?");
-        alert.setContentText("This action cannot be undone. Are you sure?");
+        alert.setTitle(I18nUtils.get("romForm.delete.confirm.title"));
+        alert.setHeaderText(
+                String.format(I18nUtils.get("romForm.delete.confirm.header"), selectedRom.getTitulo())
+        );
+        alert.setContentText(I18nUtils.get("romForm.delete.confirm.content"));
 
         alert.showAndWait().ifPresent(result -> {
             if (result != ButtonType.OK) return;
@@ -925,7 +946,7 @@ public class MainController {
             playedCheckBox.setSelected(false);
             romImage.setImage(getDefaultImage());
 
-            MessageUtils.showInfo("ROM deleted successfully.");
+            MessageUtils.showInfo(I18nUtils.get("romForm.delete.success"));
         });
     }
 
@@ -940,7 +961,7 @@ public class MainController {
             DialogUtils.Dialog<?> dialog =
                     DialogUtils.createDialog(
                             "/views/CreditsView.fxml",
-                            "Credits",
+                            I18nUtils.get("credits.title"),
                             owner,
                             false,
                             true
@@ -951,7 +972,7 @@ public class MainController {
 
         } catch (IOException e) {
             logger.error("Error abriendo ventana de créditos", e);
-            MessageUtils.showError("Could not open the Credits window.");
+            MessageUtils.showError(I18nUtils.get("credits.error.open"));
         }
     }
 
@@ -963,7 +984,7 @@ public class MainController {
         try {
             DialogUtils.Dialog<?> dialog = DialogUtils.createDialog(
                     "/views/HelpManualView.fxml",
-                    "Manual de Usuario",
+                    I18nUtils.get("help.manual.title"),
                     null,
                     true,
                     true
@@ -981,7 +1002,7 @@ public class MainController {
     public void handleOpenRomFolder() {
         String selectedTitle = romListView.getSelectionModel().getSelectedItem();
         if (selectedTitle == null) {
-            MessageUtils.showWarning("Please select a ROM first.");
+            MessageUtils.showWarning(I18nUtils.get("romForm.folder.selectRomFirst"));
             return;
         }
 
@@ -991,7 +1012,7 @@ public class MainController {
                 .orElse(null);
 
         if (rom == null || rom.getRuta() == null || rom.getRuta().isBlank()) {
-            MessageUtils.showWarning("ROM path not available.");
+            MessageUtils.showWarning(I18nUtils.get("romForm.folder.pathNotAvailable"));
             return;
         }
 
@@ -999,7 +1020,9 @@ public class MainController {
         File folder = romFile.getParentFile();
 
         if (folder == null || !folder.exists()) {
-            MessageUtils.showError("ROM folder not found:\n" + rom.getRuta());
+            MessageUtils.showError(
+                    String.format(I18nUtils.get("romForm.folder.notFound"), rom.getRuta())
+            );
             return;
         }
 
@@ -1021,7 +1044,9 @@ public class MainController {
 
         } catch (Exception e) {
             logger.error("Could not open folder", e);
-            MessageUtils.showError("Could not open folder:\n" + e.getMessage());
+            MessageUtils.showError(
+                    String.format(I18nUtils.get("romForm.folder.couldNotOpen"), e.getMessage())
+            );
         }
     }
 

@@ -5,6 +5,7 @@ import com.romraider.api.SupabaseSyncService;
 import com.romraider.auth.SessionManager;
 import com.romraider.service.PlataformaService;
 import com.romraider.service.RomService;
+import com.romraider.utils.I18nUtils;
 import com.romraider.utils.MessageUtils;
 import com.romraider.utils.NetworkUtils;
 import com.romraider.utils.SceneUtils;
@@ -19,6 +20,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * Controlador encargado del proceso de login, registro y acceso offline.
@@ -60,7 +62,7 @@ public class LoginController {
             // Offline: deshabilitar login y registro, pero permitir acceso sin autenticación
             loginButton.setDisable(true);
             registerButton.setDisable(true);
-            messageLabel.setText("No internet connection. You can continue offline.");
+            messageLabel.setText(I18nUtils.get("login.offlineMode"));
             logger.warn("No hay conexión a Internet. Modo offline habilitado.");
         }
 
@@ -99,7 +101,7 @@ public class LoginController {
         boolean success = SupabaseAuthService.login(email, password);
 
         if (!success) {
-            messageLabel.setText("Invalid username or password");
+            messageLabel.setText(I18nUtils.get("login.invalidCredentials"));
             logger.warn("Login fallido para {}", email);
             return;
         }
@@ -130,10 +132,10 @@ public class LoginController {
         boolean success = SupabaseAuthService.register(email, password);
 
         if (success) {
-            messageLabel.setText("Account created. Please check your email to confirm before logging in.");
+            messageLabel.setText(I18nUtils.get("login.registerSuccess"));
             logger.info("Registro exitoso. Email de confirmación enviado a {}", email);
         } else {
-            messageLabel.setText("Registration failed. The email might already be in use.");
+            messageLabel.setText(I18nUtils.get("login.registerError"));
             logger.warn("Error en registro para {}", email);
         }
     }
@@ -158,8 +160,7 @@ public class LoginController {
 
     private void mostrarSpinnerSincronizacionYSync() {
 
-        // Crear mensaje
-        Label mensaje = new Label("Synchronizing with the cloud...");
+        Label mensaje = new Label(I18nUtils.get("login.syncing"));
         mensaje.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
 
         ProgressIndicator spinner = new ProgressIndicator();
@@ -170,7 +171,6 @@ public class LoginController {
 
         StackPane overlay = new StackPane(content);
         overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6)");
-        StackPane.setAlignment(spinner, Pos.CENTER);
 
         Pane root = (Pane) usernameField.getScene().getRoot();
         root.getChildren().add(overlay);
@@ -203,13 +203,10 @@ public class LoginController {
             loginButton.setDisable(false);
             registerButton.setDisable(false);
 
-            MessageUtils.showError(
-                    "Synchronization failed: " + syncTask.getException().getMessage()
-            );
+            MessageUtils.showError(I18nUtils.get("login.syncFailed") + ": " + syncTask.getException().getMessage());
             logger.error("Sincronización fallida", syncTask.getException());
         });
 
         new Thread(syncTask).start();
     }
-
 }

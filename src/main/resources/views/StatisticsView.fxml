@@ -10,9 +10,9 @@
 
     <top>
         <HBox spacing="10" alignment="CENTER_LEFT">
-            <Label text="Statistics" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+            <Label text="%stats.title" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
             <Pane HBox.hgrow="ALWAYS"/>
-            <Button text="Close" onAction="#handleClose"/>
+            <Button text="%stats.close" onAction="#handleClose"/>
         </HBox>
     </top>
 
@@ -22,22 +22,22 @@
                 <VBox spacing="20" style="-fx-padding: 10;">
                     <HBox spacing="20">
                         <VBox spacing="10">
-                            <Label text="Totals" style="-fx-font-weight: bold;"/>
-                            <Label fx:id="totalRomsLabel" text="Total ROMs: 0"/>
-                            <Label fx:id="totalPlatformsLabel" text="Total Platforms: 0"/>
-                            <Label fx:id="romsPlayedLabel" text="ROMs Played: 0"/>
-                            <Label fx:id="romsFavoritedLabel" text="ROMs Favorited: 0"/>
+                            <Label text="%stats.totals.title" style="-fx-font-weight: bold;"/>
+                            <Label fx:id="totalRomsLabel" text="%stats.totals.totalRoms"/>
+                            <Label fx:id="totalPlatformsLabel" text="%stats.totals.totalPlatforms"/>
+                            <Label fx:id="romsPlayedLabel" text="%stats.totals.played"/>
+                            <Label fx:id="romsFavoritedLabel" text="%stats.totals.favorited"/>
                         </VBox>
 
                         <VBox spacing="10">
-                            <Label text="ROMs per Platform" style="-fx-font-weight: bold;"/>
-                            <BarChart fx:id="romsPerPlatformChart" title="ROMs per Platform"
+                            <Label text="%stats.romsPerPlatform.title" style="-fx-font-weight: bold;"/>
+                            <BarChart fx:id="romsPerPlatformChart" title="%stats.romsPerPlatform.chartTitle"
                                       categoryGap="10" barGap="5" prefWidth="600" prefHeight="400">
                                 <xAxis>
-                                    <CategoryAxis label="Platform" />
+                                    <CategoryAxis label="%stats.romsPerPlatform.platform"/>
                                 </xAxis>
                                 <yAxis>
-                                    <NumberAxis label="Number of ROMs" />
+                                    <NumberAxis label="%stats.romsPerPlatform.numRoms"/>
                                 </yAxis>
                             </BarChart>
                         </VBox>
@@ -45,13 +45,13 @@
 
                     <HBox spacing="20">
                         <VBox spacing="10">
-                            <Label text="Played vs Not Played" style="-fx-font-weight: bold;"/>
-                            <PieChart fx:id="playedPieChart" title="Played ROMs" prefWidth="300" prefHeight="300"/>
+                            <Label text="%stats.played.title" style="-fx-font-weight: bold;"/>
+                            <PieChart fx:id="playedPieChart" title="%stats.played.chartTitle" prefWidth="300" prefHeight="300"/>
                         </VBox>
 
                         <VBox spacing="10">
-                            <Label text="Favorites vs Others" style="-fx-font-weight: bold;"/>
-                            <PieChart fx:id="favoritesPieChart" title="Favorite ROMs" prefWidth="300" prefHeight="300"/>
+                            <Label text="%stats.favorites.title" style="-fx-font-weight: bold;"/>
+                            <PieChart fx:id="favoritesPieChart" title="%stats.favorites.chartTitle" prefWidth="300" prefHeight="300"/>
                         </VBox>
                     </HBox>
                 </VBox>
