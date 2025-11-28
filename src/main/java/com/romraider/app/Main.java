@@ -7,6 +7,9 @@ import com.romraider.utils.SoundUtils;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -15,6 +18,8 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 /**
  * Clase principal de la aplicación ROM Raider.
@@ -78,8 +83,30 @@ public class Main extends Application {
 
             Stage mainStage = new Stage();
             SceneUtils.switchToLoginView(mainStage);
+
+            mainStage.setOnCloseRequest(event -> {
+                if (!confirmClose()) {
+                    event.consume();
+                }
+            });
         });
         delay.play();
+    }
+
+    private boolean confirmClose() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Salir de ROM Raider");
+        alert.setHeaderText("¿Has guardado los cambios?");
+        alert.setContentText("Si sales ahora, podrías perder cambios no guardados.");
+
+        ButtonType guardarBtn = new ButtonType("He guardado, salir");
+        ButtonType cancelarBtn = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(guardarBtn, cancelarBtn);
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        return result.isPresent() && result.get() == guardarBtn;
     }
 
     /**
