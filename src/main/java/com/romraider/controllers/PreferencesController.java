@@ -5,6 +5,7 @@ import com.romraider.utils.MessageUtils;
 import com.romraider.utils.PropertyUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -35,6 +36,9 @@ public class PreferencesController {
     @FXML
     private CheckBox autoUpdateCheckBox;
 
+    @FXML
+    private ComboBox<String> languageCombo;
+
     /**
      * Inicializa la ventana de preferencias cargando los valores actuales
      * desde el archivo de configuración.
@@ -52,6 +56,13 @@ public class PreferencesController {
         String relativePath = config.getOrDefault("romraider.roms.default-folder", "ROMRaider/roms");
         String resolvedPath = Paths.get(System.getProperty("user.home"), relativePath).toString();
         copyPathField.setText(resolvedPath);
+
+        // Rellenar idiomas disponibles
+        languageCombo.getItems().addAll("es", "en");
+
+        // Cargar idioma actual
+        String currentLang = config.getOrDefault("romraider.language", "es");
+        languageCombo.setValue(currentLang);
 
         logger.debug("Preferencias cargadas: autoUpdate={}, copyPath={}", autoUpdate, resolvedPath);
     }
@@ -104,6 +115,8 @@ public class PreferencesController {
 
             config.set("romraider.api.autoupdate", String.valueOf(autoUpdate));
             config.set("romraider.roms.default-folder", relativePath);
+            String selectedLanguage = languageCombo.getValue();
+            config.set("romraider.language", selectedLanguage);
 
             config.save("ROM Raider Configuration");
 

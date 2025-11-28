@@ -19,6 +19,13 @@
 
             <Separator/>
 
+            <Label text="Language" style="-fx-font-weight: bold;"/>
+            <ComboBox fx:id="languageCombo" prefWidth="150"/>
+
+            <Separator/>
+
+            <Separator/>
+
             <CheckBox fx:id="autoUpdateCheckBox" text="Enable automatic data updates from RAWG.io"/>
 
         </VBox>
