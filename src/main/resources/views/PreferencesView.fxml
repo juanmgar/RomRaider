@@ -24,8 +24,6 @@
 
             <Separator/>
 
-            <Separator/>
-
             <CheckBox fx:id="autoUpdateCheckBox" text="%preferences.autoUpdateRawg"/>
 
         </VBox>

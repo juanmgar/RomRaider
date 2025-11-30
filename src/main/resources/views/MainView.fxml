@@ -137,10 +137,7 @@
 
         <right>
             <ScrollPane fitToWidth="true" style="-fx-padding: 10;">
-                <VBox spacing="10">
-                    <Label text="%main.details.label" style="-fx-font-size: 16px;"/>
-
-                    <!-- Plataforma -->
+                <VBox spacing="10" prefWidth="600">
                     <HBox spacing="10" alignment="CENTER_LEFT">
                         <Label text="%main.details.platform"/>
                         <Label fx:id="romPlatformLabel" style="-fx-font-weight: bold;"/>
@@ -174,7 +171,6 @@
                             </tooltip>
                         </Button>
 
-                        <!-- Edit -->
                         <Button onAction="#handleEditRom" text="%main.editRom.button">
                             <graphic>
                                 <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">

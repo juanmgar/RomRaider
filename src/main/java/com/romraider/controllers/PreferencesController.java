@@ -4,6 +4,7 @@ import com.romraider.app.AppInitializer;
 import com.romraider.utils.I18nUtils;
 import com.romraider.utils.MessageUtils;
 import com.romraider.utils.PropertyUtils;
+import com.romraider.utils.SceneUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -19,11 +20,11 @@ import java.nio.file.Paths;
 
 /**
  * Controlador de la ventana de preferencias del usuario.
- *
+ * <p>
  * Permite configurar:
- *  - Carpeta donde se copiarán automáticamente las ROMs escaneadas.
- *  - Activación o desactivación de la actualización automática desde RAWG.io.
- *
+ * - Carpeta donde se copiarán automáticamente las ROMs escaneadas.
+ * - Activación o desactivación de la actualización automática desde RAWG.io.
+ * <p>
  * Estos valores se almacenan en el fichero de configuración manejado
  * por {@link PropertyUtils}.
  */
@@ -91,7 +92,7 @@ public class PreferencesController {
      * Guarda las preferencias del usuario en el archivo de configuración:
      * - Ruta de copia relativa respecto al home del usuario
      * - Configuración de actualización automática
-     *
+     * <p>
      * Si ocurre un error, se muestra un mensaje al usuario en inglés.
      */
     @FXML
@@ -119,6 +120,14 @@ public class PreferencesController {
             config.set("romraider.language", languageCombo.getValue());
 
             config.save("ROM Raider Configuration");
+
+            // Cerrar ventana de preferencias
+            Stage prefStage = (Stage) copyPathField.getScene().getWindow();
+            Stage mainStage = (Stage) prefStage.getOwner();
+            prefStage.close();
+
+            I18nUtils.load(languageCombo.getValue());
+            SceneUtils.switchToMainView(mainStage);
 
             logger.info("Preferencias guardadas con éxito");
             MessageUtils.showInfo(I18nUtils.get("preferences.saveSuccess"));
