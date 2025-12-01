@@ -77,6 +77,8 @@ public class MainController {
     private Label syncLabel;
     @FXML
     private Label romPlatformLabel;
+    @FXML
+    private MenuItem loginLogoutMenuItem;
 
     @FXML
     public void initialize() {
@@ -89,6 +91,8 @@ public class MainController {
         userLabel.setText(loggedIn
                 ? SupabaseAuthService.getCurrentUserEmail()
                 : I18nUtils.get("main.status.offline"));
+
+        updateLoginLogoutMenu();
 
         logger.info("ListView before clear: {}", platformListView);
         if (!online || !loggedIn) {
@@ -330,6 +334,20 @@ public class MainController {
         });
 
         new Thread(scanTask).start();
+    }
+
+    private void updateLoginLogoutMenu() {
+        boolean loggedIn = SupabaseAuthService.getCurrentUserEmail() != null;
+
+        loginLogoutMenuItem.setText(
+                I18nUtils.get(loggedIn ? "menu.file.logout" : "menu.file.login")
+        );
+
+        userLabel.setText(
+                loggedIn
+                        ? SupabaseAuthService.getCurrentUserEmail()
+                        : I18nUtils.get("main.status.offline")
+        );
     }
 
     private void processRomFile(Path path, String baseFolder, Map<String, Plataforma> extensionMap) {
