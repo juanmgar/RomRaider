@@ -1,22 +1,27 @@
 package com.romraider.utils;
 
+import com.romraider.api.SupabaseAuthService;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
  * Maneja el estado de sincronización con Supabase.
- *
+ * <p>
  * Guarda en un JSON:
- *   - usuario que realizó la última sync
- *   - fecha del último cambio local
- *   - última fecha de sincronización local
- *   - última fecha de sincronización remota
+ * - user_id: usuario que realizó la última sync
+ * - last_local_user: usuario que realizó el último cambio local
+ * - last_local_edit: fecha del último cambio local
+ * - last_sync: fecha de la última sincronización local
+ * - last_remote_sync: última fecha conocida en remoto
  */
 public class SyncStateUtils {
 
@@ -39,6 +44,7 @@ public class SyncStateUtils {
 
                 JSONObject init = new JSONObject()
                         .put("user_id", "")
+                        .put("last_local_user", "")
                         .put("last_local_edit", LocalDateTime.MIN.format(FMT))
                         .put("last_sync", LocalDateTime.MIN.format(FMT))
                         .put("last_remote_sync", LocalDateTime.MIN.format(FMT));
@@ -72,6 +78,10 @@ public class SyncStateUtils {
         return readJson().optString("user_id", "");
     }
 
+    public static String getLastLocalUser() {
+        return readJson().optString("last_local_user", "");
+    }
+
     public static LocalDateTime getLastLocalEdit() {
         return parseTime("last_local_edit");
     }
@@ -85,10 +95,18 @@ public class SyncStateUtils {
     }
 
     /**
-     * Marca que hubo un cambio local en la base de datos.
+     * Marca que hubo un cambio local.
+     * Se registra también el usuario actual (o "" si es offline).
      */
     public static void markLocalChange() {
-        updateField("last_local_edit", LocalDateTime.now());
+        JSONObject obj = readJson();
+
+        obj.put("last_local_edit", LocalDateTime.now().format(FMT));
+
+        String userId = SupabaseAuthService.getUserId();
+        obj.put("last_local_user", userId != null ? userId : "");
+
+        writeJson(obj);
     }
 
     /**

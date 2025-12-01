@@ -27,7 +27,7 @@ import java.util.Scanner;
 /**
  * Servicio responsable de sincronizar las plataformas y ROMs
  * entre la base de datos local y el backend Supabase.
- *
+ * <p>
  * Se basa en timestamps para decidir si descargar o subir datos,
  * y en la asociación user_id → data para almacenar colecciones separadas por usuario.
  */
@@ -45,6 +45,8 @@ public class SupabaseSyncService {
      */
     public static void syncWithSupabase() {
         String userId = SupabaseAuthService.getUserId();
+        String lastLocalUser = SyncStateUtils.getLastLocalUser();
+
         if (userId == null) {
             logger.warn("No hay usuario autenticado. Sincronización omitida.");
             return;
@@ -81,11 +83,30 @@ public class SupabaseSyncService {
             }
 
             // Datos más nuevos en local o base local vacía
-            if ((lastLocalEdit.isAfter(lastSync) && lastLocalEdit.isAfter(remoteTimestamp)) || !hasLocalData) {
-                logger.info("Detectados cambios locales más recientes. Subiendo datos a Supabase...");
+            // evitar sobrescribir con datos offline u otro usuario
+            if (lastLocalEdit.isAfter(lastSync) && lastLocalEdit.isAfter(remoteTimestamp)) {
+
+                if (!userId.equals(lastLocalUser)) {
+                    logger.info("Cambios locales detectados, pero NO pertenecen al usuario {} (lastLocalUser='{}'). "
+                                    + "NO se suben para evitar sobrescribir datos remotos.",
+                            userId, lastLocalUser);
+                    downloadAllData(userId);
+
+                    return;
+                }
+
+                logger.info("Cambios locales pertenecen al usuario {}. Subiendo datos a Supabase...", userId);
                 uploadAllData(userId);
                 return;
             }
+
+// Si no hay datos locales, comportamiento original
+            if (!hasLocalData) {
+                logger.info("Base local vacía. Subiendo datos a Supabase...");
+                uploadAllData(userId);
+                return;
+            }
+
 
             logger.info("Los datos ya están sincronizados. No hay cambios pendientes.");
 
