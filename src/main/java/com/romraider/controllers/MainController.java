@@ -915,18 +915,13 @@ public class MainController {
         }
 
         try {
-            // WINDOWS
-            if (System.getProperty("os.name").toLowerCase().contains("win")) {
-                new ProcessBuilder("explorer.exe", folder.getAbsolutePath()).start();
+            if (!java.awt.Desktop.isDesktopSupported()) {
+                logger.error("Desktop API is not supported on this platform.");
+                MessageUtils.showError(I18nUtils.get("romForm.folder.desktopNotSupported"));
+                return;
             }
-            // macOS
-            else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-                new ProcessBuilder("open", folder.getAbsolutePath()).start();
-            }
-            // Linux
-            else {
-                new ProcessBuilder("xdg-open", folder.getAbsolutePath()).start();
-            }
+
+            java.awt.Desktop.getDesktop().open(folder);
 
             logger.info("Opened ROM folder: {}", folder.getAbsolutePath());
 
