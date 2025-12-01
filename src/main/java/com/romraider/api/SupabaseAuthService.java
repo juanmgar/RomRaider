@@ -50,8 +50,8 @@ public class SupabaseAuthService {
         if (response != null && response.has(APIsConstants.ACCESS_TOKEN)) {
             accessToken = response.getString(APIsConstants.ACCESS_TOKEN);
 
-            if (response.has("refresh_token")) {
-                refreshToken = response.getString("refresh_token");
+            if (response.has(APIsConstants.REFRESH_TOKEN)) {
+                refreshToken = response.getString(APIsConstants.REFRESH_TOKEN);
             }
 
             userId = extractUserIdFromToken(accessToken);
@@ -245,7 +245,7 @@ public class SupabaseAuthService {
     private static boolean refreshAccessToken() {
         try {
             JSONObject body = new JSONObject()
-                    .put("refresh_token", refreshToken);
+                    .put(APIsConstants.REFRESH_TOKEN, refreshToken);
 
             JSONObject response = sendSupabaseRequest(
                     "/auth/v1/token?grant_type=refresh_token",
@@ -258,8 +258,8 @@ public class SupabaseAuthService {
 
             accessToken = response.getString("access_token");
 
-            if (response.has("refresh_token")) {
-                refreshToken = response.getString("refresh_token");
+            if (response.has(APIsConstants.REFRESH_TOKEN)) {
+                refreshToken = response.getString(APIsConstants.REFRESH_TOKEN);
             }
 
             logger.info("Access token refrescado correctamente.");

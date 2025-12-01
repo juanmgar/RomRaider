@@ -16,6 +16,7 @@ public class DataInitializer {
     private static final String GAME_BOY = "Game Boy";
     private static final String GAME_BOY_ADVANCE = "Game Boy Advance";
     private static final String GENESIS = "Genesis";
+    private static final String NINTENDO_64 = "Nintendo 64";
 
     private static final String NES_DIR = "/roms/nes/";
     private static final String SNES_DIR = "/roms/snes/";
@@ -36,7 +37,7 @@ public class DataInitializer {
             // --- Nintendo ---
             {"NES", ".nes", "nes"},
             {"SNES", ".smc", "snes"},
-            {"Nintendo 64", ".n64", "n64"},
+            {NINTENDO_64, ".n64", "n64"},
             {"GameCube", ".gcm", "gamecube"},
             {"Wii", ".wbfs", "wii"},
             {GAME_BOY, ".gb", "gb"},
@@ -130,10 +131,10 @@ public class DataInitializer {
             {"Gunstar Heroes", "Run and gun frenético.", null, GENESIS_DIR + "gunstar_heroes" + EXT_GEN, false, true, GENESIS},
 
             // Nintendo 64
-            {"Super Mario 64", "Salto a las 3D de Mario.", null, N64_DIR + "super_mario_64" + EXT_N64, true, true, "Nintendo 64"},
-            {"The Legend of Zelda: Ocarina of Time", "Una de las mejores aventuras jamás creadas.", null, N64_DIR + "ocarina" + EXT_N64, true, true, "Nintendo 64"},
-            {"GoldenEye 007", "FPS multijugador mítico.", null, N64_DIR + "goldeneye" + EXT_N64, false, true, "Nintendo 64"},
-            {"Banjo-Kazooie", "Plataformas 3D con humor y coleccionables.", null, N64_DIR + "banjo" + EXT_N64, true, false, "Nintendo 64"},
+            {"Super Mario 64", "Salto a las 3D de Mario.", null, N64_DIR + "super_mario_64" + EXT_N64, true, true, NINTENDO_64},
+            {"The Legend of Zelda: Ocarina of Time", "Una de las mejores aventuras jamás creadas.", null, N64_DIR + "ocarina" + EXT_N64, true, true, NINTENDO_64},
+            {"GoldenEye 007", "FPS multijugador mítico.", null, N64_DIR + "goldeneye" + EXT_N64, false, true, NINTENDO_64},
+            {"Banjo-Kazooie", "Plataformas 3D con humor y coleccionables.", null, N64_DIR + "banjo" + EXT_N64, true, false, NINTENDO_64},
     };
 
     public static void initializeWithDefaults() {

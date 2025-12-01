@@ -24,7 +24,12 @@ public final class APIsConstants {
     public static final String ID = "id";
     public static final String USER_ID = "user_id";
     public static final String EMAIL = "email";
+    public static final String LAST_LOCAL_EDIT = "last_local_edit";
+    public static final String LAST_LOCAL_USER = "last_local_user";
+    public static final String LAST_REMOTE_SYNC = "last_remote_sync";
+    public static final String LAST_SYNC = "last_sync";
     public static final String PASSWORD = "password";
+    public static final String REFRESH_TOKEN = "refresh_token";
 
     // Plataforma fields
     public static final String NOMBRE = "nombre";

@@ -1,5 +1,6 @@
 package com.romraider.utils;
 
+import com.romraider.api.APIsConstants;
 import com.romraider.api.SupabaseAuthService;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -43,11 +44,11 @@ public class SyncStateUtils {
                 logger.info("Archivo sync_status.json no encontrado. Creando uno nuevo...");
 
                 JSONObject init = new JSONObject()
-                        .put("user_id", "")
-                        .put("last_local_user", "")
-                        .put("last_local_edit", LocalDateTime.MIN.format(FMT))
-                        .put("last_sync", LocalDateTime.MIN.format(FMT))
-                        .put("last_remote_sync", LocalDateTime.MIN.format(FMT));
+                        .put(APIsConstants.USER_ID, "")
+                        .put(APIsConstants.LAST_LOCAL_USER, "")
+                        .put(APIsConstants.LAST_LOCAL_EDIT, LocalDateTime.MIN.format(FMT))
+                        .put(APIsConstants.LAST_SYNC, LocalDateTime.MIN.format(FMT))
+                        .put(APIsConstants.LAST_REMOTE_SYNC, LocalDateTime.MIN.format(FMT));
 
                 writeJson(init);
                 return init;
@@ -75,23 +76,23 @@ public class SyncStateUtils {
     }
 
     public static String getLastUser() {
-        return readJson().optString("user_id", "");
+        return readJson().optString(APIsConstants.USER_ID, "");
     }
 
     public static String getLastLocalUser() {
-        return readJson().optString("last_local_user", "");
+        return readJson().optString(APIsConstants.LAST_LOCAL_USER, "");
     }
 
     public static LocalDateTime getLastLocalEdit() {
-        return parseTime("last_local_edit");
+        return parseTime(APIsConstants.LAST_LOCAL_EDIT);
     }
 
     public static LocalDateTime getLastSync() {
-        return parseTime("last_sync");
+        return parseTime(APIsConstants.LAST_SYNC);
     }
 
     public static LocalDateTime getLastRemoteSync() {
-        return parseTime("last_remote_sync");
+        return parseTime(APIsConstants.LAST_REMOTE_SYNC);
     }
 
     /**
@@ -101,10 +102,10 @@ public class SyncStateUtils {
     public static void markLocalChange() {
         JSONObject obj = readJson();
 
-        obj.put("last_local_edit", LocalDateTime.now().format(FMT));
+        obj.put(APIsConstants.LAST_LOCAL_EDIT, LocalDateTime.now().format(FMT));
 
         String userId = SupabaseAuthService.getUserId();
-        obj.put("last_local_user", userId != null ? userId : "");
+        obj.put(APIsConstants.LAST_LOCAL_USER, userId != null ? userId : "");
 
         writeJson(obj);
     }
@@ -116,8 +117,8 @@ public class SyncStateUtils {
      */
     public static void updateLastSync(String userId) {
         JSONObject obj = readJson();
-        obj.put("user_id", userId);
-        obj.put("last_sync", LocalDateTime.now().format(FMT));
+        obj.put(APIsConstants.USER_ID, userId);
+        obj.put(APIsConstants.LAST_SYNC, LocalDateTime.now().format(FMT));
 
         logger.info("Actualizando last_sync y user_id en sync_status.json");
 
@@ -128,7 +129,7 @@ public class SyncStateUtils {
      * Actualiza la fecha de sincronización remota.
      */
     public static void updateLastRemoteSync(LocalDateTime timestamp) {
-        updateField("last_remote_sync", timestamp);
+        updateField(APIsConstants.LAST_REMOTE_SYNC, timestamp);
     }
 
     /**
