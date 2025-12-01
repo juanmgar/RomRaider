@@ -107,7 +107,6 @@ public class MainController {
                     + lastSync.format(DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy"))
                     : I18nUtils.get("main.sync.never");
             syncLabel.setText(syncText);
-
             cargarPlataformas();
         }
 
@@ -224,18 +223,10 @@ public class MainController {
     public void handleScanFolder() {
         logger.info("Initiating ROM scan process...");
 
-        PropertyUtils config = AppInitializer.loadConfig();
+        File selectedDir = validarDirectorioSeleccionado();
+        if (selectedDir == null) return;
 
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle(I18nUtils.get("main.scan.selectFolderTitle"));
-        File selectedDir = directoryChooser.showDialog(menuBar.getScene().getWindow());
-
-        if (selectedDir == null || !selectedDir.exists()) {
-            logger.warn("No directory selected or it doesn't exist");
-            return;
-        }
-
-        String baseFolderRelativa = config.get("romraider.roms.default-folder");
+        String baseFolderRelativa = AppInitializer.loadConfig().get("romraider.roms.default-folder");
         if (baseFolderRelativa == null || baseFolderRelativa.isBlank()) {
             MessageUtils.showError(I18nUtils.get("main.scan.error.noDefaultFolder"));
             logger.error("Missing configuration: 'romraider.roms.default-folder'");
@@ -247,90 +238,19 @@ public class MainController {
         Pane root = (Pane) menuBar.getScene().getRoot();
         StackPane overlay = OverlayUtils.showLoading(root, I18nUtils.get("main.scan.overlay"));
 
-        Task<String> scanTask = new Task<>() {
-            @Override
-            protected String call() {
-
-                List<Plataforma> plataformas = plataformaService.obtenerTodas();
-                Map<String, Plataforma> extensionMap = plataformas.stream()
-                        .collect(Collectors.toMap(
-                                p -> p.getExtensionRom().toLowerCase(),
-                                p -> p
-                        ));
-
-                int[] romsAdded = {0};
-                Set<Plataforma> plataformasAfectadas = new HashSet<>();
-
-                try {
-                    Files.walk(selectedDir.toPath())
-                            .filter(Files::isRegularFile)
-                            .forEach(path -> {
-                                try {
-                                    String filename = path.getFileName().toString();
-                                    int dotIndex = filename.lastIndexOf('.');
-                                    if (dotIndex == -1) return;
-
-                                    String extension = filename.substring(dotIndex).toLowerCase();
-                                    Plataforma plataforma = extensionMap.get(extension);
-
-                                    if (plataforma == null) return;
-
-                                    // Antes de procesar comprobar si existe
-                                    String titulo = filename.substring(0, dotIndex);
-                                    boolean exists = romService.existeRomConTituloYPlataforma(titulo, plataforma.getId());
-                                    if (exists) return;
-
-                                    // Procesar y guardar
-                                    processRomFile(path, baseFolder, extensionMap);
-
-                                    romsAdded[0]++;
-                                    plataformasAfectadas.add(plataforma);
-
-                                } catch (Exception ex) {
-                                    logger.error("Error processing file {}", path, ex);
-                                }
-                            });
-
-                } catch (IOException e) {
-                    logger.error("Error scanning folder", e);
-                    throw new RuntimeException(I18nUtils.get("main.scan.error.exception"), e);
-                }
-
-                String plataformasTexto = plataformasAfectadas.stream()
-                        .map(Plataforma::getNombre)
-                        .sorted()
-                        .collect(Collectors.joining("\n- ", "- ", ""));
-
-                String summary = String.format(
-                        I18nUtils.get("main.scan.summary"),
-                        romsAdded[0],
-                        plataformasAfectadas.size(),
-                        plataformasAfectadas.isEmpty()
-                                ? I18nUtils.get("main.scan.summary.none")
-                                : plataformasTexto
-                );
-
-                // Resumen a devolver al hilo de UI
-                return summary;
-            }
-        };
+        Task<String> scanTask =
+                crearTaskEscaneo(selectedDir.toPath(), baseFolder);
 
         scanTask.setOnSucceeded(e -> {
             OverlayUtils.hideLoading(root, overlay);
             cargarPlataformas();
-
-            String summary = scanTask.getValue();
-            MessageUtils.showInfo(summary);
-            logger.info(summary);
+            MessageUtils.showInfo(scanTask.getValue());
         });
 
         scanTask.setOnFailed(e -> {
             OverlayUtils.hideLoading(root, overlay);
-
-            Throwable ex = scanTask.getException();
-            logger.error("Scan failed", ex);
-
-            MessageUtils.showError(I18nUtils.get("main.scan.failedPrefix") + ex.getMessage());
+            MessageUtils.showError(I18nUtils.get("main.scan.failedPrefix")
+                    + scanTask.getException().getMessage());
         });
 
         new Thread(scanTask).start();
@@ -429,81 +349,22 @@ public class MainController {
     @FXML
     public void handleImport() {
 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle(I18nUtils.get("main.import.dialogTitle"));
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter(I18nUtils.get("main.import.filter.xml"), "*.xml")
-        );
-        File selectedFile = fileChooser.showOpenDialog(menuBar.getScene().getWindow());
-
+        File selectedFile = seleccionarArchivoImportacion();
         if (selectedFile == null) return;
 
-        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle(I18nUtils.get("main.import.confirm.title"));
-        confirmAlert.setHeaderText(I18nUtils.get("main.import.confirm.header"));
-        confirmAlert.setContentText(I18nUtils.get("main.import.confirm.content"));
+        if (!mostrarDialogoConfirmacion()) return;
 
-        confirmAlert.showAndWait().ifPresent(response -> {
-            if (response != ButtonType.OK) return;
+        logger.info("Starting XML import with spinner...");
 
-            logger.info("Starting XML import with spinner...");
+        Pane root = (Pane) menuBar.getScene().getRoot();
+        StackPane overlay = OverlayUtils.showLoading(root, I18nUtils.get("main.import.overlay"));
 
-            Pane root = (Pane) menuBar.getScene().getRoot();
-            StackPane overlay = OverlayUtils.showLoading(root, I18nUtils.get("main.import.overlay"));
+        Task<Void> importTask = crearImportTask(selectedFile);
 
-            Task<Void> importTask = new Task<>() {
-                @Override
-                protected Void call() {
+        importTask.setOnSucceeded(ev -> postImportSuccess(selectedFile, overlay));
+        importTask.setOnFailed(ev -> postImportFailure(importTask.getException(), overlay));
 
-                    try {
-                        List<Plataforma> plataformasImportadas =
-                                new ArrayList<>(XMLUtils.importarDesdeXml(selectedFile));
-
-                        plataformaService.eliminarTodas();
-
-                        for (Plataforma plataforma : plataformasImportadas) {
-
-                            if (!(plataforma.getRoms() instanceof ArrayList)) {
-                                plataforma.setRoms(new ArrayList<>(plataforma.getRoms()));
-                            }
-
-                            for (Rom rom : plataforma.getRoms()) {
-                                rom.setPlataforma(plataforma);
-                            }
-
-                            plataformaService.guardar(plataforma);
-                        }
-
-                    } catch (Exception e) {
-                        logger.error("Error importing XML", e);
-                        throw new RuntimeException("Error importing XML: " + e.getMessage(), e);
-                    }
-
-                    return null;
-                }
-            };
-
-            importTask.setOnSucceeded(ev -> {
-                OverlayUtils.hideLoading(root, overlay);
-
-                romListView.setItems(FXCollections.observableArrayList());
-
-                cargarPlataformas();
-                MessageUtils.showInfo(I18nUtils.get("main.import.success"));
-                logger.info("Imported collection from: {}", selectedFile.getAbsolutePath());
-            });
-
-            importTask.setOnFailed(ev -> {
-                OverlayUtils.hideLoading(root, overlay);
-
-                Throwable ex = importTask.getException();
-                logger.error("Import failed", ex);
-
-                MessageUtils.showError(I18nUtils.get("main.import.failedPrefix") + ex.getMessage());
-            });
-
-            new Thread(importTask).start();
-        });
+        new Thread(importTask).start();
     }
 
     /**
@@ -1075,6 +936,160 @@ public class MainController {
                     String.format(I18nUtils.get("romForm.folder.couldNotOpen"), e.getMessage())
             );
         }
+    }
+
+    private File validarDirectorioSeleccionado() {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle(I18nUtils.get("main.scan.selectFolderTitle"));
+
+        File selectedDir = directoryChooser.showDialog(menuBar.getScene().getWindow());
+
+        if (selectedDir == null || !selectedDir.exists()) {
+            logger.warn("No directory selected or it doesn't exist");
+            return null;
+        }
+        return selectedDir;
+    }
+
+    private String crearResumen(int romsAdded, Set<Plataforma> plataformasAfectadas) {
+        String plataformasTexto = plataformasAfectadas.stream()
+                .map(Plataforma::getNombre)
+                .sorted()
+                .collect(Collectors.joining("\n- ", "- ", ""));
+
+        return String.format(
+                I18nUtils.get("main.scan.summary"),
+                romsAdded,
+                plataformasAfectadas.size(),
+                plataformasAfectadas.isEmpty()
+                        ? I18nUtils.get("main.scan.summary.none")
+                        : plataformasTexto
+        );
+    }
+
+    private Task<String> crearTaskEscaneo(Path selectedDir, String baseFolder) {
+        return new Task<>() {
+            @Override
+            protected String call() {
+
+                List<Plataforma> plataformas = plataformaService.obtenerTodas();
+                Map<String, Plataforma> extensionMap = plataformas.stream()
+                        .collect(Collectors.toMap(
+                                p -> p.getExtensionRom().toLowerCase(),
+                                p -> p
+                        ));
+
+                int[] romsAdded = {0};
+                Set<Plataforma> plataformasAfectadas = new HashSet<>();
+
+                try (var paths = Files.walk(selectedDir)) {
+                    paths.filter(Files::isRegularFile)
+                            .forEach(path -> procesarArchivo(path, extensionMap, baseFolder,
+                                    romsAdded, plataformasAfectadas));
+                } catch (IOException e) {
+                    logger.error("Error scanning folder", e);
+                    throw new RuntimeException(I18nUtils.get("main.scan.error.exception"), e);
+                }
+
+                return crearResumen(romsAdded[0], plataformasAfectadas);
+            }
+        };
+    }
+
+    private void procesarArchivo(Path path, Map<String, Plataforma> extensionMap, String baseFolder,
+                                 int[] romsAdded, Set<Plataforma> plataformasAfectadas) {
+
+        try {
+            String filename = path.getFileName().toString();
+            int dotIndex = filename.lastIndexOf('.');
+            if (dotIndex == -1) return;
+
+            String extension = filename.substring(dotIndex).toLowerCase();
+            Plataforma plataforma = extensionMap.get(extension);
+            if (plataforma == null) return;
+
+            String titulo = filename.substring(0, dotIndex);
+            if (romService.existeRomConTituloYPlataforma(titulo, plataforma.getId())) return;
+
+            processRomFile(path, baseFolder, extensionMap);
+
+            romsAdded[0]++;
+            plataformasAfectadas.add(plataforma);
+
+        } catch (Exception ex) {
+            logger.error("Error processing file {}", path, ex);
+        }
+    }
+
+    private File seleccionarArchivoImportacion() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle(I18nUtils.get("main.import.dialogTitle"));
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(I18nUtils.get("main.import.filter.xml"), "*.xml")
+        );
+        return fileChooser.showOpenDialog(menuBar.getScene().getWindow());
+    }
+
+    private boolean mostrarDialogoConfirmacion() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(I18nUtils.get("main.import.confirm.title"));
+        alert.setHeaderText(I18nUtils.get("main.import.confirm.header"));
+        alert.setContentText(I18nUtils.get("main.import.confirm.content"));
+
+        return alert.showAndWait().filter(r -> r == ButtonType.OK).isPresent();
+    }
+
+    private Task<Void> crearImportTask(File selectedFile) {
+        return new Task<>() {
+            @Override
+            protected Void call() {
+
+                try {
+                    List<Plataforma> plataformasImportadas =
+                            new ArrayList<>(XMLUtils.importarDesdeXml(selectedFile));
+
+                    plataformaService.eliminarTodas();
+
+                    for (Plataforma plataforma : plataformasImportadas) {
+
+                        if (!(plataforma.getRoms() instanceof ArrayList)) {
+                            plataforma.setRoms(new ArrayList<>(plataforma.getRoms()));
+                        }
+
+                        for (Rom rom : plataforma.getRoms()) {
+                            rom.setPlataforma(plataforma);
+                        }
+
+                        plataformaService.guardar(plataforma);
+                    }
+
+                } catch (Exception e) {
+                    logger.error("Error importing XML", e);
+                    throw new RuntimeException("Error importing XML: " + e.getMessage(), e);
+                }
+
+                return null;
+            }
+        };
+    }
+
+    private void postImportSuccess(File selectedFile, StackPane overlay) {
+        OverlayUtils.hideLoading((Pane) menuBar.getScene().getRoot(), overlay);
+
+        romListView.setItems(FXCollections.observableArrayList());
+        cargarPlataformas();
+
+        MessageUtils.showInfo(I18nUtils.get("main.import.success"));
+        logger.info("Imported collection from: {}", selectedFile.getAbsolutePath());
+    }
+
+    private void postImportFailure(Throwable ex, StackPane overlay) {
+        OverlayUtils.hideLoading((Pane) menuBar.getScene().getRoot(), overlay);
+
+        logger.error("Import failed", ex);
+        MessageUtils.showError(
+                I18nUtils.get("main.import.failedPrefix") + ex.getMessage()
+        );
     }
 
     private Image getDefaultImage() {
