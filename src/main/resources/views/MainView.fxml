@@ -65,7 +65,7 @@
                 <HBox spacing="10">
                     <VBox spacing="5">
                         <Label text="%main.platforms.label" style="-fx-font-weight: bold;"/>
-                        <ListView fx:id="platformListView" prefWidth="150"/>
+                        <ListView fx:id="platformListView" prefWidth="160"/>
                         <VBox spacing="5">
                             <!-- Add Platform -->
                             <Button onAction="#handleAddPlatform" maxWidth="Infinity" text="%main.platform.add">
