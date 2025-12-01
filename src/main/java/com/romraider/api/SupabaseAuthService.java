@@ -5,9 +5,11 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Scanner;
 
@@ -192,32 +194,41 @@ public class SupabaseAuthService {
 
             // Envío del JSON al servidor
             try (OutputStream os = conn.getOutputStream()) {
-                os.write(body.toString().getBytes());
+                os.write(body.toString().getBytes(StandardCharsets.UTF_8));
             }
 
             int status = conn.getResponseCode();
-            boolean success = status == 200 || status == 201;
+            boolean success = status == HttpURLConnection.HTTP_OK || status == HttpURLConnection.HTTP_CREATED;
 
-            Scanner scanner = new Scanner(
-                    success ? conn.getInputStream() : conn.getErrorStream()
-            ).useDelimiter("\\A");
+            InputStream rawStream = success ? conn.getInputStream() : conn.getErrorStream();
+            if (rawStream == null) {
+                logger.warn("Petición a Supabase sin cuerpo de respuesta (HTTP {}).", status);
+                return success ? new JSONObject() : null;
+            }
 
-            String responseBody = scanner.hasNext() ? scanner.next() : "";
+            try (InputStream is = rawStream;
+                 Scanner scanner = new Scanner(is, StandardCharsets.UTF_8).useDelimiter("\\A")) {
 
-            if (success) {
-                return new JSONObject(responseBody.isEmpty() ? "{}" : responseBody);
-            } else {
-                logger.warn("Petición a Supabase fallida (HTTP {}): {}", status, responseBody);
-                return null;
+                String responseBody = scanner.hasNext() ? scanner.next() : "";
+
+                if (success) {
+                    return new JSONObject(responseBody.isEmpty() ? "{}" : responseBody);
+                } else {
+                    logger.warn("Petición a Supabase fallida (HTTP {}): {}", status, responseBody);
+                    return null;
+                }
             }
 
         } catch (Exception e) {
             logger.error("Error en la petición Supabase a {}", endpoint, e);
             return null;
         } finally {
-            if (conn != null) conn.disconnect();
+            if (conn != null) {
+                conn.disconnect();
+            }
         }
     }
+
 
     /**
      * Extrae el ID de usuario desde el payload de un token JWT.

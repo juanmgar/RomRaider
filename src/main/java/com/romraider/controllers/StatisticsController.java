@@ -128,7 +128,7 @@ public class StatisticsController {
                 I18nUtils.get("statistics.played"), playedCount
         ));
         playedPieChart.getData().add(new PieChart.Data(
-                I18nUtils.get("statistics.notPlayed"), roms.size() - playedCount
+                I18nUtils.get("statistics.notPlayed"), (double) roms.size() - playedCount
         ));
 
 
@@ -141,7 +141,7 @@ public class StatisticsController {
                 I18nUtils.get("statistics.favorite"), favoriteCount
         ));
         favoritesPieChart.getData().add(new PieChart.Data(
-                I18nUtils.get("statistics.notFavorite"), roms.size() - favoriteCount
+                I18nUtils.get("statistics.notFavorite"), (double) roms.size() - favoriteCount
         ));
 
         logger.info("Estadísticas cargadas correctamente.");
