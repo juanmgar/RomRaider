@@ -3,26 +3,49 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.romraider.controllers.CreditsController">
 
     <center>
-        <VBox spacing="10" alignment="CENTER" style="-fx-padding: 30;">
-            <Label text="%credits.title" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-            <Label text="%credits.subtitle" />
-            <Label text="%credits.damDescription" />
-            <Label text="%credits.author" />
-            <Label text="%credits.stack"/>
+        <VBox spacing="12" alignment="CENTER" style="-fx-padding: 30;">
+
+            <!-- Título general -->
+            <Label text="%credits.title"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+
+            <!-- Subtítulo -->
+            <Label text="%credits.subtitle"
+                   style="-fx-font-size: 14px;"/>
+
+            <!-- Autor -->
+            <Label text="%credits.author" style="-fx-font-size: 14px;"/>
+
+            <!-- Tecnologías usadas -->
+            <Label text="%credits.stack"
+                   style="-fx-font-size: 13px; -fx-padding: 8 0 0 0;"/>
+
+            <!-- Atribución Freepik -->
             <Hyperlink text="%credits.bgCredit"
                        onAction="#handleOpenFreepik"
-                       style="-fx-text-fill: #33eaff; -fx-font-size: 12px; -fx-underline: true;" />
-            <Label text="%credits.rights" />
+                       style="-fx-font-size: 12px; -fx-text-fill: #33eaff; -fx-underline: true;"/>
+
+            <!-- Atribución Flaticon -->
+            <Hyperlink text="%credits.iconCredit"
+                       onAction="#handleOpenFlaticon"
+                       style="-fx-font-size: 12px; -fx-text-fill: #33eaff; -fx-underline: true;"/>
+
+            <!-- Derechos -->
+            <Label text="%credits.rights"
+                   style="-fx-font-size: 11px; -fx-text-fill: gray; -fx-padding: 10 0 0 0;"/>
+
         </VBox>
     </center>
 
     <bottom>
-        <HBox alignment="CENTER" style="-fx-padding: 10;">
-            <Button text="%credits.close.button" onAction="#handleCloseCredits"/>
+        <HBox alignment="CENTER" style="-fx-padding: 15;">
+            <Button text="%credits.close.button"
+                    onAction="#handleCloseCredits"/>
         </HBox>
     </bottom>
 

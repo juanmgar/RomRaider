@@ -31,19 +31,24 @@ public class CreditsController {
         ((Stage) ((Button) event.getSource()).getScene().getWindow()).close();
     }
 
-    /**
-     * Abre en el navegador del usuario la página de Freepik utilizada como recurso visual.
-     * Solo funciona si el sistema permite acceso al escritorio (Desktop API).
-     */
     @FXML
     private void handleOpenFreepik() {
+        openLink("https://www.freepik.com/free-vector/dark-background-with-geometric-design_853799.html",
+                "Freepik");
+    }
+
+    @FXML
+    private void handleOpenFlaticon() {
+        openLink("https://www.flaticon.es/autores/freepik",
+                "Flaticon");
+    }
+
+    private void openLink(String url, String sourceName) {
         try {
-            logger.info("Abriendo enlace de Freepik en el navegador");
-            java.awt.Desktop.getDesktop().browse(
-                    new URI("https://www.freepik.com/free-vector/dark-background-with-geometric-design_853799.html")
-            );
+            logger.info("Abriendo enlace de {}", sourceName);
+            java.awt.Desktop.getDesktop().browse(new URI(url));
         } catch (Exception e) {
-            logger.error("No se pudo abrir el enlace de Freepik", e);
+            logger.error("No se pudo abrir el enlace de {}", sourceName, e);
         }
     }
 }
