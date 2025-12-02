@@ -10,12 +10,16 @@ import java.util.Optional;
 /**
  * Utilidad para mostrar diálogos emergentes (alertas, avisos, confirmaciones)
  * en la interfaz JavaFX.
- *
- * Los textos visibles para el usuario se obtienen del sistema de internacionalización (I18n).
+ * <p>
+ * Los textos visibles para el usuario se obtienen del sistema de internacionalización ({@link I18nUtils}).
  * Los mensajes de log generados desde esta clase son en español.
  */
 public class MessageUtils {
 
+    /**
+     * Logger para registrar las operaciones realizadas desde esta clase
+     * (mensajes mostrados al usuario, confirmaciones, etc.).
+     */
     private static final Logger logger = LoggerFactory.getLogger(MessageUtils.class);
 
     /**
@@ -51,8 +55,9 @@ public class MessageUtils {
     /**
      * Muestra un diálogo de confirmación con botones OK / Cancel.
      *
-     * @param message mensaje a mostrar
-     * @return true si el usuario acepta (OK), false en caso contrario
+     * @param message mensaje a mostrar al usuario en el cuadro de confirmación.
+     * @return {@code true} si el usuario pulsa el botón OK,
+     *         {@code false} si cancela o cierra el diálogo.
      */
     public static boolean showConfirmation(String message) {
         logger.debug("Mostrando cuadro de confirmación al usuario: {}", message);
@@ -69,9 +74,9 @@ public class MessageUtils {
     /**
      * Método interno para crear y mostrar una alerta JavaFX.
      *
-     * @param type tipo de alerta (error, info, warning...)
-     * @param title título de la ventana (i18n)
-     * @param message contenido del mensaje
+     * @param type    tipo de alerta (error, info, warning, confirmación, etc.).
+     * @param title   título de la ventana (normalmente obtenido vía i18n).
+     * @param message contenido del mensaje a mostrar.
      */
     private static void showAlert(Alert.AlertType type, String title, String message) {
         /*

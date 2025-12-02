@@ -12,24 +12,56 @@ import java.io.IOException;
 
 /**
  * Utilidad para gestionar cambios de escenas (pantallas) en la aplicación.
- * Se encarga de:
- *   - Cargar los FXML
- *   - Aplicar estilos CSS
- *   - Configurar título, icono y tamaño
+ * <p>
+ * Esta clase centraliza la carga de vistas FXML y la configuración de:
+ * <ul>
+ *   <li>Estilos CSS</li>
+ *   <li>Icono de la aplicación</li>
+ *   <li>Tamaño y título de la ventana</li>
+ * </ul>
+ * Ofrece métodos específicos para cambiar entre la vista principal
+ * ({@code MainView}) y la vista de login ({@code LoginView}).
  */
 public class SceneUtils {
 
+    /**
+     * Logger usado para registrar las operaciones de carga de escenas
+     * y cualquier posible error durante la inicialización.
+     */
     private static final Logger logger = LoggerFactory.getLogger(SceneUtils.class);
 
+    /**
+     * Anchura fija usada para las ventanas de la aplicación.
+     */
     private static final int WIDTH = 1100;
+
+    /**
+     * Altura fija usada para las ventanas de la aplicación.
+     */
     private static final int HEIGHT = 700;
+
+    /**
+     * Ruta al icono de la aplicación RomRaider.
+     */
     private static final String ICON_PATH = "/assets/romraider-icon.png";
+
+    /**
+     * Ruta a la hoja de estilos principal aplicada a todas las vistas.
+     */
     private static final String STYLESHEET = "/styles/romraider.css";
 
     /**
-     * Cambia la escena actual hacia la vista principal (MainView).
+     * Cambia la escena actual hacia la vista principal ({@code MainView.fxml}).
+     * <p>
+     * El método:
+     * <ul>
+     *     <li>Carga el FXML correspondiente</li>
+     *     <li>Aplica los estilos CSS</li>
+     *     <li>Configura título, icono y tamaño</li>
+     *     <li>Muestra la ventana</li>
+     * </ul>
      *
-     * @param stage ventana principal de la aplicación
+     * @param stage ventana principal de la aplicación que debe actualizarse.
      */
     public static void switchToMainView(Stage stage) {
         try {
@@ -60,9 +92,12 @@ public class SceneUtils {
     }
 
     /**
-     * Cambia la escena actual hacia la vista de login (LoginView).
+     * Cambia la escena actual hacia la vista de login ({@code LoginView.fxml}).
+     * <p>
+     * El método realiza exactamente las mismas configuraciones que {@link #switchToMainView(Stage)},
+     * pero cargando la vista de login.
      *
-     * @param stage ventana principal de la aplicación
+     * @param stage ventana principal de la aplicación.
      */
     public static void switchToLoginView(Stage stage) {
         try {

@@ -15,26 +15,48 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Maneja el estado de sincronización con Supabase.
+ * Maneja el archivo de estado de sincronización con Supabase.
  * <p>
- * Guarda en un JSON:
- * - user_id: usuario que realizó la última sync
- * - last_local_user: usuario que realizó el último cambio local
- * - last_local_edit: fecha del último cambio local
- * - last_sync: fecha de la última sincronización local
- * - last_remote_sync: última fecha conocida en remoto
+ * La información se almacena en un archivo JSON persistente en:
+ * <pre>~/.romraider/sync_status.json</pre>
+ *
+ * Las claves registradas incluyen:
+ * <ul>
+ *     <li>user_id — usuario que realizó la última sincronización local</li>
+ *     <li>last_local_user — usuario que realizó el último cambio local</li>
+ *     <li>last_local_edit — fecha del último cambio local</li>
+ *     <li>last_sync — fecha de la última sincronización ejecutada localmente</li>
+ *     <li>last_remote_sync — última fecha de sincronización conocida en Supabase</li>
+ * </ul>
+ *
+ * Las fechas se almacenan con formato ISO-8601.
+ *
+ * Esta utilidad garantiza escritura segura mediante uso de archivo temporal
+ * y reemplazo atómico cuando es posible.
  */
 public class SyncStateUtils {
 
+    /**
+     * Logger para registrar operaciones de lectura/escritura y cambios en el estado de sincronización.
+     */
     private static final Logger logger = LoggerFactory.getLogger(SyncStateUtils.class);
 
+    /**
+     * Ruta al archivo JSON donde se almacena el estado.
+     */
     private static final Path FILE =
             Paths.get(System.getProperty("user.home"), ".romraider", "sync_status.json");
 
+    /**
+     * Formato estándar ISO utilizado para guardar y leer fechas.
+     */
     private static final DateTimeFormatter FMT = DateTimeFormatter.ISO_DATE_TIME;
 
     /**
-     * Lee el archivo JSON de estado. Si no existe, lo crea con valores iniciales.
+     * Lee el archivo JSON de estado.
+     * Si no existe, lo crea con valores por defecto y lo devuelve.
+     *
+     * @return el objeto {@link JSONObject} cargado o generado.
      */
     private static JSONObject readJson() {
         try {
@@ -60,7 +82,10 @@ public class SyncStateUtils {
     }
 
     /**
-     * Escribe el JSON al disco de manera segura usando un archivo temporal.
+     * Escribe el JSON al disco de manera segura creando previamente un archivo temporal
+     * y moviéndolo al destino final mediante reemplazo atómico.
+     *
+     * @param obj objeto JSON a persistir.
      */
     private static void writeJson(JSONObject obj) {
         try {
@@ -75,29 +100,55 @@ public class SyncStateUtils {
         }
     }
 
+    /**
+     * Obtiene el usuario que ejecutó la última sincronización local.
+     *
+     * @return user_id o cadena vacía si no existe.
+     */
     public static String getLastUser() {
         return readJson().optString(APIsConstants.USER_ID, "");
     }
 
+    /**
+     * Obtiene el usuario que realizó el último cambio local en datos.
+     *
+     * @return nombre de usuario o cadena vacía.
+     */
     public static String getLastLocalUser() {
         return readJson().optString(APIsConstants.LAST_LOCAL_USER, "");
     }
 
+    /**
+     * Obtiene la fecha y hora del último cambio local.
+     *
+     * @return {@link LocalDateTime} o {@link LocalDateTime#MIN} si no existe valor.
+     */
     public static LocalDateTime getLastLocalEdit() {
         return parseTime(APIsConstants.LAST_LOCAL_EDIT);
     }
 
+    /**
+     * Obtiene la fecha de la última sincronización realizada localmente.
+     */
     public static LocalDateTime getLastSync() {
         return parseTime(APIsConstants.LAST_SYNC);
     }
 
+    /**
+     * Obtiene la última fecha de sincronización remota conocida
+     * (reportada desde Supabase).
+     */
     public static LocalDateTime getLastRemoteSync() {
         return parseTime(APIsConstants.LAST_REMOTE_SYNC);
     }
 
     /**
-     * Marca que hubo un cambio local.
-     * Se registra también el usuario actual (o "" si es offline).
+     * Marca que ocurrió un cambio local.
+     * Actualiza:
+     * <ul>
+     *     <li>last_local_edit → fecha actual</li>
+     *     <li>last_local_user → usuario actual o "" si sin sesión</li>
+     * </ul>
      */
     public static void markLocalChange() {
         JSONObject obj = readJson();
@@ -111,9 +162,9 @@ public class SyncStateUtils {
     }
 
     /**
-     * Actualiza la fecha de sincronización local (después de un sync completo).
+     * Actualiza el usuario y la fecha de la última sincronización ejecutada localmente.
      *
-     * @param userId usuario autenticado
+     * @param userId identificador del usuario autenticado.
      */
     public static void updateLastSync(String userId) {
         JSONObject obj = readJson();
@@ -126,14 +177,19 @@ public class SyncStateUtils {
     }
 
     /**
-     * Actualiza la fecha de sincronización remota.
+     * Actualiza la fecha de sincronización remota almacenada localmente.
+     *
+     * @param timestamp fecha reportada desde Supabase.
      */
     public static void updateLastRemoteSync(LocalDateTime timestamp) {
         updateField(APIsConstants.LAST_REMOTE_SYNC, timestamp);
     }
 
     /**
-     * Actualiza un campo concreto del JSON.
+     * Actualiza un campo concreto del JSON usando el formato de fecha estándar.
+     *
+     * @param key   clave del campo a modificar.
+     * @param value valor temporal a registrar.
      */
     private static void updateField(String key, LocalDateTime value) {
         JSONObject obj = readJson();
@@ -145,7 +201,12 @@ public class SyncStateUtils {
     }
 
     /**
-     * Convierte una fecha guardada en texto a LocalDateTime.
+     * Convierte una fecha almacenada como texto dentro del JSON
+     * a un objeto {@link LocalDateTime}.
+     * Si el valor está vacío, devuelve {@link LocalDateTime#MIN}.
+     *
+     * @param key clave del campo temporal.
+     * @return fecha convertida o {@link LocalDateTime#MIN} si no existe.
      */
     private static LocalDateTime parseTime(String key) {
         String val = readJson().optString(key, "");

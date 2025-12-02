@@ -91,6 +91,16 @@ public class ImageUtils {
         return destFile.getAbsolutePath();
     }
 
+    /**
+     * Elimina una imagen del sistema de archivos si existe y es un archivo regular.
+     * <p>
+     * Si la ruta es {@code null}, está en blanco, o el archivo no existe,
+     * no se realiza ninguna acción y se devuelve {@code false}.
+     *
+     * @param imagePath ruta absoluta de la imagen a eliminar.
+     * @return {@code true} si el archivo existía y se ha eliminado correctamente;
+     *         {@code false} en caso contrario.
+     */
     public static boolean deleteImageIfExists(String imagePath) {
         if (imagePath == null || imagePath.isBlank()) {
             return false;

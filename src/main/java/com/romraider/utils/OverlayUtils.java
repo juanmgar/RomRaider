@@ -7,18 +7,34 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
+/**
+ * Utilidades para mostrar y ocultar overlays de carga (pantalla semitransparente
+ * con spinner) sobre contenedores JavaFX.
+ * <p>
+ * Esta clase está pensada para indicar operaciones en progreso (por ejemplo,
+ * llamadas a APIs, procesos de escaneo, sincronización, etc.) bloqueando la
+ * interacción del usuario con el contenido subyacente mientras se muestra
+ * el spinner.
+ */
 public final class OverlayUtils {
 
+    /**
+     * Constructor privado para evitar la instanciación de la clase de utilidades.
+     */
     private OverlayUtils() {
         // Utility class
     }
 
     /**
      * Crea y muestra un overlay con fondo semitransparente y un spinner centrado.
+     * <p>
+     * El overlay se añade como hijo del {@code root} recibido, cubriendo todo su área.
+     * Se devuelve el propio {@link StackPane} del overlay para poder eliminarlo
+     * posteriormente mediante {@link #hideLoading(Pane, StackPane)}.
      *
-     * @param root    Root principal de la escena (normalmente un BorderPane, VBox, etc. que extiende de Pane).
-     * @param message Mensaje a mostrar bajo el spinner.
-     * @return El StackPane del overlay, para poder ocultarlo posteriormente.
+     * @param root    root principal de la escena (normalmente un {@code BorderPane}, {@code VBox}, etc. que extiende de {@link Pane}).
+     * @param message mensaje a mostrar bajo el spinner.
+     * @return el {@link StackPane} creado para el overlay, para poder ocultarlo posteriormente.
      */
     public static StackPane showLoading(Pane root, String message) {
         Label label = new Label(message);
@@ -39,7 +55,12 @@ public final class OverlayUtils {
     }
 
     /**
-     * Oculta/elimina el overlay indicado del root.
+     * Oculta/elimina el overlay indicado del contenedor raíz.
+     * <p>
+     * Si {@code root} o {@code overlay} son {@code null}, no se realiza ninguna acción.
+     *
+     * @param root    contenedor del que se eliminará el overlay.
+     * @param overlay overlay que se desea ocultar/eliminar.
      */
     public static void hideLoading(Pane root, StackPane overlay) {
         if (root != null && overlay != null) {
