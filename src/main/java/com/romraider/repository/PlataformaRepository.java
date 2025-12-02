@@ -72,13 +72,13 @@ public class PlataformaRepository {
     /**
      * Guarda o actualiza una plataforma dependiendo de si su ID está asignado.
      *
-     * <p>
+     *
      * Convención usada:
      * <ul>
      *     <li>ID = 0 -> entidad nueva -> {@link EntityManager#persist(Object)}</li>
      *     <li>ID &gt; 0 -> entidad existente -> {@link EntityManager#merge(Object)}</li>
      * </ul>
-     * </p>
+     *
      *
      * @param plataforma plataforma a persistir.
      */

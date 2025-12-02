@@ -10,7 +10,7 @@ import javafx.scene.web.WebView;
  * dentro de un componente {@link WebView}.</p>
  *
  * <p>El archivo se espera en la ruta:
- * <pre>/manual/manual.html</pre>
+ * /manual/manual.html
  * dentro del classpath.</p>
  */
 public class HelpManualController {

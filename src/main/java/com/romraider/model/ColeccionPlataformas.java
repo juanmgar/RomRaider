@@ -15,12 +15,10 @@ import java.util.List;
  * plataformas con sus ROMs asociadas mediante JAXB.</p>
  *
  * <p>Ejemplo de estructura esperada:
- * <pre>
  *     &lt;coleccion&gt;
  *         &lt;plataforma&gt; ... &lt;/plataforma&gt;
  *         &lt;plataforma&gt; ... &lt;/plataforma&gt;
  *     &lt;/coleccion&gt;
- * </pre>
  * </p>
  */
 @XmlRootElement(name = "coleccion")
