@@ -16,10 +16,10 @@ import java.util.List;
  *
  * <p>Ejemplo de estructura esperada:
  * <pre>
- *     <coleccion>
- *         <plataforma> ... </plataforma>
- *         <plataforma> ... </plataforma>
- *     </coleccion>
+ *     &lt;coleccion&gt;
+ *         &lt;plataforma&gt; ... &lt;/plataforma&gt;
+ *         &lt;plataforma&gt; ... &lt;/plataforma&gt;
+ *     &lt;/coleccion&gt;
  * </pre>
  * </p>
  */
@@ -27,13 +27,29 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ColeccionPlataformas {
 
+    /**
+     * Lista de plataformas que forman parte de la colección a exportar/importar.
+     *
+     * <p>Cada elemento se serializa como un nodo {@code <plataforma>} dentro
+     * del elemento raíz {@code <coleccion>}.</p>
+     */
     @XmlElement(name = "plataforma")
     private List<Plataforma> plataformas = new ArrayList<>();
 
+    /**
+     * Devuelve la lista de plataformas contenida en la colección.
+     *
+     * @return lista de plataformas (nunca {@code null}, aunque puede estar vacía).
+     */
     public List<Plataforma> getPlataformas() {
         return plataformas;
     }
 
+    /**
+     * Establece la lista completa de plataformas de la colección.
+     *
+     * @param plataformas lista de plataformas a asociar al contenedor.
+     */
     public void setPlataformas(List<Plataforma> plataformas) {
         this.plataformas = plataformas;
     }

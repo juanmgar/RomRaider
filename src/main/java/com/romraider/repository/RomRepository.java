@@ -20,7 +20,7 @@ import java.util.List;
  * </ul>
  *
  * Esta capa NO debe contener lógica de negocio; únicamente consultas y operaciones
- * directas sobre EntityManager.
+ * directas sobre el {@link EntityManager}.
  */
 public class RomRepository {
 
@@ -30,16 +30,16 @@ public class RomRepository {
     /**
      * Constructor que recibe el EntityManager a utilizar.
      *
-     * @param em gestor de entidades JPA activo
+     * @param em gestor de entidades JPA activo, usado para todas las operaciones del repositorio.
      */
     public RomRepository(EntityManager em) {
         this.em = em;
     }
 
     /**
-     * Obtiene todos los ROMs almacenados en base de datos.
+     * Obtiene todos los ROMs almacenados.
      *
-     * @return lista completa de ROMs
+     * @return lista completa de ROMs.
      */
     public List<Rom> findAll() {
         return em.createQuery("SELECT r FROM Rom r", Rom.class)
@@ -47,10 +47,10 @@ public class RomRepository {
     }
 
     /**
-     * Busca un ROM por su identificador.
+     * Busca un ROM por su identificador único.
      *
-     * @param id identificador del ROM
-     * @return entidad Rom o null si no existe
+     * @param id identificador del ROM.
+     * @return la entidad encontrada o {@code null} si no existe.
      */
     public Rom findById(int id) {
         return em.find(Rom.class, id);
@@ -58,13 +58,16 @@ public class RomRepository {
 
     /**
      * Comprueba si existe un ROM con un título (case-insensitive)
-     * dentro de una plataforma específica.
+     * dentro de una plataforma concreta.
      *
-     * <p>Se usa COUNT para evitar cargar entidades completas.</p>
+     * <p>
+     * Se utiliza una consulta con {@code COUNT} para evitar cargar entidades completas
+     * innecesariamente.
+     * </p>
      *
-     * @param titulo título a comprobar
-     * @param plataformaId ID de la plataforma asociada
-     * @return true si existe, false si no
+     * @param titulo título del ROM a verificar.
+     * @param plataformaId ID de la plataforma asociada.
+     * @return {@code true} si existe un ROM duplicado, {@code false} si no.
      */
     public boolean existsByTituloAndPlataformaId(String titulo, int plataformaId) {
         Long count = em.createQuery(
@@ -81,8 +84,8 @@ public class RomRepository {
     /**
      * Obtiene todos los ROMs asociados a una plataforma específica.
      *
-     * @param plataformaId ID de la plataforma
-     * @return lista de ROMs de esa plataforma
+     * @param plataformaId ID de la plataforma.
+     * @return lista de ROMs pertenecientes a dicha plataforma.
      */
     public List<Rom> findByPlataformaId(int plataformaId) {
         TypedQuery<Rom> query = em.createQuery(
@@ -94,9 +97,17 @@ public class RomRepository {
     }
 
     /**
-     * Inserta o actualiza un ROM en base de datos.
+     * Persiste un nuevo ROM o actualiza uno existente.
      *
-     * @param rom entidad Rom a persistir
+     * <p>
+     * Convención usada:
+     * <ul>
+     *     <li>ID = 0 → entidad nueva → {@link EntityManager#persist(Object)}</li>
+     *     <li>ID &gt; 0 → entidad existente → {@link EntityManager#merge(Object)}</li>
+     * </ul>
+     * </p>
+     *
+     * @param rom entidad ROM a guardar.
      */
     public void save(Rom rom) {
         if (rom.getId() == 0) {
@@ -109,7 +120,7 @@ public class RomRepository {
     /**
      * Elimina un ROM por su ID si existe.
      *
-     * @param id identificador del ROM
+     * @param id identificador del ROM.
      */
     public void delete(int id) {
         Rom rom = em.find(Rom.class, id);
@@ -126,9 +137,9 @@ public class RomRepository {
     }
 
     /**
-     * Elimina todos los ROMs pertenecientes a una plataforma.
+     * Elimina todos los ROMs pertenecientes a una plataforma concreta.
      *
-     * @param plataformaId ID de la plataforma
+     * @param plataformaId ID de la plataforma cuyos ROMs deben eliminarse.
      */
     public void deleteByPlataformaId(int plataformaId) {
         em.createQuery(

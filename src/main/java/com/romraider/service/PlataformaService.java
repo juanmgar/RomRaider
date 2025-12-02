@@ -12,11 +12,11 @@ import java.util.List;
  * Servicio que encapsula la lógica relacionada con la gestión de plataformas.
  *
  * <p>Esta capa actúa como intermediario entre controladores y repositorios,
- * gestionando EntityManager, transacciones y notificando cambios locales
+ * gestionando {@link EntityManager}, transacciones y notificando cambios locales
  * a través de {@link SyncStateUtils}.</p>
  *
- * <p>No contiene lógica de negocio compleja, pero garantiza el patrón
- * de acceso consistente a datos.</p>
+ * <p>No contiene lógica de negocio compleja, pero garantiza un acceso
+ * consistente y centralizado a los datos relacionados con plataformas.</p>
  */
 public class PlataformaService {
 
@@ -24,7 +24,7 @@ public class PlataformaService {
      * Obtiene una lista de todas las plataformas registradas,
      * ordenadas alfabéticamente por nombre.
      *
-     * @return lista de plataformas
+     * @return lista completa de plataformas existentes.
      */
     public List<Plataforma> obtenerTodas() {
         EntityManager em = JpaUtil.getEntityManager();
@@ -34,12 +34,13 @@ public class PlataformaService {
     }
 
     /**
-     * Obtiene todas las plataformas incluyendo sus ROMs asociados.
+     * Obtiene todas las plataformas incluyendo sus ROMs asociadas.
      *
      * <p>Utiliza una consulta con FETCH JOIN para evitar problemas
-     * de inicialización perezosa al exportar o mostrar estadísticas.</p>
+     * de inicialización perezosa (LazyInitializationException) al exportar
+     * o al mostrar información agregada.</p>
      *
-     * @return lista de plataformas con ROMs cargados
+     * @return lista de plataformas con sus ROMs cargados.
      */
     public List<Plataforma> obtenerTodasConRoms() {
         EntityManager em = JpaUtil.getEntityManager();
@@ -52,8 +53,8 @@ public class PlataformaService {
     /**
      * Busca una plataforma por su ID.
      *
-     * @param id identificador de la plataforma
-     * @return plataforma encontrada o null si no existe
+     * @param id identificador único de la plataforma.
+     * @return la plataforma encontrada o {@code null} si no existe.
      */
     public Plataforma buscarPorId(int id) {
         EntityManager em = JpaUtil.getEntityManager();
@@ -63,12 +64,13 @@ public class PlataformaService {
     }
 
     /**
-     * Guarda (crea o actualiza) una plataforma.
+     * Guarda (crea o actualiza) una plataforma en la base de datos.
      *
-     * <p>Gestiona la transacción y marca el estado local como modificado
-     * para que el sistema de sincronización lo detecte.</p>
+     * <p>Gestiona la transacción de forma explícita y marca el estado
+     * local como modificado para que el sistema de sincronización
+     * detecte el cambio.</p>
      *
-     * @param plataforma entidad a persistir
+     * @param plataforma entidad a persistir.
      */
     public void guardar(Plataforma plataforma) {
         EntityManager em = JpaUtil.getEntityManager();
@@ -85,7 +87,9 @@ public class PlataformaService {
     /**
      * Elimina una plataforma por su ID.
      *
-     * @param id identificador de la plataforma a eliminar
+     * <p>La operación marca el estado local como modificado.</p>
+     *
+     * @param id identificador de la plataforma a eliminar.
      */
     public void eliminar(int id) {
         EntityManager em = JpaUtil.getEntityManager();
@@ -102,7 +106,8 @@ public class PlataformaService {
     /**
      * Elimina todas las plataformas y ROMs asociadas.
      *
-     * <p>Utilizado principalmente en procesos de importación y modo offline.</p>
+     * <p>Utilizado principalmente durante procesos de importación masiva
+     * o cuando se desea restaurar el estado inicial en modo offline.</p>
      */
     public void eliminarTodas() {
         EntityManager em = JpaUtil.getEntityManager();

@@ -11,25 +11,24 @@ import java.util.List;
 /**
  * Servicio encargado de gestionar operaciones relacionadas con los ROMs.
  *
- * <p>
- * Esta capa actúa como intermediario entre controladores y repositorios,
- * proporcionando:
- * </p>
+ * <p>Esta capa se sitúa entre los controladores y el repositorio,
+ * garantizando un acceso consistente a la base de datos mediante:</p>
  *
  * <ul>
- *     <li>Gestión controlada del EntityManager</li>
- *     <li>Manejo de transacciones en operaciones de escritura</li>
- *     <li>Notificación de cambios locales al sistema de sincronización</li>
+ *     <li>Gestión controlada del {@link EntityManager}</li>
+ *     <li>Manejo explícito de transacciones en operaciones de escritura</li>
+ *     <li>Notificación de cambios locales vía {@link SyncStateUtils}</li>
  * </ul>
  *
- * <p>No incluye lógica de negocio más allá de delegar en el repositorio.</p>
+ * <p>No añade lógica de negocio compleja: su misión principal es orquestar
+ * las operaciones de persistencia.</p>
  */
 public class RomService {
 
     /**
-     * Obtiene todos los ROMs almacenados.
+     * Obtiene todos los ROMs almacenados en la base de datos.
      *
-     * @return lista de ROMs
+     * @return lista completa de ROMs.
      */
     public List<Rom> obtenerTodas() {
         EntityManager em = JpaUtil.getEntityManager();
@@ -39,12 +38,13 @@ public class RomService {
     }
 
     /**
-     * Comprueba si existe un ROM que coincida con un título concreto
-     * dentro de una plataforma específica (case-insensitive).
+     * Comprueba si existe un ROM con un título específico dentro de una plataforma concreta.
+     * La comparación es case-insensitive.
      *
-     * @param titulo título del ROM
-     * @param plataformaId ID de la plataforma
-     * @return true si existe un duplicado, false si no
+     * @param titulo       título del ROM a buscar.
+     * @param plataformaId identificador de la plataforma.
+     * @return {@code true} si ya existe un ROM con ese título en esa plataforma,
+     *         {@code false} en caso contrario.
      */
     public boolean existeRomConTituloYPlataforma(String titulo, int plataformaId) {
         EntityManager em = JpaUtil.getEntityManager();
@@ -54,10 +54,10 @@ public class RomService {
     }
 
     /**
-     * Busca un ROM por su ID.
+     * Busca un ROM por su identificador único.
      *
-     * @param id identificador del ROM
-     * @return instancia encontrada o null si no existe
+     * @param id identificador del ROM.
+     * @return instancia encontrada o {@code null} si no existe.
      */
     public Rom buscarPorId(int id) {
         EntityManager em = JpaUtil.getEntityManager();
@@ -67,10 +67,10 @@ public class RomService {
     }
 
     /**
-     * Obtiene todos los ROMs pertenecientes a una plataforma concreta.
+     * Obtiene todos los ROMs asociados a una plataforma concreta.
      *
-     * @param plataformaId ID de la plataforma
-     * @return lista de ROMs asociados
+     * @param plataformaId ID de la plataforma.
+     * @return lista de ROMs pertenecientes a esa plataforma.
      */
     public List<Rom> obtenerPorPlataforma(int plataformaId) {
         EntityManager em = JpaUtil.getEntityManager();
@@ -80,12 +80,12 @@ public class RomService {
     }
 
     /**
-     * Guarda o actualiza un ROM.
+     * Guarda o actualiza un ROM en la base de datos.
      *
-     * <p>Gestiona la transacción e informa al sistema de sincronización
-     * de que existen cambios locales pendientes.</p>
+     * <p>Tras la persistencia, se notifica al sistema de sincronización
+     * que existen cambios locales pendientes de subir.</p>
      *
-     * @param rom entidad a persistir
+     * @param rom entidad que se desea persistir.
      */
     public void guardar(Rom rom) {
         EntityManager em = JpaUtil.getEntityManager();
@@ -102,7 +102,7 @@ public class RomService {
     /**
      * Elimina un ROM por su ID.
      *
-     * @param id identificador del ROM a borrar
+     * @param id identificador del ROM a borrar.
      */
     public void eliminar(int id) {
         EntityManager em = JpaUtil.getEntityManager();
@@ -119,7 +119,7 @@ public class RomService {
     /**
      * Elimina todos los ROMs asociados a una plataforma concreta.
      *
-     * @param plataformaId ID de la plataforma cuyos ROMs serán eliminados
+     * @param plataformaId ID de la plataforma cuyos ROMs serán eliminados.
      */
     public void eliminarPorPlataforma(int plataformaId) {
         EntityManager em = JpaUtil.getEntityManager();
