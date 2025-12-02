@@ -14,12 +14,19 @@ import java.net.URLEncoder;
 
 /**
  * Cliente para la API pública de RAWG.io.
+ *
+ * <p>Se utiliza para:</p>
+ * <ul>
+ *     <li>Buscar un videojuego por título</li>
+ *     <li>Obtener descripción del juego</li>
+ *     <li>Obtener la imagen principal (background_image)</li>
+ * </ul>
+ *
  * <p>
- * Se utiliza para:
- * - Buscar un videojuego por título
- * - Obtener descripción e imagen de fondo (background_image)
- * <p>
- * La clase devuelve objetos {@link RomInfo}, que encapsulan los datos obtenidos.
+ * La clase expone un método principal: {@link #obtenerInfo(String)}, que devuelve
+ * un objeto {@link RomInfo} con los datos obtenidos o {@code null} en caso de error
+ * o ausencia de resultados.
+ * </p>
  */
 public class RawgApiClient {
 
@@ -27,11 +34,26 @@ public class RawgApiClient {
 
     /**
      * DTO simple que representa la información relevante obtenida de RAWG.
+     *
+     * <p>Incluye:</p>
+     * <ul>
+     *     <li>Descripción en texto plano (sin HTML)</li>
+     *     <li>URL de la imagen principal</li>
+     * </ul>
      */
     public static class RomInfo {
+        /** Descripción textual limpia del juego. */
         public final String descripcion;
+
+        /** URL hacia la imagen principal del juego en RAWG. */
         public final String imageUrl;
 
+        /**
+         * Crea un contenedor de información obtenida desde RAWG.io.
+         *
+         * @param descripcion descripción del juego en texto plano
+         * @param imageUrl URL de la imagen principal o null si no existe
+         */
         public RomInfo(String descripcion, String imageUrl) {
             this.descripcion = descripcion;
             this.imageUrl = imageUrl;
@@ -40,23 +62,30 @@ public class RawgApiClient {
 
     /**
      * Realiza una búsqueda en RAWG.io usando el título indicado.
-     * <p>
-     * Pasos que realiza:
-     * 1. Llamada a /games?search=<titulo>
-     * 2. Obtiene el primer resultado y su id
-     * 3. Llama a /games/{id} para obtener detalles completos
-     * 4. Extrae:
-     * - description_raw
-     * - background_image
-     * <p>
-     * En caso de error, devuelve null.
+     *
+     * <p>El proceso es:</p>
+     * <ol>
+     *     <li>Buscar juegos mediante {@code /games?search=<titulo>}</li>
+     *     <li>Obtener el primer resultado de búsqueda</li>
+     *     <li>Consultar sus detalles mediante {@code /games/{id}}</li>
+     *     <li>Extraer:
+     *         <ul>
+     *             <li>{@code description_raw}</li>
+     *             <li>{@code background_image}</li>
+     *         </ul>
+     *     </li>
+     * </ol>
+     *
+     * <p>En caso de error (sin resultados, excepción, API key inválida, etc.),
+     * devuelve {@code null}.</p>
      *
      * @param titulo título o nombre aproximado de la ROM
-     * @return RomInfo si se encuentra información, otherwise null
+     * @return instancia {@link RomInfo} con descripción e imagen, o {@code null} si no se encuentra información
      */
     public static RomInfo obtenerInfo(String titulo) {
         try {
 
+            // API key obtenida desde configuración
             String rawgKey = SecretsLoader.getRawgApiKey();
             if (rawgKey == null || rawgKey.isBlank()) {
                 logger.error("La API key de RAWG no está configurada.");
@@ -65,7 +94,9 @@ public class RawgApiClient {
 
             logger.info("Consultando RAWG API para el título: {}", titulo);
 
-            // 1. Primera llamada: búsqueda por título
+            // --------------------------------------------------------------------
+            // 1) Primera llamada: buscar juegos por título
+            // --------------------------------------------------------------------
             String searchUrl =
                     "https://api.rawg.io/api/games?search=" +
                             URLEncoder.encode(titulo, "UTF-8") +
@@ -75,7 +106,6 @@ public class RawgApiClient {
                     (HttpURLConnection) new URL(searchUrl).openConnection();
             conn.setRequestMethod(APIsConstants.GET);
 
-            // Leer la respuesta JSON de la API de búsqueda
             StringBuilder json = new StringBuilder();
             try (BufferedReader reader =
                          new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
@@ -94,8 +124,11 @@ public class RawgApiClient {
             int gameId = results.getJSONObject(0).getInt("id");
             logger.debug("Juego encontrado en RAWG (ID={}): {}", gameId, titulo);
 
-            // 2. Segunda llamada: detalles del juego ---
+            // --------------------------------------------------------------------
+            // 2) Segunda llamada: obtener detalles del juego
+            // --------------------------------------------------------------------
             String detailUrl = "https://api.rawg.io/api/games/" + gameId + "?key=" + rawgKey;
+
             HttpURLConnection detailConn =
                     (HttpURLConnection) new URL(detailUrl).openConnection();
             detailConn.setRequestMethod(APIsConstants.GET);
@@ -110,13 +143,16 @@ public class RawgApiClient {
 
             JSONObject detailObj = new JSONObject(detailJson.toString());
 
-            // 3. Procesado de descripción
+            // --------------------------------------------------------------------
+            // 3) Procesar descripción
+            // --------------------------------------------------------------------
             /*
-             * RAWG devuelve "description_raw" como texto plano.
-             * En caso de que la API devuelva HTML, se limpia eliminando etiquetas.
+             * RAWG devuelve "description_raw" como texto plano. En algunos casos,
+             * ciertas APIs pueden devolver HTML, por lo que se aplica una limpieza
+             * básica eliminando etiquetas.
              */
             String description = detailObj.optString("description_raw", "")
-                    .replaceAll("<[^>]*>", "")  // eliminar etiquetas HTML
+                    .replaceAll("<[^>]*>", "")  // eliminar HTML
                     .replaceAll("\\s+", " ")     // normalizar espacios
                     .trim();
 
@@ -124,7 +160,9 @@ public class RawgApiClient {
                 logger.debug("RAWG no proporcionó descripción para '{}'", titulo);
             }
 
-            // 4. Imagen principal
+            // --------------------------------------------------------------------
+            // 4) Imagen principal
+            // --------------------------------------------------------------------
             String imageUrl = detailObj.optString("background_image", null);
 
             if (imageUrl == null) {

@@ -294,7 +294,7 @@ public class MainController {
             File destFile = new File(targetDir, filename);
             Files.move(path, destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-            logger.info("Moved ROM file: {} → {}", path, destFile);
+            logger.info("Moved ROM file: {} -> {}", path, destFile);
 
             Rom rom = new Rom();
             rom.setTitulo(titulo);

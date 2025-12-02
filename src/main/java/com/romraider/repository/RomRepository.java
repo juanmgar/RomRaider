@@ -102,8 +102,8 @@ public class RomRepository {
      * <p>
      * Convención usada:
      * <ul>
-     *     <li>ID = 0 → entidad nueva → {@link EntityManager#persist(Object)}</li>
-     *     <li>ID &gt; 0 → entidad existente → {@link EntityManager#merge(Object)}</li>
+     *     <li>ID = 0 -> entidad nueva -> {@link EntityManager#persist(Object)}</li>
+     *     <li>ID &gt; 0 -> entidad existente -> {@link EntityManager#merge(Object)}</li>
      * </ul>
      * </p>
      *

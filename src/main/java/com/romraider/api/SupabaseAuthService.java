@@ -14,28 +14,58 @@ import java.util.Base64;
 import java.util.Scanner;
 
 /**
- * Servicio encargado de gestionar la autenticación con Supabase:
- * login, registro, cierre de sesión y restauración de sesión mediante token.
+ * Servicio encargado de gestionar la autenticación con Supabase.
  *
- * Las respuestas visibles al usuario se gestionan desde los controladores.
- * Aquí solo se gestiona lógica interna y logs (en español).
+ * <p>Funciones principales:</p>
+ * <ul>
+ *     <li>Inicio de sesión mediante email/contraseña</li>
+ *     <li>Registro de usuarios</li>
+ *     <li>Cierre de sesión y limpieza de tokens locales</li>
+ *     <li>Restauración de sesión mediante refresh token</li>
+ *     <li>Extracción del userId a partir del JWT</li>
+ *     <li>Renovación del accessToken cuando expira</li>
+ * </ul>
+ *
+ * <p>La interacción con Supabase Auth se realiza mediante peticiones HTTP
+ * a los endpoints oficiales de autenticación.</p>
+ *
+ * <p>Las respuestas visibles al usuario final se gestionan desde los controladores;
+ * este servicio solo contiene lógica interna y logs.</p>
  */
 public class SupabaseAuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(SupabaseAuthService.class);
 
+    /** Token de acceso proporcionado por Supabase tras login. */
     private static String accessToken;
+
+    /** Token de refresco utilizado para obtener un nuevo accessToken cuando expira. */
     private static String refreshToken;
+
+    /** ID del usuario autenticado (extraído del JWT). */
     private static String userId;
+
+    /** Email del usuario actual. */
     private static String currentUserEmail;
 
+    /** URL base del proyecto Supabase. */
     private static final String SUPABASE_URL = SecretsLoader.getSupabaseUrl();
+
+    /** API key de autenticación asociada al proyecto. */
     private static final String SUPABASE_KEY = SecretsLoader.getSupabaseKey();
 
     /**
-     * Realiza login mediante email y contraseña.
+     * Realiza login mediante email y contraseña contra Supabase Auth.
      *
-     * @return true si el login es correcto, false en caso contrario.
+     * @param email email del usuario
+     * @param password contraseña del usuario
+     * @return true si la autenticación fue correcta; false en caso contrario
+     *
+     * <p>Si el login tiene éxito:</p>
+     * <ul>
+     *     <li>accessToken y refreshToken se almacenan</li>
+     *     <li>se extrae el userId del JWT devuelto</li>
+     * </ul>
      */
     public static boolean login(String email, String password) {
         logger.info("Intentando iniciar sesión con el usuario: {}", email);
@@ -68,7 +98,11 @@ public class SupabaseAuthService {
     }
 
     /**
-     * Registra un usuario en Supabase.
+     * Registra un usuario en Supabase Auth.
+     *
+     * @param email email del nuevo usuario
+     * @param password contraseña del usuario
+     * @return true si el usuario fue registrado correctamente; false en caso contrario
      */
     public static boolean register(String email, String password) {
         logger.info("Intentando registrar usuario: {}", email);
@@ -89,7 +123,7 @@ public class SupabaseAuthService {
     }
 
     /**
-     * Limpia completamente la sesión local.
+     * Cierra la sesión actual y elimina todos los tokens y datos del usuario en memoria.
      */
     public static void logout() {
         accessToken = null;
@@ -101,8 +135,18 @@ public class SupabaseAuthService {
     }
 
     /**
-     * Intenta restaurar la sesión desde un token guardado previamente.
-     * Si el token sigue siendo válido, recupera el email del usuario desde Supabase.
+     * Intenta restaurar la sesión a partir de un refresh token previamente guardado.
+     *
+     * @param token refresh token almacenado localmente
+     * @return true si la sesión pudo restaurarse; false si el token era inválido o expiró
+     *
+     * <p>Flujo:</p>
+     * <ol>
+     *     <li>Setea el refresh token recibido</li>
+     *     <li>Intenta obtener un nuevo access token</li>
+     *     <li>Extrae userId del JWT renovado</li>
+     *     <li>Consulta el email del usuario mediante /auth/v1/user</li>
+     * </ol>
      */
     public static boolean restoreSession(String token) {
         if (token == null || token.isBlank()) {
@@ -113,7 +157,7 @@ public class SupabaseAuthService {
         try {
             refreshToken = token;
 
-            // intentar refrescar access token
+            // Intentar refrescar access token
             if (!refreshAccessToken()) {
                 logger.warn("No se pudo refrescar el access token. Sesión expirada.");
                 return false;
@@ -126,7 +170,7 @@ public class SupabaseAuthService {
                 return false;
             }
 
-            // Consultamos la API para obtener el email del usuario
+            // Consultar el email del usuario mediante Supabase
             URL url = new URL(SUPABASE_URL + "/auth/v1/user");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod(APIsConstants.GET);
@@ -158,25 +202,39 @@ public class SupabaseAuthService {
         }
     }
 
+    /** @return accessToken actual o null si no existe */
     public static String getAccessToken() {
         return accessToken;
     }
 
+    /** @return refreshToken actual o null si no existe */
     public static String getRefreshToken() {
         return refreshToken;
     }
 
+    /** @return ID del usuario autenticado o null */
     public static String getUserId() {
         return userId;
     }
 
+    /** @return email del usuario autenticado o null */
     public static String getCurrentUserEmail() {
         return currentUserEmail;
     }
 
     /**
-     * Envía una petición POST a Supabase con un body JSON.
-     * Devuelve el JSON recibido o null en caso de error.
+     * Envía una petición POST a Supabase Auth con body JSON.
+     *
+     * @param endpoint ruta del endpoint (ej: "/auth/v1/signup")
+     * @param body JSON a enviar en el cuerpo
+     * @return objeto JSON recibido en la respuesta o null si hubo error
+     *
+     * <p>Gestiona internamente:</p>
+     * <ul>
+     *     <li>Cabeceras requeridas por Supabase</li>
+     *     <li>Manejo de flujos de entrada/salida</li>
+     *     <li>Logs en caso de error</li>
+     * </ul>
      */
     private static JSONObject sendSupabaseRequest(String endpoint, JSONObject body) {
         HttpURLConnection conn = null;
@@ -229,16 +287,18 @@ public class SupabaseAuthService {
         }
     }
 
-
     /**
-     * Extrae el ID de usuario desde el payload de un token JWT.
+     * Extrae el user_id del payload del JWT devuelto por Supabase Auth.
+     *
+     * @param token token JWT en formato estándar "header.payload.signature"
+     * @return userId incluido en el campo "sub", o null si no puede extraerse
      */
     private static String extractUserIdFromToken(String token) {
         try {
             String[] parts = token.split("\\.");
             if (parts.length < 2) return null;
 
-            // El payload del JWT es Base64URL
+            // Decodificación Base64URL del payload
             String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]));
             JSONObject payload = new JSONObject(payloadJson);
 
@@ -251,7 +311,12 @@ public class SupabaseAuthService {
     }
 
     /**
-     * refresca el accessToken usando el refreshToken
+     * Renueva el accessToken utilizando el refreshToken actual.
+     *
+     * @return true si la renovación fue correcta; false si el token expiró o es inválido
+     *
+     * <p>Supabase devuelve un nuevo par (accessToken, refreshToken),
+     * que reemplaza al anterior en memoria.</p>
      */
     private static boolean refreshAccessToken() {
         try {

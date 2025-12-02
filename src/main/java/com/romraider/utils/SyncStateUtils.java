@@ -146,8 +146,8 @@ public class SyncStateUtils {
      * Marca que ocurrió un cambio local.
      * Actualiza:
      * <ul>
-     *     <li>last_local_edit → fecha actual</li>
-     *     <li>last_local_user → usuario actual o "" si sin sesión</li>
+     *     <li>last_local_edit -> fecha actual</li>
+     *     <li>last_local_user -> usuario actual o "" si sin sesión</li>
      * </ul>
      */
     public static void markLocalChange() {

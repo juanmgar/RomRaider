@@ -75,15 +75,15 @@ public class PlataformaRepository {
      * <p>
      * Convención usada:
      * <ul>
-     *     <li>ID = 0 → entidad nueva → {@link EntityManager#persist(Object)}</li>
-     *     <li>ID &gt; 0 → entidad existente → {@link EntityManager#merge(Object)}</li>
+     *     <li>ID = 0 -> entidad nueva -> {@link EntityManager#persist(Object)}</li>
+     *     <li>ID &gt; 0 -> entidad existente -> {@link EntityManager#merge(Object)}</li>
      * </ul>
      * </p>
      *
      * @param plataforma plataforma a persistir.
      */
     public void save(Plataforma plataforma) {
-        // ID = 0 → entidad nueva
+        // ID = 0 -> entidad nueva
         if (plataforma.getId() == 0) {
             em.persist(plataforma);
         } else {

@@ -9,11 +9,13 @@ import java.util.Properties;
 /**
  * Cargador centralizado de secretos necesarios para la aplicación.
  *
- * Los valores se leen exclusivamente del archivo incluido dentro del JAR:
- *      /config/secrets.properties
+ * <p>Los valores se leen exclusivamente del archivo incluido dentro del JAR:</p>
+ * <pre>
+ *     /config/secrets.properties
+ * </pre>
  *
- * Este archivo se inyecta en el artefacto final desde GitHub Actions,
- * evitando que las claves estén en el repositorio.
+ * <p>Este archivo se inyecta en el artefacto final desde GitHub Actions,
+ * evitando que las claves estén en el repositorio.</p>
  */
 public class SecretsLoader {
 
@@ -39,8 +41,8 @@ public class SecretsLoader {
     /**
      * Obtiene un valor secreto desde el archivo embebido.
      *
-     * @param key Nombre de la clave
-     * @return Valor o cadena vacía
+     * @param key nombre de la clave tal y como aparece en {@code secrets.properties}
+     * @return valor asociado a la clave o cadena vacía si no existe
      */
     public static String get(String key) {
         String value = props.getProperty(key, "");
@@ -54,14 +56,39 @@ public class SecretsLoader {
         return value;
     }
 
+    /**
+     * Devuelve la API key utilizada para consumir la API de RAWG.io.
+     *
+     * <p>Se corresponde con la clave {@code RAWG_API_KEY} del fichero
+     * {@code secrets.properties}.</p>
+     *
+     * @return API key de RAWG, o cadena vacía si no está definida
+     */
     public static String getRawgApiKey() {
         return get("RAWG_API_KEY");
     }
 
+    /**
+     * Devuelve la URL base del proyecto Supabase.
+     *
+     * <p>Se corresponde con la clave {@code SUPABASE_URL} del fichero
+     * {@code secrets.properties}.</p>
+     *
+     * @return URL base de Supabase (por ejemplo, {@code https://xxxxx.supabase.co}),
+     *         o cadena vacía si no está definida
+     */
     public static String getSupabaseUrl() {
         return get("SUPABASE_URL");
     }
 
+    /**
+     * Devuelve la API key utilizada para autenticarse contra Supabase.
+     *
+     * <p>Se corresponde con la clave {@code SUPABASE_KEY} del fichero
+     * {@code secrets.properties}.</p>
+     *
+     * @return API key de Supabase, o cadena vacía si no está definida
+     */
     public static String getSupabaseKey() {
         return get("SUPABASE_KEY");
     }

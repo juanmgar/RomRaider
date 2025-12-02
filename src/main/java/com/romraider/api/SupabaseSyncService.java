@@ -25,23 +25,54 @@ import java.util.Map;
 import java.util.Scanner;
 
 /**
- * Servicio responsable de sincronizar las plataformas y ROMs
- * entre la base de datos local y el backend Supabase.
- * <p>
- * Se basa en timestamps para decidir si descargar o subir datos,
- * y en la asociación user_id → data para almacenar colecciones separadas por usuario.
+ * Servicio responsable de sincronizar la colección de plataformas y ROMs
+ * entre la base de datos local y el backend remoto alojado en Supabase.
+ *
+ * <p>Este servicio implementa una sincronización bidireccional controlada mediante
+ * timestamps, protegiendo contra sobrescrituras involuntarias
+ * (especialmente al cambiar de usuario local).</p>
+ *
+ * <p>Principales funciones:</p>
+ * <ul>
+ *     <li>Comparación de timestamps local/remoto</li>
+ *     <li>Descarga completa de datos (pull)</li>
+ *     <li>Subida completa de datos (push)</li>
+ *     <li>Asociación de datos por usuario (user_id)</li>
+ *     <li>Evitar sobrescrituras entre usuarios distintos</li>
+ *     <li>Control de la última edición local y última sincronización</li>
+ * </ul>
+ *
+ * <p>Todo el tráfico se realiza mediante REST usando PostgREST + políticas RLS de Supabase.</p>
  */
 public class SupabaseSyncService {
 
     private static final Logger logger = LoggerFactory.getLogger(SupabaseSyncService.class);
     private static final DateTimeFormatter FMT = DateTimeFormatter.ISO_DATE_TIME;
 
+    /** Servicios locales de acceso a BD */
     private static final PlataformaService plataformaService = new PlataformaService();
     private static final RomService romService = new RomService();
 
     /**
-     * Sincroniza la base de datos local con Supabase.
-     * La lógica decide si descargar o subir datos comparando timestamps locales y remotos.
+     * Punto principal de sincronización.
+     *
+     * <p>Decide automáticamente si:</p>
+     * <ul>
+     *     <li>Descargar datos desde Supabase</li>
+     *     <li>Subir datos al servidor</li>
+     *     <li>No realizar ninguna acción</li>
+     * </ul>
+     *
+     * <p>La decisión se basa en:</p>
+     * <ul>
+     *     <li>Última sincronización local</li>
+     *     <li>Última edición local</li>
+     *     <li>Timestamp remoto</li>
+     *     <li>Cambio de usuario respecto a la última sesión</li>
+     * </ul>
+     *
+     * <p>También evita un caso crítico: subir cambios locales hechos mientras
+     * estaba logueado otro usuario, lo cual sobrescribiría datos remotos ajenos.</p>
      */
     public static void syncWithSupabase() {
         String userId = SupabaseAuthService.getUserId();
@@ -58,6 +89,7 @@ public class SupabaseSyncService {
 
             boolean hasLocalData = !plataformaService.obtenerTodas().isEmpty();
 
+            // Primera sincronización o cambio de usuario -> descargar datos remotos
             if (firstSync) {
                 logger.info("Primera sincronización detectada para el usuario {}. Descargando datos iniciales.", userId);
                 downloadAllData(userId);
@@ -71,27 +103,26 @@ public class SupabaseSyncService {
             SyncStateUtils.updateLastRemoteSync(remoteTimestamp);
 
             logger.info(
-                    "Estado de timestamps → última sync local: {}, última edición local: {}, remoto: {}",
+                    "Estado de timestamps -> última sync local: {}, última edición local: {}, remoto: {}",
                     lastSync, lastLocalEdit, remoteTimestamp
             );
 
-            // Datos más nuevos en remoto
+            // Caso 1 -> Remoto tiene datos más recientes
             if (remoteTimestamp.isAfter(lastSync) && remoteTimestamp.isAfter(lastLocalEdit)) {
                 logger.info("Detectados datos más recientes en Supabase. Descargando...");
                 downloadAllData(userId);
                 return;
             }
 
-            // Datos más nuevos en local o base local vacía
-            // evitar sobrescribir con datos offline u otro usuario
+            // Caso 2 -> Local tiene datos nuevos y pertenecen al mismo usuario
             if (lastLocalEdit.isAfter(lastSync) && lastLocalEdit.isAfter(remoteTimestamp)) {
 
+                // Protección anti-sobrescritura entre usuarios
                 if (!userId.equals(lastLocalUser)) {
                     logger.info("Cambios locales detectados, pero NO pertenecen al usuario {} (lastLocalUser='{}'). "
                                     + "NO se suben para evitar sobrescribir datos remotos.",
                             userId, lastLocalUser);
                     downloadAllData(userId);
-
                     return;
                 }
 
@@ -100,14 +131,14 @@ public class SupabaseSyncService {
                 return;
             }
 
-// Si no hay datos locales, comportamiento original
+            // Caso 3 -> No hay datos locales -> se suben los datos remotos (flujo original)
             if (!hasLocalData) {
                 logger.info("Base local vacía. Subiendo datos a Supabase...");
                 uploadAllData(userId);
                 return;
             }
 
-
+            // Caso 4 -> Todo sincronizado
             logger.info("Los datos ya están sincronizados. No hay cambios pendientes.");
 
         } catch (Exception e) {
@@ -116,8 +147,16 @@ public class SupabaseSyncService {
     }
 
     /**
-     * Descarga la colección completa de plataformas y ROMs desde Supabase,
-     * eliminando antes la información local.
+     * Descarga toda la información del usuario desde Supabase y sobrescribe la BD local.
+     *
+     * <p>Pasos:</p>
+     * <ol>
+     *     <li>Descargar plataformas</li>
+     *     <li>Descargar ROMs</li>
+     *     <li>Eliminar contenido local</li>
+     *     <li>Reconstruir IDs locales manteniendo la integridad relacional</li>
+     *     <li>Actualizar timestamp remoto y local</li>
+     * </ol>
      */
     private static void downloadAllData(String userId) {
         try {
@@ -130,13 +169,12 @@ public class SupabaseSyncService {
             JSONArray romsJson =
                     getJsonArray(baseUrl + "/rest/v1/roms?user_id=eq." + userId + APIsConstants.SELECT_ALL, key);
 
-            // Se elimina primero lo local para evitar conflictos
             romService.eliminarTodas();
             plataformaService.eliminarTodas();
 
-            // Mapeo de IDs remotos → locales
             Map<String, Integer> idMap = new HashMap<>();
 
+            // Importar plataformas
             for (Object o : plataformasJson) {
                 JSONObject obj = (JSONObject) o;
 
@@ -149,6 +187,7 @@ public class SupabaseSyncService {
                 idMap.put(obj.optString(APIsConstants.ID), p.getId());
             }
 
+            // Importar ROMs asociadas
             for (Object o : romsJson) {
                 JSONObject obj = (JSONObject) o;
 
@@ -162,7 +201,6 @@ public class SupabaseSyncService {
                 r.setFavorito(obj.optBoolean(APIsConstants.FAVORITO));
                 r.setJugado(obj.optBoolean(APIsConstants.JUGADO));
                 r.setRuta(obj.optString(APIsConstants.RUTA, null));
-
                 r.setPlataforma(plataformaService.buscarPorId(idMap.get(remotePlatformId)));
 
                 romService.guardar(r);
@@ -180,7 +218,14 @@ public class SupabaseSyncService {
     }
 
     /**
-     * Sube la colección local completa a Supabase. Antes elimina cualquier dato remoto previo.
+     * Sube toda la colección local de plataformas y ROMs al backend remoto.
+     *
+     * <p>Antes de subir, ejecuta:</p>
+     * <ul>
+     *     <li>Eliminación de datos remotos del usuario</li>
+     *     <li>Inserción de plataformas, recuperando IDs generados por Supabase</li>
+     *     <li>Inserción de ROMs vinculadas mediante los IDs remotos nuevos</li>
+     * </ul>
      */
     private static void uploadAllData(String userId) {
         try {
@@ -192,7 +237,7 @@ public class SupabaseSyncService {
             List<Plataforma> plataformas = plataformaService.obtenerTodasConRoms();
             Map<Integer, String> remoteIds = new HashMap<>();
 
-            // Primero se suben las plataformas
+            // Subida de plataformas
             for (Plataforma p : plataformas) {
                 JSONObject json = new JSONObject()
                         .put(APIsConstants.NOMBRE, p.getNombre())
@@ -205,13 +250,12 @@ public class SupabaseSyncService {
                 if (response != null && !response.isEmpty()) {
                     String remoteId = response.getJSONObject(0).optString(APIsConstants.ID, null);
                     remoteIds.put(p.getId(), remoteId);
-
                 } else {
                     logger.warn("Plataforma '{}' subida sin obtener ID remoto.", p.getNombre());
                 }
             }
 
-            // Ahora se suben las ROMs asociadas
+            // Subida de ROMs
             for (Plataforma p : plataformas) {
                 String remotePlatId = remoteIds.get(p.getId());
                 if (remotePlatId == null) {
@@ -245,7 +289,10 @@ public class SupabaseSyncService {
     }
 
     /**
-     * Ejecuta una petición GET y devuelve un JSONArray.
+     * Realiza una petición GET a una tabla Supabase y devuelve un JSONArray.
+     *
+     * @param url  URL del endpoint Supabase
+     * @param apiKey key pública del proyecto
      */
     private static JSONArray getJsonArray(String url, String apiKey) throws IOException {
         HttpURLConnection conn = openConnection(url, APIsConstants.GET, apiKey);
@@ -257,7 +304,9 @@ public class SupabaseSyncService {
     }
 
     /**
-     * Ejecuta una petición POST con JSON.
+     * Ejecuta una petición POST a Supabase enviando un body JSON con formato array.
+     *
+     * @param expectReturn true si se espera un array con la fila creada (Prefer: return=representation)
      */
     private static JSONArray postJson(String url, String apiKey, JSONObject json, boolean expectReturn) throws IOException {
 
@@ -270,7 +319,7 @@ public class SupabaseSyncService {
         if (expectReturn) conn.setRequestProperty(APIsConstants.PREFER, APIsConstants.RETURN_REPRESENTATION);
         conn.setDoOutput(true);
 
-        // Supabase requiere array JSON para inserciones múltiples
+        // Supabase requiere array JSON para inserciones bulk
         String body = "[" + json.toString() + "]";
 
         try (OutputStream os = conn.getOutputStream()) {
@@ -300,7 +349,7 @@ public class SupabaseSyncService {
     }
 
     /**
-     * Crea una conexión HTTP básica configurada para Supabase.
+     * Abre una conexión HTTP a Supabase configurada con API key y token de usuario.
      */
     private static HttpURLConnection openConnection(String url, String method, String apiKey) throws IOException {
         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
@@ -312,19 +361,21 @@ public class SupabaseSyncService {
     }
 
     /**
-     * Elimina los datos remotos del usuario antes de subirlos de nuevo.
+     * Elimina toda la información remota del usuario antes de subir la versión local.
+     *
+     * <p>Se borran primero ROMs y luego plataformas para respetar las FKs.</p>
      */
     private static void borrarDatosRemotos(String userId, String baseUrl, String apiKey) throws IOException {
         for (String table : List.of("roms", "plataformas")) {
             HttpURLConnection conn =
                     openConnection(baseUrl + "/rest/v1/" + table + "?user_id=eq." + userId, APIsConstants.DELETE, apiKey);
-            conn.getResponseCode(); // ejecución directa sin uso de respuesta
+            conn.getResponseCode(); // Fuerza ejecución
         }
     }
 
     /**
-     * Recupera el timestamp remoto más reciente.
-     * Si no existe registro, genera uno.
+     * Obtiene el timestamp remoto más reciente del usuario.
+     * Si no existe registro, lo crea automáticamente.
      */
     private static LocalDateTime getRemoteTimestamp(String userId) throws IOException {
         String url = SecretsLoader.getSupabaseUrl()
@@ -347,7 +398,7 @@ public class SupabaseSyncService {
     }
 
     /**
-     * Actualiza el timestamp remoto indicando la última modificación.
+     * Actualiza el timestamp remoto indicando que el usuario tiene cambios nuevos.
      */
     private static void updateRemoteTimestamp(String userId) throws IOException {
         JSONObject json = new JSONObject()
@@ -361,7 +412,9 @@ public class SupabaseSyncService {
     }
 
     /**
-     * Restaura manualmente los datos desde Supabase.
+     * Fuerza una restauración manual de los datos remotos ignorando la lógica de sincronización.
+     *
+     * <p>Equivalente a "Replace local database with server version".</p>
      */
     public static void restoreFromCloud() {
         String userId = SupabaseAuthService.getUserId();

@@ -26,13 +26,15 @@ import java.util.Optional;
 /**
  * Clase principal de la aplicación ROM Raider.
  *
- * Gestiona:
- *  - Pantalla de inicio (splash screen)
- *  - Inicialización de configuración y recursos
- *  - Lanzamiento de la pantalla de Login
- *  - Cierre ordenado del EntityManager (JPA)
+ * <p>Gestiona:</p>
+ * <ul>
+ *   <li>Pantalla de inicio (splash screen)</li>
+ *   <li>Inicialización de configuración y recursos</li>
+ *   <li>Lanzamiento de la pantalla de Login</li>
+ *   <li>Cierre ordenado del EntityManager (JPA)</li>
+ * </ul>
  *
- * Extiende {@link Application} de JavaFX.
+ * <p>Extiende {@link Application} de JavaFX.</p>
  */
 public class Main extends Application {
 
@@ -40,8 +42,10 @@ public class Main extends Application {
 
     /**
      * Punto de entrada gráfico de JavaFX.
+     * <p>
      * Configura y muestra la pantalla de splash, reproduce un sonido de arranque
      * y, tras un retardo, cambia a la vista de Login.
+     * </p>
      *
      * @param splashStage stage inicial proporcionado por JavaFX
      */
@@ -58,10 +62,10 @@ public class Main extends Application {
         I18nUtils.load(lang);
         logger.info("Idioma de la aplicación: {}", lang);
 
-        // Si quisieras cargar datos por defecto:
+        // Cargar datos por defecto:
         DataInitializer.initializeWithDefaults();
 
-        // --- Pantalla de Splash con logo ---
+        // Pantalla de Splash con logo
         ImageView imageView = new ImageView(
                 new Image(getClass().getResource("/assets/romraider-logo.png").toExternalForm())
         );
@@ -83,7 +87,7 @@ public class Main extends Application {
 
         logger.debug("Pantalla de splash mostrada");
 
-        // --- Temporizador antes de pasar a la vista de login ---
+        // Temporizador antes de pasar a la vista de login
         PauseTransition delay = new PauseTransition(Duration.seconds(2.5));
         delay.setOnFinished(e -> {
             splashStage.close();
@@ -101,6 +105,15 @@ public class Main extends Application {
         delay.play();
     }
 
+    /**
+     * Muestra un cuadro de diálogo de confirmación de salida.
+     *
+     * <p>El diálogo pregunta al usuario si realmente desea cerrar la aplicación.
+     * En caso de cancelar, el cierre de la ventana principal se anula.</p>
+     *
+     * @return {@code true} si el usuario confirma la salida,
+     *         {@code false} si cancela o cierra el diálogo.
+     */
     private boolean confirmClose() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(I18nUtils.get("app.exit.title"));
@@ -119,7 +132,9 @@ public class Main extends Application {
 
     /**
      * Se ejecuta al cerrar la aplicación.
-     * Garantiza el cierre del EntityManagerFactory para evitar fugas.
+     *
+     * <p>Garantiza el cierre del {@link jakarta.persistence.EntityManagerFactory}
+     * gestionado por {@link JpaUtil} para evitar fugas de recursos.</p>
      */
     @Override
     public void stop() throws Exception {
