@@ -17,45 +17,45 @@
     </top>
 
     <center>
-        <ScrollPane fitToWidth="true" fitToHeight="true" pannable="true">
+        <ScrollPane fitToWidth="true" fitToHeight="true" pannable="true"
+                    prefViewportWidth="900" prefViewportHeight="640">
             <content>
                 <VBox spacing="20" style="-fx-padding: 10;">
-                    <HBox spacing="20">
+
+                    <HBox spacing="20" maxWidth="Infinity">
                         <VBox spacing="10">
                             <Label text="%stats.totals.title" style="-fx-font-weight: bold;"/>
-                            <Label fx:id="totalRomsLabel" text="%stats.totals.totalRoms"/>
-                            <Label fx:id="totalPlatformsLabel" text="%stats.totals.totalPlatforms"/>
-                            <Label fx:id="romsPlayedLabel" text="%stats.totals.played"/>
-                            <Label fx:id="romsFavoritedLabel" text="%stats.totals.favorited"/>
+                            <Label fx:id="totalRomsLabel"/>
+                            <Label fx:id="totalPlatformsLabel"/>
+                            <Label fx:id="romsPlayedLabel"/>
+                            <Label fx:id="romsFavoritedLabel"/>
                         </VBox>
 
                         <VBox spacing="10">
                             <Label text="%stats.romsPerPlatform.title" style="-fx-font-weight: bold;"/>
-                            <BarChart fx:id="romsPerPlatformChart" title="%stats.romsPerPlatform.chartTitle"
-                                      categoryGap="10" barGap="5" prefWidth="600" prefHeight="400">
-                                <xAxis>
-                                    <CategoryAxis label="%stats.romsPerPlatform.platform"/>
-                                </xAxis>
-                                <yAxis>
-                                    <NumberAxis label="%stats.romsPerPlatform.numRoms"/>
-                                </yAxis>
+                            <BarChart fx:id="romsPerPlatformChart"
+                                      prefWidth="600" prefHeight="380">
+                                <xAxis><CategoryAxis/></xAxis>
+                                <yAxis><NumberAxis/></yAxis>
                             </BarChart>
                         </VBox>
                     </HBox>
 
-                    <HBox spacing="20">
+                    <HBox spacing="20" maxWidth="Infinity">
                         <VBox spacing="10">
-                            <Label text="%stats.played.title" style="-fx-font-weight: bold;"/>
-                            <PieChart fx:id="playedPieChart" title="%stats.played.chartTitle" prefWidth="300" prefHeight="300"/>
+                            <PieChart fx:id="playedPieChart"
+                                      prefWidth="300" prefHeight="280"/>
                         </VBox>
 
                         <VBox spacing="10">
-                            <Label text="%stats.favorites.title" style="-fx-font-weight: bold;"/>
-                            <PieChart fx:id="favoritesPieChart" title="%stats.favorites.chartTitle" prefWidth="300" prefHeight="300"/>
+                            <PieChart fx:id="favoritesPieChart"
+                                      prefWidth="300" prefHeight="280"/>
                         </VBox>
                     </HBox>
+
                 </VBox>
             </content>
         </ScrollPane>
     </center>
+
 </BorderPane>
