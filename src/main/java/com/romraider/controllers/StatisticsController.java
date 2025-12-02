@@ -19,15 +19,18 @@ import java.util.stream.Collectors;
 
 /**
  * Controlador encargado de generar y mostrar las estadísticas globales
- * de la colección de ROMs y plataformas:
+ * de la colección de ROMs y plataformas.
  *
- * - Número total de ROMs
- * - Número total de plataformas
- * - ROMs jugadas y favoritas
- * - Gráfico de barras con ROMs por plataforma
- * - Gráficos circulares para jugadas/no jugadas y favoritas/no favoritas
+ * <p>La vista muestra:</p>
+ * <ul>
+ *     <li>Número total de ROMs</li>
+ *     <li>Número total de plataformas</li>
+ *     <li>ROMs jugadas y marcadas como favoritas</li>
+ *     <li>Gráfico de barras con ROMs por plataforma</li>
+ *     <li>Gráficos circulares de jugadas/no jugadas y favoritas/no favoritas</li>
+ * </ul>
  *
- * Esta vista es de solo lectura.
+ * <p>Esta vista es de solo lectura y no modifica datos.</p>
  */
 public class StatisticsController {
 
@@ -54,12 +57,24 @@ public class StatisticsController {
     @FXML
     private PieChart favoritesPieChart;
 
+    /** Servicio para acceso a plataformas. */
     private final PlataformaService plataformaService = new PlataformaService();
+
+    /** Servicio para acceso a ROMs. */
     private final RomService romService = new RomService();
 
     /**
-     * Inicializa la vista de estadísticas cargando datos desde la base local
-     * y rellenando los gráficos.
+     * Inicializa la vista de estadísticas una vez cargado el FXML.
+     *
+     * <p>Realiza:</p>
+     * <ul>
+     *     <li>Carga de datos desde la base local</li>
+     *     <li>Población de labels informativos</li>
+     *     <li>Construcción del gráfico de barras</li>
+     *     <li>Construcción de los gráficos circulares</li>
+     * </ul>
+     *
+     * <p>Se ejecuta automáticamente por JavaFX.</p>
      */
     @FXML
     public void initialize() {
@@ -68,12 +83,9 @@ public class StatisticsController {
         List<Plataforma> plataformas = plataformaService.obtenerTodas();
         List<Rom> roms = romService.obtenerTodas();
 
-        // Contadores globales
-
         long playedCount = roms.stream().filter(Rom::isJugado).count();
         long favoriteCount = roms.stream().filter(Rom::isFavorito).count();
 
-        // Labels
         totalRomsLabel.setText(String.format(
                 I18nUtils.get("statistics.totalRoms"), roms.size()
         ));
@@ -93,12 +105,8 @@ public class StatisticsController {
         logger.info("ROMs totales: {}, jugadas: {}, favoritas: {}",
                 roms.size(), playedCount, favoriteCount);
 
-
         /*
-         *
-         *  GRÁFICO DE BARRAS
-         *  ROMs agrupadas por plataforma
-         *
+         * GRÁFICO DE BARRAS: ROMs agrupadas por plataforma
          */
         Map<String, Long> romsPorPlataforma =
                 plataformas.stream()
@@ -120,9 +128,7 @@ public class StatisticsController {
         romsPerPlatformChart.getData().add(series);
 
         /*
-         *
-         *  PIE CHART: Jugadas / No jugadas
-         *
+         * PIE CHART: Jugadas / No jugadas
          */
         playedPieChart.getData().add(new PieChart.Data(
                 I18nUtils.get("statistics.played"), playedCount
@@ -131,11 +137,8 @@ public class StatisticsController {
                 I18nUtils.get("statistics.notPlayed"), (double) roms.size() - playedCount
         ));
 
-
         /*
-         *
-         *  PIE CHART: Favoritas / No favoritas
-         *
+         * PIE CHART: Favoritas / No favoritas
          */
         favoritesPieChart.getData().add(new PieChart.Data(
                 I18nUtils.get("statistics.favorite"), favoriteCount
@@ -148,7 +151,9 @@ public class StatisticsController {
     }
 
     /**
-     * Cierra la ventana de estadísticas.
+     * Cierra la ventana emergente de estadísticas.
+     *
+     * <p>Este método es invocado desde el botón “Cerrar”.</p>
      */
     @FXML
     private void handleClose() {

@@ -22,13 +22,15 @@ import java.util.List;
 /**
  * Controlador del formulario de creación/edición de ROMs.
  * Gestiona:
- * - Título
- * - Descripción
- * - Imagen de portada
- * - Flags de favorito y jugado
- * - Plataforma asociada
+ * <ul>
+ *     <li>Título</li>
+ *     <li>Descripción</li>
+ *     <li>Imagen de portada</li>
+ *     <li>Flags de favorito y jugado</li>
+ *     <li>Plataforma asociada</li>
+ * </ul>
  *
- * Permite cargar una ROM existente (modo edición) o crear una nueva ROM.
+ * <p>Permite cargar una ROM existente (modo edición) o crear una nueva ROM.</p>
  */
 public class RomFormController {
 
@@ -91,6 +93,9 @@ public class RomFormController {
 
     /**
      * Abre un diálogo para seleccionar una imagen y la copia a la carpeta interna del programa.
+     *
+     * <p>Tras copiar la imagen mediante {@link ImageUtils}, se actualiza el campo
+     * de texto correspondiente y se dispara la validación del formulario.</p>
      */
     @FXML
     public void handleBrowseImage() {
@@ -124,6 +129,12 @@ public class RomFormController {
         }
     }
 
+    /**
+     * Abre un cuadro de selección de archivo para elegir la ROM en el sistema de ficheros.
+     *
+     * <p>Una vez seleccionado el archivo, se rellena el campo de ruta
+     * ({@code rutaField}) con su ubicación absoluta y se vuelve a validar el formulario.</p>
+     */
     @FXML
     public void handleBrowseRom() {
         FileChooser fileChooser = new FileChooser();
@@ -139,6 +150,9 @@ public class RomFormController {
 
     /**
      * Guarda la ROM creada o editada después de validar los campos.
+     *
+     * <p>Si hay una ROM en edición, se actualiza; en caso contrario, se crea una nueva
+     * instancia. Tras guardar, se muestra un mensaje informativo y se cierra la ventana.</p>
      */
     @FXML
     public void handleSave() {
@@ -178,6 +192,9 @@ public class RomFormController {
 
     /**
      * Validación ligera utilizada para activar o desactivar el botón de guardar.
+     *
+     * <p>Comprueba que el título, la ruta y la plataforma sean válidos (no vacíos)
+     * y habilita o deshabilita {@code saveButton} en consecuencia.</p>
      */
     private void validate() {
         boolean isTitleValid = titleField.getText() != null && !titleField.getText().trim().isEmpty();
@@ -190,7 +207,11 @@ public class RomFormController {
     /**
      * Validación estricta usada antes de guardar.
      *
-     * @return true si todos los campos requeridos están correctos
+     * <p>Muestra mensajes de advertencia al usuario si falta alguno de los campos
+     * obligatorios (título, ruta o plataforma).</p>
+     *
+     * @return {@code true} si todos los campos requeridos están correctos,
+     *         {@code false} en caso contrario
      */
     private boolean validateFields() {
         if (titleField.getText().trim().isEmpty()) {
@@ -210,6 +231,9 @@ public class RomFormController {
 
     /**
      * Cierra la ventana actual del formulario.
+     *
+     * <p>Obtiene el {@link Stage} desde cualquier nodo de la escena
+     * (en este caso, {@link #titleField}) y lo cierra.</p>
      */
     private void closeWindow() {
         Stage stage = (Stage) titleField.getScene().getWindow();

@@ -13,29 +13,41 @@ import java.util.Map;
 /**
  * Utilidad centralizada para gestionar JPA dentro de la aplicación.
  *
- * <p>Este componente:
+ * <p>Este componente:</p>
  * <ul>
  *     <li>Configura dinámicamente la base de datos H2 embebida.</li>
- *     <li>Inicializa un EntityManagerFactory global al inicio.</li>
- *     <li>Ofrece EntityManager bajo demanda.</li>
+ *     <li>Inicializa un {@link EntityManagerFactory} global al inicio.</li>
+ *     <li>Ofrece {@link EntityManager} bajo demanda.</li>
  *     <li>Se encarga del cierre limpio de recursos al apagar la aplicación.</li>
  * </ul>
  *
  * <p>La configuración se genera en tiempo de ejecución para permitir
- * rutas dinámicas dentro del directorio de usuario (en AppInitializer.dbDir).</p>
+ * rutas dinámicas dentro del directorio de usuario (en {@link AppInitializer#dbDir}).</p>
  */
 public class JpaUtil {
 
+    /** Logger principal para trazar la configuración y el ciclo de vida de JPA. */
     private static final Logger logger = LoggerFactory.getLogger(JpaUtil.class);
 
-    /** Factory global creada una única vez durante la vida de la aplicación. */
+    /**
+     * {@link EntityManagerFactory} global, creado una única vez durante
+     * la vida de la aplicación.
+     *
+     * <p>Se inicializa mediante {@link #buildEntityManagerFactory()} y se
+     * utiliza en {@link #getEntityManager()} para obtener gestores de entidades.</p>
+     */
     private static final EntityManagerFactory emf = buildEntityManagerFactory();
 
     /**
      * Construye dinámicamente el {@link EntityManagerFactory} con configuración
      * específica para la base de datos H2 local.
      *
-     * @return instancia configurada de EntityManagerFactory
+     * <p>Las propiedades se establecen en tiempo de ejecución para apuntar
+     * al directorio configurado por {@link AppInitializer}, usando un
+     * persistence unit llamada {@code romraiderPU}.</p>
+     *
+     * @return instancia configurada de {@link EntityManagerFactory}
+     * @throws RuntimeException si no se puede inicializar correctamente
      */
     private static EntityManagerFactory buildEntityManagerFactory() {
 
@@ -71,17 +83,23 @@ public class JpaUtil {
 
     /**
      * Obtiene una nueva instancia de {@link EntityManager}.
-     * <p>Debe cerrarse manualmente tras su uso.</p>
      *
-     * @return EntityManager nuevo y listo para operar
+     * <p>Cada llamada crea un nuevo gestor de entidades asociado al
+     * {@link EntityManagerFactory} global. Es responsabilidad del
+     * llamador cerrar el {@code EntityManager} después de usarlo.</p>
+     *
+     * @return {@link EntityManager} nuevo y listo para operar
      */
     public static EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
 
     /**
-     * Cierra el EntityManagerFactory global.
-     * Debe llamarse al apagar la aplicación (por ejemplo, desde Application.stop()).
+     * Cierra el {@link EntityManagerFactory} global si sigue abierto.
+     *
+     * <p>Debe llamarse al apagar la aplicación (por ejemplo, desde
+     * {@code Application.stop()}) para liberar correctamente los recursos
+     * asociados a la capa de persistencia.</p>
      */
     public static void close() {
         if (emf.isOpen()) {

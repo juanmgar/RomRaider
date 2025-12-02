@@ -9,15 +9,31 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Inicializador de datos por defecto para la aplicación.
+ *
+ * <p>Esta clase inserta las plataformas y ROMs iniciales en la base de datos
+ * cuando esta se encuentra vacía. Está diseñada para poblar el sistema con
+ * datos básicos que faciliten las pruebas o el uso inicial de la aplicación.</p>
+ *
+ * <p>Incluye:</p>
+ * <ul>
+ *     <li>Listado amplio de plataformas retro y modernas</li>
+ *     <li>ROMs de ejemplo asociadas a cada plataforma</li>
+ *     <li>Métodos para insertar datos iniciales y evitar duplicados</li>
+ * </ul>
+ */
 public class DataInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
+    /** Constantes de nombre para plataformas utilizadas en los ROMs por defecto. */
     private static final String GAME_BOY = "Game Boy";
     private static final String GAME_BOY_ADVANCE = "Game Boy Advance";
     private static final String GENESIS = "Genesis";
     private static final String NINTENDO_64 = "Nintendo 64";
 
+    /** Directorios ficticios donde se ubicarían los ROMs de ejemplo. */
     private static final String NES_DIR = "/roms/nes/";
     private static final String SNES_DIR = "/roms/snes/";
     private static final String GB_DIR = "/roms/gb/";
@@ -25,6 +41,7 @@ public class DataInitializer {
     private static final String GENESIS_DIR = "/roms/genesis/";
     private static final String N64_DIR = "/roms/n64/";
 
+    /** Extensiones típicas según plataforma retro dada. */
     private static final String EXT_NES = ".nes";
     private static final String EXT_SFC = ".sfc";
     private static final String EXT_GB = ".gb";
@@ -32,9 +49,16 @@ public class DataInitializer {
     private static final String EXT_GEN = ".gen";
     private static final String EXT_N64 = ".n64";
 
+    /**
+     * Conjunto de plataformas predefinidas.
+     *
+     * Cada entrada contiene:
+     * <pre>
+     *   [ nombre, extension, carpeta ]
+     * </pre>
+     */
     private static final String[][] DEFAULT_PLATFORMS = {
-
-            // --- Nintendo ---
+            // Nintendo
             {"NES", ".nes", "nes"},
             {"SNES", ".smc", "snes"},
             {NINTENDO_64, ".n64", "n64"},
@@ -47,7 +71,7 @@ public class DataInitializer {
             {"Nintendo 3DS", ".3ds", "3ds"},
             {"Nintendo Switch", ".nsp", "switch"},
 
-            // --- Sega ---
+            // Sega
             {"Master System", ".sms", "sms"},
             {GENESIS, ".md", "genesis"},
             {"Sega CD", ".scd", "segacd"},
@@ -55,18 +79,18 @@ public class DataInitializer {
             {"Sega Saturn", ".sat", "saturn"},
             {"Dreamcast", ".cdi", "dreamcast"},
 
-            // --- Sony ---
+            // Sony
             {"PlayStation", ".psx", "psx"},
             {"PlayStation 2", ".ps2", "ps2"},
             {"PSP", ".iso", "psp"},
 
-            // --- Atari / Retro ---
+            // Atari / Retro
             {"Atari 2600", ".a26", "atari2600"},
             {"Atari 7800", ".a78", "atari7800"},
             {"Neo Geo", ".neo", "neogeo"},
             {"MAME", ".zip", "mame"},
 
-            // --- PC ---
+            // PC
             {"MS-DOS", ".exe", "msdos"},
 
             // Commodore
@@ -75,7 +99,7 @@ public class DataInitializer {
             // Amiga
             {"Amiga", ".adf", "amiga"},
 
-            // Microsoft / Sinclair / Amstrad
+            // Microordenadores
             {"Amstrad CPC", ".dsk", "cpc"},
             {"ZX Spectrum", ".tzx", "zxspectrum"},
 
@@ -92,14 +116,20 @@ public class DataInitializer {
             // 1990s Classics
             {"3DO", ".iso3do", "3do"},
 
-            // Old Consoles
+            // Old consoles
             {"ColecoVision", ".col", "coleco"},
             {"Intellivision", ".int", "intv"}
     };
 
-
+    /**
+     * Conjunto de ROMs de ejemplo para poblar la base de datos en la primera ejecución.
+     *
+     * Cada entrada contiene:
+     * <pre>
+     *   [titulo, descripcion, imagen, ruta_rom, favorito, jugado, nombre_plataforma]
+     * </pre>
+     */
     private static final Object[][] DEFAULT_ROMS = {
-
             // NES
             {"Super Mario Bros.", "Clásico de plataformas de Nintendo.", null, NES_DIR + "super_mario_bros" + EXT_NES, true, true, "NES"},
             {"The Legend of Zelda", "Aventura de exploración y acción.", null, NES_DIR + "zelda" + EXT_NES, true, false, "NES"},
@@ -137,18 +167,26 @@ public class DataInitializer {
             {"Banjo-Kazooie", "Plataformas 3D con humor y coleccionables.", null, N64_DIR + "banjo" + EXT_N64, true, false, NINTENDO_64},
     };
 
+    /**
+     * Inicializa la base de datos con plataformas y ROMs por defecto si esta se encuentra vacía.
+     *
+     * <p>Este método se ejecuta al iniciar la aplicación y asegura que la base de datos
+     * siempre cuente con un conjunto mínimo de datos.</p>
+     */
     public static void initializeWithDefaults() {
         EntityManager em = JpaUtil.getEntityManager();
         try {
             em.getTransaction().begin();
 
-            long plataformasCount = em.createQuery("SELECT COUNT(p) FROM Plataforma p", Long.class).getSingleResult();
+            long plataformasCount = em.createQuery("SELECT COUNT(p) FROM Plataforma p", Long.class)
+                    .getSingleResult();
             if (plataformasCount == 0) {
                 logger.info("No platforms found. Inserting default platforms...");
                 insertDefaultPlatforms(em);
             }
 
-            long romsCount = em.createQuery("SELECT COUNT(r) FROM Rom r", Long.class).getSingleResult();
+            long romsCount = em.createQuery("SELECT COUNT(r) FROM Rom r", Long.class)
+                    .getSingleResult();
             if (romsCount == 0) {
                 logger.info("No ROMs found. Inserting default ROMs...");
                 insertDefaultRoms(em);
@@ -165,6 +203,11 @@ public class DataInitializer {
         }
     }
 
+    /**
+     * Inserta todas las plataformas por defecto.
+     *
+     * @param em EntityManager activo dentro de una transacción abierta.
+     */
     private static void insertDefaultPlatforms(EntityManager em) {
         for (String[] p : DEFAULT_PLATFORMS) {
             em.persist(new Plataforma(p[0], p[1], p[2]));
@@ -173,6 +216,12 @@ public class DataInitializer {
         logger.info("Default platforms inserted.");
     }
 
+    /**
+     * Inserta plataformas por defecto solo si no existen previamente.
+     *
+     * <p>Útil para operaciones donde se quiere garantizar la existencia
+     * de plataformas base sin sobrescribir datos existentes.</p>
+     */
     public static void insertOrUpdateDefaultPlatforms() {
         EntityManager em = JpaUtil.getEntityManager();
 
@@ -205,6 +254,11 @@ public class DataInitializer {
         }
     }
 
+    /**
+     * Inserta los ROMs de ejemplo asociados a las plataformas por defecto.
+     *
+     * @param em EntityManager activo dentro de una transacción abierta.
+     */
     private static void insertDefaultRoms(EntityManager em) {
         Map<String, Plataforma> plataformas = new HashMap<>();
         em.createQuery("SELECT p FROM Plataforma p", Plataforma.class)
@@ -222,8 +276,8 @@ public class DataInitializer {
             Rom rom = new Rom(
                     (String) r[0], // título
                     (String) r[1], // descripción
-                    (String) r[3], // imagen
-                    (String) r[2], // ruta
+                    (String) r[3], // ruta
+                    (String) r[2], // imagen
                     (Boolean) r[4], // favorito
                     (Boolean) r[5], // jugado
                     plataforma

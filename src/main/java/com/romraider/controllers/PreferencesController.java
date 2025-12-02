@@ -20,13 +20,17 @@ import java.nio.file.Paths;
 
 /**
  * Controlador de la ventana de preferencias del usuario.
- * <p>
- * Permite configurar:
- * - Carpeta donde se copiarán automáticamente las ROMs escaneadas.
- * - Activación o desactivación de la actualización automática desde RAWG.io.
- * <p>
- * Estos valores se almacenan en el fichero de configuración manejado
- * por {@link PropertyUtils}.
+ *
+ * <p>Permite configurar:</p>
+ * <ul>
+ *     <li>Carpeta donde se copiarán automáticamente las ROMs escaneadas.</li>
+ *     <li>Activación o desactivación de la actualización automática desde RAWG.io.</li>
+ *     <li>Idioma de la aplicación.</li>
+ * </ul>
+ *
+ * <p>Estos valores se almacenan en el fichero de configuración manejado
+ * por {@link PropertyUtils} a partir de las rutas y directorios creados
+ * por {@link AppInitializer}.</p>
  */
 public class PreferencesController {
 
@@ -44,6 +48,14 @@ public class PreferencesController {
     /**
      * Inicializa la ventana de preferencias cargando los valores actuales
      * desde el archivo de configuración.
+     *
+     * <p>Acciones realizadas:</p>
+     * <ul>
+     *     <li>Lee la configuración con {@link AppInitializer#loadConfig()}.</li>
+     *     <li>Inicializa el estado del checkbox de auto-update.</li>
+     *     <li>Resuelve y muestra la ruta absoluta de la carpeta de copias de ROMs.</li>
+     *     <li>Rellena el combo de idiomas y selecciona el idioma actual.</li>
+     * </ul>
      */
     @FXML
     public void initialize() {
@@ -71,7 +83,10 @@ public class PreferencesController {
 
     /**
      * Permite al usuario seleccionar una carpeta del sistema para copiar ROMs.
-     * Se abre un diálogo nativo de selección de directorios.
+     *
+     * <p>Abre un diálogo nativo de selección de directorios mediante {@link DirectoryChooser}.
+     * Si el usuario confirma, se actualiza el campo de texto con la ruta seleccionada;
+     * en caso contrario, no se realizan cambios.</p>
      */
     @FXML
     public void handleBrowseFolder() {
@@ -90,10 +105,21 @@ public class PreferencesController {
 
     /**
      * Guarda las preferencias del usuario en el archivo de configuración:
-     * - Ruta de copia relativa respecto al home del usuario
-     * - Configuración de actualización automática
-     * <p>
-     * Si ocurre un error, se muestra un mensaje al usuario en inglés.
+     * <ul>
+     *     <li>Ruta de copia relativa respecto al home del usuario.</li>
+     *     <li>Configuración de actualización automática desde RAWG.io.</li>
+     *     <li>Idioma seleccionado en {@link #languageCombo}.</li>
+     * </ul>
+     *
+     * <p>Tras guardar:</p>
+     * <ul>
+     *     <li>Se recarga el bundle de internacionalización con {@link I18nUtils#load(String)}.</li>
+     *     <li>Se reconstruye la vista principal mediante {@link SceneUtils#switchToMainView(Stage)}.</li>
+     *     <li>Se muestra un mensaje informativo al usuario.</li>
+     * </ul>
+     *
+     * <p>Si ocurre un error de E/S durante el guardado, se registra en el log
+     * y se informa al usuario mediante un cuadro de diálogo de error.</p>
      */
     @FXML
     public void handleSave() {
@@ -142,7 +168,9 @@ public class PreferencesController {
 
     /**
      * Acción del botón Cancel.
-     * Cierra la ventana sin guardar cambios.
+     *
+     * <p>Cierra la ventana sin guardar cambios y deja intactos los valores
+     * actuales del archivo de configuración.</p>
      */
     @FXML
     public void handleCancel() {
@@ -152,6 +180,9 @@ public class PreferencesController {
 
     /**
      * Cierra la ventana de preferencias.
+     *
+     * <p>Obtiene el {@link Stage} a partir del campo de texto {@link #copyPathField}
+     * y solicita su cierre.</p>
      */
     private void closeWindow() {
         Stage stage = (Stage) copyPathField.getScene().getWindow();

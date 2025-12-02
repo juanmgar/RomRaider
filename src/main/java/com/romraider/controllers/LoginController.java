@@ -23,11 +23,19 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Controlador encargado del proceso de login, registro y acceso offline.
- * Gestiona tanto la autenticación con Supabase como el auto-login mediante
- * token persistido en disco.
+ * Controlador responsable del proceso completo de autenticación de la aplicación.
  *
- * Este controlador es el punto de entrada de la aplicación.
+ * <p>Gestiona:</p>
+ * <ul>
+ *     <li>Inicio de sesión mediante Supabase.</li>
+ *     <li>Registro de nuevos usuarios.</li>
+ *     <li>Acceso en modo offline.</li>
+ *     <li>Restauración automática de sesión usando un refresh token persistido.</li>
+ *     <li>Sincronización inicial de datos tras un login exitoso.</li>
+ * </ul>
+ *
+ * <p>Esta clase actúa como punto de entrada de la aplicación, siendo la primera
+ * pantalla interactiva que ve el usuario.</p>
  */
 public class LoginController {
 
@@ -49,17 +57,19 @@ public class LoginController {
     private Button registerButton;
 
     /**
-     * Inicializa la pantalla de login.
-     * - Comprueba conexión a Internet.
-     * - Restaura sesión (token) si existe.
-     * - Si hay sesión válida, entra automáticamente a la vista principal.
+     * Inicializa la pantalla de login realizando diversas comprobaciones previas:
+     *
+     * <ul>
+     *     <li>Comprueba disponibilidad de Internet para habilitar/deshabilitar funcionalidades online.</li>
+     *     <li>Intenta restaurar una sesión previa mediante refresh token persistido.</li>
+     *     <li>Si la restauración es exitosa, se redirige inmediatamente a la vista principal.</li>
+     * </ul>
      */
     @FXML
     public void initialize() {
         boolean online = NetworkUtils.isInternetAvailable();
 
         if (!online) {
-            // Offline: deshabilitar login y registro, pero permitir acceso sin autenticación
             loginButton.setDisable(true);
             registerButton.setDisable(true);
             messageLabel.setText(I18nUtils.get("login.offlineMode"));
@@ -70,7 +80,6 @@ public class LoginController {
         if (token != null) {
             logger.info("Intentando auto-login mediante sesión guardada...");
 
-            // Restaurar sesión usando el token almacenado
             if (SupabaseAuthService.restoreSession(token)) {
                 logger.info("Auto-login exitoso. Cargando pantalla principal...");
                 Platform.runLater(() -> {
@@ -84,11 +93,15 @@ public class LoginController {
     }
 
     /**
-     * Maneja el inicio de sesión usando Supabase.
-     * Si el login es exitoso:
-     * - Guarda la sesión si "Remember me" está marcado.
-     * - Lanza una sincronización inicial con Supabase.
-     * - Cambia a la vista principal de la aplicación.
+     * Maneja el proceso completo de inicio de sesión mediante Supabase.
+     *
+     * <p>Flujo:</p>
+     * <ol>
+     *     <li>Valida credenciales con {@link SupabaseAuthService#login(String, String)}.</li>
+     *     <li>Si el login es exitoso y “Remember me” está activo, se persiste el refresh token.</li>
+     *     <li>Se muestra un overlay con spinner mientras se ejecuta la sincronización inicial.</li>
+     *     <li>Tras sincronizar, se navega a la vista principal.</li>
+     * </ol>
      */
     @FXML
     public void handleLogin() {
@@ -97,7 +110,6 @@ public class LoginController {
 
         logger.info("Intentando login para usuario '{}'", email);
 
-        // Login normal, sin spinner
         boolean success = SupabaseAuthService.login(email, password);
 
         if (!success) {
@@ -108,20 +120,23 @@ public class LoginController {
 
         logger.info("Login exitoso para {}", email);
 
-        // Guardar sesión si procede
         if (rememberMeCheck.isSelected()) {
             SessionManager.saveSession(SupabaseAuthService.getRefreshToken());
             logger.info("Sesión guardada en disco para auto-login futuro");
         }
 
-        // Spinner durante la sincronización
         mostrarSpinnerSincronizacionYSync();
     }
 
-
     /**
-     * Maneja el registro de un nuevo usuario en Supabase.
-     * Si el registro es correcto, se indica al usuario que debe confirmar su email.
+     * Maneja el registro de un nuevo usuario.
+     *
+     * <p>Si el registro es exitoso:</p>
+     * <ul>
+     *     <li>Se notifica al usuario que debe confirmar su correo electrónico.</li>
+     * </ul>
+     *
+     * <p>En caso de error, se muestra un mensaje adecuado en pantalla.</p>
      */
     @FXML
     public void handleRegister() {
@@ -141,9 +156,13 @@ public class LoginController {
     }
 
     /**
-     * Permite entrar al sistema en modo offline.
-     * Limpia cualquier dato existente en Supabase local (plataformas y ROMs)
-     * para garantizar coherencia con la base local independiente.
+     * Permite acceder a la aplicación sin conexión y sin autenticación.
+     *
+     * <p>Acciones realizadas:</p>
+     * <ul>
+     *     <li>Elimina todas las plataformas y ROMs locales para evitar incoherencias.</li>
+     *     <li>Abre la vista principal en modo completamente local.</li>
+     * </ul>
      */
     @FXML
     public void handleOffline() {
@@ -158,6 +177,18 @@ public class LoginController {
         logger.info("Modo offline activado con éxito. Datos locales reinicializados.");
     }
 
+    /**
+     * Muestra una superposición con un spinner mientras se ejecuta la sincronización inicial
+     * con Supabase en un hilo secundario.
+     *
+     * <p>Comportamiento:</p>
+     * <ul>
+     *     <li>Bloquea botones de login/registro.</li>
+     *     <li>Ejecuta {@link SupabaseSyncService#syncWithSupabase()} en background.</li>
+     *     <li>Al finalizar, habilita botones nuevamente y entra en la vista principal.</li>
+     *     <li>En caso de error, muestra mensaje al usuario.</li>
+     * </ul>
+     */
     private void mostrarSpinnerSincronizacionYSync() {
 
         Label mensaje = new Label(I18nUtils.get("login.syncing"));
@@ -178,7 +209,6 @@ public class LoginController {
         loginButton.setDisable(true);
         registerButton.setDisable(true);
 
-        // Ejecutar sincronización en segundo plano
         Task<Void> syncTask = new Task<>() {
             @Override
             protected Void call() {
@@ -193,7 +223,6 @@ public class LoginController {
             loginButton.setDisable(false);
             registerButton.setDisable(false);
 
-            // Cambiar a pantalla principal
             Stage stage = (Stage) usernameField.getScene().getWindow();
             SceneUtils.switchToMainView(stage);
         });

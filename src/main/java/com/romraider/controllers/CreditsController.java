@@ -12,9 +12,11 @@ import java.net.URI;
  * Controlador de la ventana de créditos.
  * Esta vista muestra información sobre los autores y recursos utilizados.
  *
- * Incluye:
- *  - Botón para cerrar la ventana
- *  - Enlace directo a la página de Freepik utilizada como recurso gráfico
+ * <p>Incluye:</p>
+ * <ul>
+ *     <li>Botón para cerrar la ventana.</li>
+ *     <li>Enlaces directos a las páginas de Freepik y Flaticon utilizadas como recursos gráficos.</li>
+ * </ul>
  */
 public class CreditsController {
 
@@ -31,18 +33,32 @@ public class CreditsController {
         ((Stage) ((Button) event.getSource()).getScene().getWindow()).close();
     }
 
+    /**
+     * Abre en el navegador predeterminado la página de Freepik
+     * utilizada como recurso gráfico en la aplicación.
+     */
     @FXML
     private void handleOpenFreepik() {
         openLink("https://www.freepik.com/free-vector/dark-background-with-geometric-design_853799.html",
                 "Freepik");
     }
 
+    /**
+     * Abre en el navegador predeterminado la página de Flaticon
+     * asociada al autor de los iconos utilizados en la aplicación.
+     */
     @FXML
     private void handleOpenFlaticon() {
         openLink("https://www.flaticon.es/autores/freepik",
                 "Flaticon");
     }
 
+    /**
+     * Abre un enlace externo en el navegador del sistema.
+     *
+     * @param url        URL a abrir
+     * @param sourceName nombre descriptivo del origen del recurso (para logs)
+     */
     private void openLink(String url, String sourceName) {
         try {
             logger.info("Abriendo enlace de {}", sourceName);

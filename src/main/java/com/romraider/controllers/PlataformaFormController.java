@@ -12,14 +12,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Controlador del formulario de creación/edición de plataformas.
- * Permite introducir datos básicos sobre una plataforma:
- * - Nombre
- * - Extensión de ROM soportada (p.ej.: ".nes")
- * - Carpeta donde se almacenan las ROMs
+ * Controlador del formulario de creación o edición de plataformas.
  *
- * También gestiona validación de campos en tiempo real y guarda la plataforma
- * en la base de datos a través de PlataformaService.
+ * <p>Esta vista permite gestionar las propiedades básicas de una plataforma,
+ * incluyendo:</p>
+ *
+ * <ul>
+ *     <li><b>Nombre</b> de la plataforma (ej.: "NES", "PlayStation")</li>
+ *     <li><b>Extensión de archivo</b> asociada a sus ROMs (ej.: ".nes", ".sfc")</li>
+ *     <li><b>Carpeta interna</b> donde se almacenan sus ROMs dentro del sistema</li>
+ * </ul>
+ *
+ * <p>El controlador gestiona:</p>
+ * <ul>
+ *     <li>Validación ligera reactiva (enable/disable del botón Guardar)</li>
+ *     <li>Validación estricta en el guardado con mensajes al usuario</li>
+ *     <li>Soporte para modo edición (carga previa de datos)</li>
+ *     <li>Persistencia mediante {@link PlataformaService}</li>
+ * </ul>
+ *
+ * <p>Al finalizar, la plataforma se guarda en la base local y se cierra la ventana.</p>
  */
 public class PlataformaFormController {
 
@@ -27,21 +39,30 @@ public class PlataformaFormController {
 
     @FXML
     private TextField nameField;
+
     @FXML
     private TextField extField;
+
     @FXML
     private TextField folderField;
+
     @FXML
     private Button saveButton;
 
+    /** Servicio encargado de la persistencia de plataformas. */
     private final PlataformaService plataformaService = new PlataformaService();
 
-    /** Plataforma cargada para edición. Si es null, se asume creación. */
+    /**
+     * Plataforma cargada en modo edición.
+     * <p>Si es {@code null}, el formulario funcionará en modo creación.</p>
+     */
     private Plataforma plataformaToEdit;
 
     /**
-     * Inicializa el formulario añadiendo listeners para validar los campos
-     * en tiempo real conforme el usuario escribe.
+     * Inicializa el formulario añadiendo listeners de validación en tiempo real.
+     *
+     * <p>Los listeners actualizan el estado del botón Guardar
+     * según los valores introducidos.</p>
      */
     @FXML
     public void initialize() {
@@ -53,7 +74,7 @@ public class PlataformaFormController {
     /**
      * Carga una plataforma existente en el formulario para su edición.
      *
-     * @param plataforma plataforma seleccionada para editar
+     * @param plataforma la plataforma seleccionada desde la vista principal
      */
     public void setPlataformaToEdit(Plataforma plataforma) {
         this.plataformaToEdit = plataforma;
@@ -66,11 +87,17 @@ public class PlataformaFormController {
     }
 
     /**
-     * Valida los campos principales del formulario.
-     * Esta validación es ligera y rápida, usada para controlar
-     * el estado (enable/disable) del botón de guardar.
+     * Valida de forma ligera los campos del formulario.
      *
-     * La validación estricta se hace en validateFields().
+     * <p>Se encarga únicamente de activar o desactivar el botón Guardar,
+     * sin mostrar mensajes al usuario.</p>
+     *
+     * <p>Reglas comprobadas:</p>
+     * <ul>
+     *     <li>El nombre no puede estar vacío.</li>
+     *     <li>La extensión debe empezar por punto y contener 1 a 10 caracteres alfanuméricos.</li>
+     *     <li>La carpeta no puede estar vacía.</li>
+     * </ul>
      */
     private void validate() {
         boolean valid =
@@ -82,15 +109,20 @@ public class PlataformaFormController {
     }
 
     /**
-     * Botón de guardado.
-     * Valida los campos, crea o actualiza la plataforma y la guarda
-     * en la base de datos.
+     * Acción del botón Guardar.
+     *
+     * <p>Realiza validación estricta y, si es correcta:</p>
+     * <ul>
+     *     <li>Actualiza una plataforma existente o crea una nueva instancia.</li>
+     *     <li>La persiste mediante {@link PlataformaService}.</li>
+     *     <li>Muestra un mensaje de éxito.</li>
+     *     <li>Cierra el formulario.</li>
+     * </ul>
      */
     @FXML
     public void handleSave() {
         if (!validateFields()) return;
 
-        // Crear o reutilizar la plataforma existente
         Plataforma plataforma = (plataformaToEdit != null) ? plataformaToEdit : new Plataforma();
 
         plataforma.setNombre(nameField.getText().trim());
@@ -105,8 +137,9 @@ public class PlataformaFormController {
     }
 
     /**
-     * Botón de cancelar.
-     * Cierra el formulario sin guardar cambios.
+     * Acción del botón Cancelar.
+     *
+     * <p>Cierra el formulario sin guardar ni modificar la plataforma cargada.</p>
      */
     @FXML
     public void handleCancel() {
@@ -115,10 +148,12 @@ public class PlataformaFormController {
     }
 
     /**
-     * Validación estricta de campos.
-     * Muestra mensajes al usuario cuando hay errores.
+     * Validación estricta de campos antes del guardado.
      *
-     * @return true si los campos son válidos, false si hay errores
+     * <p>Si algún dato no es válido, se muestra un mensaje específico
+     * mediante {@link MessageUtils}.</p>
+     *
+     * @return {@code true} si todos los campos son válidos, {@code false} si hay errores
      */
     private boolean validateFields() {
         if (nameField.getText().trim().isEmpty()) {
@@ -137,7 +172,10 @@ public class PlataformaFormController {
     }
 
     /**
-     * Cierra la ventana actual del formulario.
+     * Cierra la ventana del formulario.
+     *
+     * <p>Obtiene el {@link Stage} desde cualquiera de los campos
+     * y ejecuta su cierre.</p>
      */
     private void closeWindow() {
         Stage stage = (Stage) nameField.getScene().getWindow();
