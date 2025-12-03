@@ -2,36 +2,42 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Manual de Usuario - Rom Manager</title>
+    <title>Manual de Usuario - ROM Raider</title>
     <style>
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             margin: 20px;
             line-height: 1.6;
         }
+
         h1, h2, h3 {
             color: #333;
         }
+
         h1 {
             border-bottom: 2px solid #ccc;
             padding-bottom: 5px;
         }
+
         .toc {
             background: #f5f5f5;
             border: 1px solid #ddd;
             padding: 10px 15px;
             margin-bottom: 20px;
         }
+
         .toc ul {
             margin: 0;
             padding-left: 20px;
         }
+
         code {
             background: #f0f0f0;
             padding: 2px 4px;
             border-radius: 3px;
             font-size: 0.95em;
         }
+
         .note {
             border-left: 4px solid #0078d7;
             background: #f0f7ff;
@@ -42,8 +48,8 @@
 </head>
 <body>
 
-<h1>Manual de Usuario</h1>
-<p><strong>Aplicación:</strong> Rom Manager<br>
+<h1>Manual de Usuario - ROM Raider</h1>
+<p><strong>Aplicación:</strong> ROM Raider<br>
     <strong>Versión:</strong> 1.0.0<br>
     <strong>Autor:</strong> Juan Manuel Sierra García</p>
 
@@ -51,134 +57,206 @@
     <h2>Índice</h2>
     <ul>
         <li><a href="#intro">1. Introducción</a></li>
-        <li><a href="#requisitos">2. Requisitos del sistema</a></li>
-        <li><a href="#inicio">3. Primer inicio de la aplicación</a></li>
+        <li><a href="#inicio">2. Inicio e inicio de sesión</a></li>
+        <li><a href="#main">3. Pantalla principal</a></li>
         <li><a href="#plataformas">4. Gestión de plataformas</a></li>
-        <li><a href="#roms">5. Gestión de ROMs</a>
-            <ul>
-                <li><a href="#roms-add">5.1 Añadir una ROM</a></li>
-                <li><a href="#roms-edit">5.2 Editar una ROM</a></li>
-                <li><a href="#roms-open-folder">5.3 Abrir carpeta de la ROM</a></li>
-            </ul>
-        </li>
-        <li><a href="#backup">6. Copias de seguridad y sincronización</a></li>
-        <li><a href="#problemas">7. Preguntas frecuentes y problemas comunes</a></li>
+        <li><a href="#roms">5. Gestión de ROMs</a></li>
+        <li><a href="#rawg">6. Actualización automática con RAWG.io</a></li>
+        <li><a href="#scan">7. Escaneo automático de carpetas</a></li>
+        <li><a href="#sync">8. Sincronización con la nube</a></li>
+        <li><a href="#stats">9. Estadísticas</a></li>
+        <li><a href="#import-export">10. Importar y exportar</a></li>
+        <li><a href="#help-about">11. Ayuda y Acerca de</a></li>
+        <li><a href="#prefs">12. Preferencias</a></li>
     </ul>
 </div>
 
 <h2 id="intro">1. Introducción</h2>
-<p>
-    Esta aplicación permite gestionar de forma sencilla una biblioteca de ROMs organizadas por plataformas
-    (consolas, sistemas, emuladores, etc.). Desde la interfaz principal podrás:
-</p>
+<p>ROM Raider es una aplicación de escritorio para gestionar colecciones de ROMs de videojuegos clásicos.</p>
 <ul>
-    <li>Crear y editar plataformas.</li>
-    <li>Añadir, modificar y eliminar ROMs.</li>
-    <li>Marcar juegos como favoritos o jugados.</li>
-    <li>Sincronizar la información con servicios externos (por ejemplo, Supabase).</li>
+    <li>Gestionar plataformas</li>
+    <li>Añadir, editar y eliminar ROMs</li>
+    <li>Escanear carpetas y organizar ROMs automáticamente</li>
+    <li>Actualizar metadatos desde RAWG.io</li>
+    <li>Sincronizar con Supabase</li>
+    <li>Consultar estadísticas</li>
+    <li>Importar/exportar en XML</li>
 </ul>
 
-<div class="note">
-    <strong>Nota:</strong> Este manual describe el uso básico de la aplicación. Algunas funciones avanzadas
-    pueden no estar disponibles en todas las versiones.
-</div>
-
-<h2 id="requisitos">2. Requisitos del sistema</h2>
+<h2 id="inicio">2. Inicio e inicio de sesión</h2>
+<h3>2.1 Inicio de la aplicación</h3>
+<p>Al ejecutar la aplicación por primera vez se crea automáticamente:</p>
 <ul>
-    <li>Java 17 o superior instalado.</li>
-    <li>Sistema operativo Windows, Linux o macOS.</li>
-    <li>Conexión a Internet opcional para funciones online (por ejemplo, descarga de información desde APIs externas).
-    </li>
+    <li>La base de datos local H2 en <code>~/.romraider</code></li>
+    <li>Un conjunto de plataformas por defecto</li>
 </ul>
 
-<h2 id="inicio">3. Primer inicio de la aplicación</h2>
-<ol>
-    <li>Ejecuta el archivo <code>.jar</code> o el lanzador correspondiente a tu sistema operativo.</li>
-    <li>La primera vez se creará una base de datos local (por ejemplo, H2) con las tablas necesarias.</li>
-    <li>Verás una ventana principal con la lista de plataformas a la izquierda y las ROMs a la derecha.</li>
-</ol>
+<h3>2.2 Inicio de sesión</h3>
+<p>Puedes:</p>
+<ul>
+    <li>Iniciar sesión con email y contraseña</li>
+    <li>Registrarte</li>
+    <li>Usar el modo <strong>Offline</strong></li>
+</ul>
+
+<p>En modo Offline:</p>
+<ul>
+    <li>La base de datos local se reinicia</li>
+    <li>No se puede sincronizar con la nube</li>
+    <li>Se trabaja solo con XML</li>
+</ul>
+
+<h2 id="main">3. Pantalla principal</h2>
+
+<p>La pantalla principal se divide en:</p>
+
+<ul>
+    <li><strong>Plataformas:</strong> lista y botones de gestión.</li>
+    <li><strong>ROMs:</strong> lista filtrable por texto.</li>
+    <li><strong>Detalle:</strong> descripción, imagen, favoritos, jugado.</li>
+</ul>
+
+<p>Además incluye:</p>
+<ul>
+    <li>Menú File / View / Settings / Help</li>
+    <li>Botón <strong>Sync</strong></li>
+    <li>Usuario actual o modo Offline</li>
+</ul>
 
 <h2 id="plataformas">4. Gestión de plataformas</h2>
-<p>
-    Las plataformas representan las consolas o sistemas (por ejemplo: Super Nintendo, PlayStation, MAME).
-</p>
+
+<h3>4.1 Añadir plataforma</h3>
 <ul>
-    <li><strong>Añadir plataforma:</strong> usa el botón <em>“Nueva plataforma”</em> y rellena nombre, extensión de ROM,
-        carpeta por defecto, etc.
-    </li>
-    <li><strong>Editar plataforma:</strong> selecciona una plataforma y haz clic en <em>“Editar”</em>.</li>
-    <li><strong>Eliminar plataforma:</strong> selecciona la plataforma y haz clic en <em>“Eliminar”</em>.
-        Si tiene ROMs asociadas, se te pedirá confirmación.
-    </li>
+    <li>Nombre</li>
+    <li>Extensión de ROM</li>
+    <li>Carpeta de destino</li>
 </ul>
+
+<h3>4.2 Editar plataforma</h3>
+<p>Puedes cambiar nombre, extensión o carpeta.</p>
+
+<h3>4.3 Eliminar plataforma</h3>
+<p>Elimina la plataforma y todas sus ROMs asociadas.</p>
 
 <h2 id="roms">5. Gestión de ROMs</h2>
-<p>
-    Las ROMs son los archivos de los juegos. Cada ROM está asociada a una plataforma.
-</p>
 
-<h3 id="roms-add">5.1 Añadir una ROM</h3>
-<ol>
-    <li>Selecciona primero la plataforma en el panel correspondiente.</li>
-    <li>Pulsa el botón <em>“Añadir ROM”</em>.</li>
-    <li>En el formulario, introduce:
-        <ul>
-            <li><strong>Título</strong> del juego.</li>
-            <li><strong>Descripción</strong> opcional.</li>
-            <li><strong>Ruta del archivo</strong> de la ROM (se puede seleccionar con un diálogo de fichero).</li>
-            <li>Opcionalmente, marca si es <strong>favorito</strong> o si ya está <strong>jugado</strong>.</li>
-        </ul>
-    </li>
-    <li>Confirma con <em>“Guardar”</em>.</li>
-</ol>
+<h3 id="roms-add">5.1 Crear una ROM</h3>
+<ul>
+    <li>Título</li>
+    <li>Descripción</li>
+    <li>Ruta del archivo ROM</li>
+    <li>Imagen opcional</li>
+</ul>
 
-<h3 id="roms-edit">5.2 Editar una ROM</h3>
-<ol>
-    <li>Selecciona la ROM en la tabla.</li>
-    <li>Pulsa el botón <em>“Editar ROM”</em> o haz doble clic en la fila (si está configurado así).</li>
-    <li>Modifica los campos necesarios.</li>
-    <li>Guarda los cambios.</li>
-</ol>
+<h3 id="roms-edit">5.2 Editar ROM</h3>
 
 <h3 id="roms-open-folder">5.3 Abrir carpeta de la ROM</h3>
-<p>
-    En la vista de detalle de una ROM puedes encontrar el botón <strong>“Abrir carpeta”</strong>.
-</p>
+<p>ROM Raider abre el explorador del sistema mostrando la ubicación del archivo.</p>
+
+<h2 id="rawg">6. Actualización mediante RAWG.io</h2>
+
+<h3>6.1 Actualizar una ROM individual</h3>
 <ul>
-    <li>Al pulsarlo, se abrirá el explorador de archivos del sistema directamente en la carpeta donde se encuentra la
-        ROM.
+    <li>Busca la ROM en RAWG</li>
+    <li>Actualiza descripción e imagen</li>
+</ul>
+
+<h3>6.2 Actualizar todas las ROMs</h3>
+<ul>
+    <li>Menu → File → Update all ROMs</li>
+    <li>Muestra un resumen al finalizar</li>
+</ul>
+
+<h2 id="scan">7. Escaneo de carpetas locales</h2>
+<p>Permite analizar una carpeta y detectar ROMs automáticamente.</p>
+
+<h3>Proceso</h3>
+<ol>
+    <li>Selecciona una carpeta.</li>
+    <li>ROM Raider detecta las extensiones compatibles.</li>
+    <li>Mueve cada archivo a la carpeta destino definida por la plataforma dentro de:
+        <br><code>~/ruta-configurada-en-preferencias/PLATAFORMA/</code>
     </li>
-    <li>Si la ruta no es válida, se mostrará un mensaje de error.</li>
+    <li>Si está activada la actualización automática:
+        <ul>
+            <li>Consulta RAWG.io</li>
+            <li>Rellena descripción e imagen</li>
+        </ul>
+    </li>
+</ol>
+
+<h2 id="sync">8. Sincronización con la nube</h2>
+
+<h3>8.1 Requisitos</h3>
+<ul>
+    <li>Usuario autenticado</li>
+    <li>Conexión Internet</li>
 </ul>
 
-<h2 id="backup">6. Copias de seguridad y sincronización</h2>
-<p>
-    La aplicación puede ofrecer funciones de:
-</p>
+<h3>8.2 Lógica real de sincronización</h3>
 <ul>
-    <li><strong>Copia de seguridad local:</strong> exportar la base de datos o los datos a un fichero.</li>
-    <li><strong>Sincronización con Supabase u otros servicios:</strong> subir plataformas y ROMs para mantener una copia
-        remota.
+    <li><strong>Primera sincronización o cambio de usuario:</strong> se descarga todo y se reconstruye la base local.
+    </li>
+    <li><strong>Remoto más reciente:</strong> se descarga la colección remota.</li>
+    <li><strong>Local más reciente:</strong> se sube la colección local (solo si pertenece al mismo usuario).</li>
+    <li><strong>Base local vacía:</strong> se sube o sincroniza según corresponda.</li>
+    <li><strong>Sin cambios:</strong> no se realiza ninguna acción.</li>
+</ul>
+
+<h2 id="stats">9. Estadísticas</h2>
+<p>Incluye:</p>
+<ul>
+    <li>Total de ROMs</li>
+    <li>Total de plataformas</li>
+    <li>Jugadas / No jugadas</li>
+    <li>Favoritas / No favoritas</li>
+    <li>Gráfico de ROMs por plataforma</li>
+</ul>
+
+<h2 id="import-export">10. Importación y exportación</h2>
+
+<h3>10.1 Exportar a XML</h3>
+<p>Genera un archivo con todas las plataformas y ROMs.</p>
+
+<h3>10.2 Importar desde XML</h3>
+<p>Reemplaza la colección local por completo.</p>
+
+<h2 id="help-about">11. Ayuda y Acerca de</h2>
+
+<h3>11.1 Ayuda</h3>
+<p>Incluye este manual y tooltips.</p>
+
+<h3>11.2 Acerca de</h3>
+<p>Muestra:</p>
+<ul>
+    <li>Nombre del proyecto</li>
+    <li>Versión</li>
+    <li>Autor</li>
+    <li>Enlace a GitHub</li>
+    <li>Tecnologías utilizadas:
+        <ul>
+            <li>JavaFX</li>
+            <li>Hibernate</li>
+            <li>H2 Database</li>
+            <li>Supabase</li>
+            <li>RAWG.io</li>
+            <li>OkHttp</li>
+            <li>SLF4J / Logback</li>
+        </ul>
     </li>
 </ul>
-<p>
-    Para iniciar la sincronización, utiliza el menú <em>“Herramientas -> Sincronizar”</em> (o el menú correspondiente
-    en tu versión).
-</p>
 
-<h2 id="problemas">7. Preguntas frecuentes y problemas comunes</h2>
+<h2 id="prefs">12. Preferencias</h2>
 
-<h3>7.1 No se abre la aplicación</h3>
-<ul>
-    <li>Comprueba que tienes instalada la versión correcta de Java.</li>
-    <li>Verifica que tu antivirus no esté bloqueando el ejecutable.</li>
-</ul>
+<h3>12.1 Cambio de idioma</h3>
+<p>ROM Raider permite seleccionar el idioma de la interfaz. Los idiomas dependen de los archivos incluidos en el paquete
+    <code>/i18n</code>.</p>
 
-<h3>7.2 No puedo añadir ROMs</h3>
-<ul>
-    <li>Asegúrate de haber creado al menos una plataforma.</li>
-    <li>Comprueba que la ruta del archivo de la ROM existe y es accesible.</li>
-</ul>
+<h3>12.2 Ruta por defecto para ROMs</h3>
+<p>Define dónde se almacenan las ROMs tras el escaneo automático.</p>
 
-<h3>7.3 Errores de conexión en la sincronización</h3>
-<ul>
+<h3>12.3 Actualización automática desde RAWG.io</h3>
+<p>Si está activada, el escaneo rellenará automáticamente la descripción e imagen de las ROMs detectadas.</p>
+
+</body>
+</html>
