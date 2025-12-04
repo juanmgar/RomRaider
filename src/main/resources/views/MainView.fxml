@@ -147,6 +147,7 @@
                         <ImageView fx:id="romImage"
                                    fitHeight="250" fitWidth="250"
                                    preserveRatio="true" smooth="true"
+                                   onMouseClicked="#handleShowLargeImage"
                                    style="-fx-background-color: #f5f5f5; -fx-border-color: #ccc; -fx-border-radius: 4; -fx-background-radius: 4;"/>
                     </StackPane>
                     <Label text="%main.details.description"/>

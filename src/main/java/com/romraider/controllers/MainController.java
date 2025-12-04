@@ -16,6 +16,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -23,6 +24,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -811,6 +813,37 @@ public class MainController {
         });
 
         new Thread(syncTask).start();
+    }
+
+    /**
+     * Muestra la imagen de la ROM en una ventana aparte a mayor tamaño.
+     */
+    @FXML
+    public void handleShowLargeImage() {
+        Image image = romImage.getImage();
+        if (image == null) {
+            return;
+        }
+
+        Stage owner = (Stage) menuBar.getScene().getWindow();
+
+        Stage stage = new Stage();
+        stage.setTitle(romListView.getSelectionModel().getSelectedItem());
+        stage.initOwner(owner);
+        stage.initModality(Modality.APPLICATION_MODAL);
+
+        ImageView imageView = new ImageView(image);
+        imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
+        imageView.setFitWidth(600);
+        imageView.setFitHeight(600);
+
+        StackPane root = new StackPane(imageView);
+        root.setStyle("-fx-padding: 10; -fx-background-color: #000000;");
+
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
     }
 
     /**
