@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<coleccion>
+    <plataforma>
+        <nombre>3DO</nombre>
+        <extensionRom>.iso3do</extensionRom>
+        <carpeta>3do</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Amiga</nombre>
+        <extensionRom>.adf</extensionRom>
+        <carpeta>amiga</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Amstrad CPC</nombre>
+        <extensionRom>.dsk</extensionRom>
+        <carpeta>cpc</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Atari 2600</nombre>
+        <extensionRom>.a26</extensionRom>
+        <carpeta>atari2600</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Atari 7800</nombre>
+        <extensionRom>.a78</extensionRom>
+        <carpeta>atari7800</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>ColecoVision</nombre>
+        <extensionRom>.col</extensionRom>
+        <carpeta>coleco</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Commodore 64</nombre>
+        <extensionRom>.d64</extensionRom>
+        <carpeta>c64</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Dreamcast</nombre>
+        <extensionRom>.cdi</extensionRom>
+        <carpeta>dreamcast</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Game Boy</nombre>
+        <extensionRom>.gb</extensionRom>
+        <carpeta>gb</carpeta>
+        <roms>
+            <rom>
+                <titulo>Tetris</titulo>
+                <descripcion>Tetris (Russian: Тетрис [ˈtɛtrʲɪs]) is a tile-matching puzzle video game, originally designed and programmed by Russian game designer Alexey Pajitnov. It was released on June 6, 1984, while he was working for the Dorodnitsyn Computing Centre of the Academy of Science of the Soviet Union in Moscow. He derived its name from the Greek numerical prefix tetra- (all of the game's pieces contain four segments) and tennis, Pajitnov's favorite sport. Tetris was the first entertainment software to be exported from the Soviet Union to the US, where it was published by Spectrum HoloByte for Commodore 64 and IBM PC. The Tetris game is a popular use of tetrominoes, the four-element special case of polyominoes. Polyominoes have been used in popular puzzles since at least 1907, and the name was given by the mathematician Solomon W. Golomb in 1953. However, even the enumeration of pentominoes is dated to antiquity. The game (or one of its many variants) is available for nearly every video game console and computer operating system, as well as on devices such as graphing calculators, mobile phones, portable media players, PDAs, Network music players and even as an Easter egg on non-media products like oscilloscopes. It has even inspired Tetris serving dishes and been played on the sides of various buildings. While versions of Tetris were sold for a range of 1980s home computer platforms as well as arcades, it was the hugely successful handheld version for the Game Boy launched in 1989 that established the game as one of the most popular ever. Electronic Gaming Monthly's 100th issue had Tetris in first place as "Greatest Game of All Time". In 2007, Tetris came in second place in IGN's "100 Greatest Video Games of All Time". In January 2010, it was announced that the Tetris franchise had sold more than 170 million copies, approximately 70 million physical copies and over 100 million copies for cell phones, making it the best selling paid-downloaded game of all time. On 14 March 2014, The Tetris Company announced a deal to bring Tetris to two of the latest hardware platforms, the Xbox One and PlayStation 4, in partnership with Ubisoft (publishing) and SoMa Play (development), to coincide with the franchise's 30th anniversary.</descripcion>
+                <ruta>/roms/gb/tetris.gb</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Tetris_25.jpg</imagen>
+                <favorito>false</favorito>
+                <jugado>true</jugado>
+            </rom>
+            <rom>
+                <titulo>Pokémon Red</titulo>
+                <descripcion>With classic graphics and music, Pokémon Red and Pokémon Blue Version stay true to the originals released nearly 20 years ago. You'll feel like you're playing them just as they were, but now you can trade and battle Pokémon using local wireless on the Nintendo 3DS family of systems! Revisit these timeless games, or play them for the first time! Experience the original journey that started the Pokémon phenomenon nearly 20 years ago, but now on the Nintendo 3DS family of systems as a digital download! Relive the feeling of catching your very first Pokémon from the original 150, complete with monochromatic pixel art and 4-bit background music. You’ll take on the role of a Pokémon Trainer and travel across the land searching for amazing creatures called Pokémon. Catch, battle, and trade as you face Gym Leaders and try to stop Team Rocket! If you want to catch the original 150 Pokémon, you’ll need to trade wirelessly with your friends.</descripcion>
+                <ruta>/roms/gb/pokemon_red.gb</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Pok_mon_Red_26.jpg</imagen>
+                <favorito>true</favorito>
+                <jugado>false</jugado>
+            </rom>
+            <rom>
+                <titulo>Kirby’s Dream Land</titulo>
+                <descripcion>Kirby's Dream Land is a video game developed by HAL Laboratory and published by Nintendo for the Game Boy. Released in 1992, it is both the first video game in the Kirby series and the debut of Kirby himself. As the inaugural Kirby title it created many conventions that would appear in later games in the series. However, Kirby's trademark "copy" ability would not appear until Kirby's Adventure, released less than one year later. Kirby's Dream Land was designed by Masahiro Sakurai, who intended it to be a simple game that could be easy to pick up and play even by those unfamiliar with action games. For more advanced players, he offered additional optional challenges such as an unlockable hard mode and the ability to edit Kirby's maximum HP and starting number of lives. Kirby's Dream Land was re-released on the Nintendo 3DS via the Virtual Console in 2011 and is also one of the games included in the compilation game Kirby's Dream Collection for the Wii, released to celebrate Kirby's 20th anniversary.</descripcion>
+                <ruta>/roms/gb/kirby.gb</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Kirby_s_Dream_Land_27.jpg</imagen>
+                <favorito>false</favorito>
+                <jugado>false</jugado>
+            </rom>
+            <rom>
+                <titulo>Dr. Mario</titulo>
+                <descripcion>Feeling under the weather? Well, Dr. Mario has the cure for you! Help him fight bodies of nasty viruses with multi-colored vitamins, eliminating those germs faster than they can multiply. Rotate the vitamins as they drop, and gain a higher score by aligning multiples of the same color. Clear all of the viruses to move on to the next round. But watch out as the vitamins start dropping at a faster rate! Not enough of a challenge? Try competing against a buddy, and prove that you're just what the doctor prescribed! This classic game is part of the Virtual Console service, which brings you great games created for consoles such as NES™, Super NES™ and Game Boy™ Advance. We hope you'll enjoy the new features (including off-TV play) that have been added to this title. See more Virtual Console games for Wii U.</descripcion>
+                <ruta>/roms/gb/dr_mario.gb</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Dr__Mario_28.jpg</imagen>
+                <favorito>false</favorito>
+                <jugado>true</jugado>
+            </rom>
+        </roms>
+    </plataforma>
+    <plataforma>
+        <nombre>Game Boy Advance</nombre>
+        <extensionRom>.gba</extensionRom>
+        <carpeta>gba</carpeta>
+        <roms>
+            <rom>
+                <titulo>Advance Wars</titulo>
+                <descripcion>Orange Star's commanding officer has been accused of attacking other countries, causing war to ensue. The battle lines have been drawn, and an elite group of sly strategists is massing troops at the borders of your homeland. In the face of invasion, you have been entrusted to play as tactical adviser for the Orange Star Army. Command 18 different types of ground, air and naval units if you hope to survive the coming wars. Take caution of the terrain and weather as you lead your forces in 114 maps of turn-based warfare. This classic game is part of the Virtual Console service, which brings you great games created for consoles such as NES™, Super NES™ and Game Boy™ Advance. We hope you'll enjoy the new features (including off-TV play) that have been added to this title. See more Virtual Console games for Wii U.</descripcion>
+                <ruta>/roms/gba/advance_wars.gba</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Advance_Wars_29.jpg</imagen>
+                <favorito>false</favorito>
+                <jugado>false</jugado>
+            </rom>
+            <rom>
+                <titulo>Metroid Fusion</titulo>
+                <descripcion>While lending mission support on planet SR388, interstellar bounty hunter Samus Aran is attacked by an X parasite, an organism with the ability to mimic the abilities of any creature it infects. Near death, Samus is saved by a vaccine made from the DNA of the last Metroid--the X parasite's only natural predator. When the X spread to a research station in orbit around SR388, a weakened Samus is forced to exterminate them all...or die trying.</descripcion>
+                <ruta>/roms/gba/metroid_fusion.gba</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Metroid_Fusion_30.jpg</imagen>
+                <favorito>true</favorito>
+                <jugado>true</jugado>
+            </rom>
+            <rom>
+                <titulo>The Legend of Zelda: The Minish Cap</titulo>
+                <descripcion>Don the Minish Cap to shrink Link™ down for his most massively microscopic adventure ever! Mere blades of grass will tower over your head as you explore Hyrule, conquering enemies, puzzles, dungeons and bosses as you go. Along the way, you’ll wield powerful items, fuse magic Kinstones and befriend the elusive Minish to stop the evil sorcerer Vaati. The Minish Cap plays a pivotal part in the Four Swords storyline of the Legend of Zelda™ series, and is the first and only game in which Link explores the land of the Minish—a tiny, mysterious kingdom on the very surface of Hyrule. That makes this unique entry in the Zelda series a must-play for new and old fans alike. Inventive items like the Mole Mitts and Gust Jar give Link powers he’ll need to use wisely if he wants to save the puzzling world of Hyrule and the miniature land of the Minish. When there’s a princess to save, a bad guy to beat, and you’re THIS small, the stakes will never be higher. This classic game is part of the Virtual Console service, which brings you great games created for consoles such as NES™, Super NES™ and Game Boy™ Advance. We hope you'll enjoy the new features (including off-TV play) that have been added to this title. See more Virtual Console games for Wii U.</descripcion>
+                <ruta>/roms/gba/minish_cap.gba</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\The_Legend_of_Zelda__The_Minish_Cap_31.jpg</imagen>
+                <favorito>true</favorito>
+                <jugado>false</jugado>
+            </rom>
+            <rom>
+                <titulo>Mario Kart: Super Circuit</titulo>
+                <descripcion>Mario Kart: Super Circuit, known in Japan as Mario Kart Advance (マリオカートアドバンス, Mario Kāto Adobansu), is a kart racing game developed by Intelligent Systems and published by Nintendo for the Game Boy Advance in 2001. The game is the third installment in the Mario Kart series and the first for handheld consoles, following Mario Kart 64 (1996). It was succeeded by the console game Mario Kart: Double Dash, which was released for the GameCube in 2003. The game retains traditional game elements of Mario Kart set by its predecessors, and upon release, was well received by reviewers.</descripcion>
+                <ruta>/roms/gba/mksc.gba</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Mario_Kart__Super_Circuit_32.jpg</imagen>
+                <favorito>true</favorito>
+                <jugado>true</jugado>
+            </rom>
+        </roms>
+    </plataforma>
+    <plataforma>
+        <nombre>Game Boy Color</nombre>
+        <extensionRom>.gbc</extensionRom>
+        <carpeta>gbc</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>GameCube</nombre>
+        <extensionRom>.gcm</extensionRom>
+        <carpeta>gamecube</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Genesis</nombre>
+        <extensionRom>.md</extensionRom>
+        <carpeta>genesis</carpeta>
+        <roms>
+            <rom>
+                <titulo>Sonic the Hedgehog</titulo>
+                <descripcion>Race at lightning speeds across seven classic zones as sonic the hedgehog. Run and spin through loop-de-loops as you collect rings and defeat enemies on your mission to save the world from the evil dr. Eggman.</descripcion>
+                <ruta>/roms/genesis/sonic.gen</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Sonic_the_Hedgehog_33.jpg</imagen>
+                <favorito>false</favorito>
+                <jugado>true</jugado>
+            </rom>
+            <rom>
+                <titulo>Streets of Rage</titulo>
+                <descripcion>Just UpdatedAll SEGA MegaDrive/Genesis titles now launch using the new SEGA MegaDrive/Genesis Interactive Hub, with all new features, UI and Steam Workshop Support! About the GameWhat was once a happy, peaceful, productive city, has fallen into the hands of a secret criminal syndicate. Looting, random violence and destruction are rampant. Nobody is safe. Despite repeated refusals by their superiors, three young police officers were determined to tackle the problem head on. Eventually they created a special attack unit the only way they could – they quit the force. Take control of one of the three ex-officers and make the city a place where people no longer have to walk the Streets of Rage™!</descripcion>
+                <ruta>/roms/genesis/sor.gen</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Streets_of_Rage_34.jpg</imagen>
+                <favorito>false</favorito>
+                <jugado>false</jugado>
+            </rom>
+            <rom>
+                <titulo>Golden Axe</titulo>
+                <descripcion>Golden Axe (ゴールデンアックス, Gooruden Akkusu) is a side-scrolling, beat 'em up, hack and slash arcade video game released in 1989 by Sega for the System 16-B arcade hardware. It is the first game in the Golden Axe series. Makoto Uchida was the lead designer of the game, and also was responsible for the creation of Altered Beast. The game was ported to the Sega Genesis and Master System consoles, among many other systems.</descripcion>
+                <ruta>/roms/genesis/golden_axe.gen</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Golden_Axe_35.jpg</imagen>
+                <favorito>true</favorito>
+                <jugado>false</jugado>
+            </rom>
+            <rom>
+                <titulo>Gunstar Heroes</titulo>
+                <descripcion>Just UpdatedAll SEGA MegaDrive/Genesis titles now launch using the new SEGA MegaDrive/Genesis Interactive Hub, with all new features, UI and Steam Workshop Support! About the GameThe Gunstar family are the protectors of the planet Gunstar 9. After many years of peace, vicious dictator Colonel Red kidnapped the Gunstar twins’ older brother and used mind control to make him his slave. Now, with the aid of the Mystical Gems, he’s threatening to release Golden Silver the Destructor from the Gunstar 9 moon, with apocalyptic consequences!</descripcion>
+                <ruta>/roms/genesis/gunstar_heroes.gen</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Gunstar_Heroes_36.jpg</imagen>
+                <favorito>false</favorito>
+                <jugado>true</jugado>
+            </rom>
+        </roms>
+    </plataforma>
+    <plataforma>
+        <nombre>Intellivision</nombre>
+        <extensionRom>.int</extensionRom>
+        <carpeta>intv</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>MAME</nombre>
+        <extensionRom>.zip</extensionRom>
+        <carpeta>mame</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>MS-DOS</nombre>
+        <extensionRom>.exe</extensionRom>
+        <carpeta>msdos</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Master System</nombre>
+        <extensionRom>.sms</extensionRom>
+        <carpeta>sms</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>NES</nombre>
+        <extensionRom>.nes</extensionRom>
+        <carpeta>nes</carpeta>
+        <roms>
+            <rom>
+                <titulo>Super Mario Bros.</titulo>
+                <descripcion>Mario and Luigi star in their first ever Mushroom Kingdom adventure! Find out why Super Mario Bros. is instantly recognizable to millions of people across the globe, and what made it the best-selling game in the world for three decades straight. Jump over obstacles, grab coins, kick shells, and throw fireballs through eight action-packed worlds in this iconic NES classic. Only you and the Mario Bros. can rescue Princess Toadstool from the clutches of the evil Bowser. For more than 25 years, the Super Mario series has conquered the charts and won the hearts of fans the world over. Now you can discover - or rediscover - the original game that made Mario a household name. Run and jump with Mario or Luigi through caves and castles, down pipes and across platforms, and face off against Bowser to rescue your beloved Princess Peach. It may be more than a quarter of a century old, but Super Mario Bros. is still as enchanting as ever!</descripcion>
+                <ruta>/roms/nes/super_mario_bros.nes</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Super_Mario_Bros__37.jpg</imagen>
+                <favorito>true</favorito>
+                <jugado>true</jugado>
+            </rom>
+            <rom>
+                <titulo>The Legend of Zelda</titulo>
+                <descripcion>Ganon, the King of Evil, has broken free of the Dark World and has captured Hyrule's beloved Princess Zelda. But, before she was caught, Zelda managed to shatter the Triforce of Wisdom and scatter its eight pieces throughout Hyrule. You begin your adventure by finding a small wooden sword in a dark cave. Then, as you grow in stature, experience, and strength, so do your weapons. Help Link collect the captured pieces of the Triforce, rescue the princess, and thwart Ganon’s evil plans! The epic series The Legend of Zelda began here, with the heroic Link on a hazardous journey through the fantastic world of Hyrule. Using your sword, your shield and your wits, retrieve the eight fragments of the Triforce and save Princess Zelda. This groundbreaking game introduced innovative ideas that are still present in Zelda games more than 25 years later. Not only is Link's original adventure action-packed, it also features puzzling dungeons to explore and a myriad of secrets to discover.</descripcion>
+                <ruta>/roms/nes/zelda.nes</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\The_Legend_of_Zelda_38.jpg</imagen>
+                <favorito>true</favorito>
+                <jugado>false</jugado>
+            </rom>
+            <rom>
+                <titulo>Metroid</titulo>
+                <descripcion>The first installment of the immensely successful Metroid series introduces us to the hideous title creatures and the slick, cybernetic bounty hunter Samus Aran. As Samus™, your mission is to penetrate the space pirates' home planet, Zebes, and keep them from destroying the galaxy with the dangerous life forms known as Metroids. Metroid has all the high-tech weaponry, creepy tunnels and crawly alien creatures that anyone could ask for. With its deep and complex game play, excellent music and a rare sense of setting, it establishes a frightening ambience that will haunt and entertain you for a very long time. This classic game is part of the Virtual Console service, which brings you great games created for consoles such as NES™, Super NES™ and Game Boy™ Advance. We hope you'll enjoy the new features (including off-TV play) that have been added to this title. See more Virtual Console games for Wii U.</descripcion>
+                <ruta>/roms/nes/metroid.nes</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Metroid_39.jpg</imagen>
+                <favorito>false</favorito>
+                <jugado>true</jugado>
+            </rom>
+            <rom>
+                <titulo>Castlevania</titulo>
+                <descripcion>Beware of Dracula and his ghoulish minions as you enter his lair… Castlevania marked the beginning of Konami’s acclaimed series, one that is still going strong today! As vampire hunter Simon Belmont, you must fight your way through Dracula's castle teeming with ghosts, goblins, demons and other supernatural creatures. Six challenging levels await before you finally confront the Count himself. Step into the shadows of the deadliest dwelling on Earth. You’ve arrived at Castlevania, and you’re here on business: to destroy the curse of the Evil Count, once and for all. Make your way through six monstrous floors filled with bats, ghosts, zombies, and every kind of ghoulish creature you can imagine. Use the legendary whip Vampire Killer and a host of deadly weapons to battle your way to Dracula’s chamber and.the ultimate duel of good vs. evil. You'll need your wits and weapons to survive because when you finally meet Dracula, you know he’ll be going for the jugular. So keep your courage up and your stake sharp!</descripcion>
+                <ruta>/roms/nes/castlevania.nes</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Castlevania_40.jpg</imagen>
+                <favorito>false</favorito>
+                <jugado>false</jugado>
+            </rom>
+        </roms>
+    </plataforma>
+    <plataforma>
+        <nombre>Neo Geo</nombre>
+        <extensionRom>.neo</extensionRom>
+        <carpeta>neogeo</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Neo Geo Pocket</nombre>
+        <extensionRom>.ngc</extensionRom>
+        <carpeta>ngpc</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Nintendo 3DS</nombre>
+        <extensionRom>.3ds</extensionRom>
+        <carpeta>3ds</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Nintendo 64</nombre>
+        <extensionRom>.n64</extensionRom>
+        <carpeta>n64</carpeta>
+        <roms>
+            <rom>
+                <titulo>Super Mario 64</titulo>
+                <descripcion>Mario is super in a whole new way! Combining the finest 3-D graphics ever developed for a video game and an explosive sound track, Super Mario 64 becomes a new standard for video games. It's packed with bruising battles, daunting obstacle courses and underwater adventures. Retrieve the Power Stars from their hidden locations and confront your arch nemesis - Bowser, King of the Koopas!</descripcion>
+                <ruta>/roms/n64/super_mario_64.n64</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Super_Mario_64_41.jpg</imagen>
+                <favorito>true</favorito>
+                <jugado>true</jugado>
+            </rom>
+            <rom>
+                <titulo>The Legend of Zelda: Ocarina of Time</titulo>
+                <descripcion>As a young boy, Link is tricked by Ganondorf, the King of the Gerudo Thieves. The evil human uses Link to gain access to the Sacred Realm, where he places his tainted hands on Triforce and transforms the beautiful Hyrulean landscape into a barren wasteland. Link is determined to fix the problems he helped to create, so with the help of Rauru he travels through time gathering the powers of the Seven Sages.</descripcion>
+                <ruta>/roms/n64/ocarina.n64</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\The_Legend_of_Zelda__Ocarina_of_Time_42.jpg</imagen>
+                <favorito>true</favorito>
+                <jugado>true</jugado>
+            </rom>
+            <rom>
+                <titulo>GoldenEye 007</titulo>
+                <descripcion>GoldenEye 007 is a first-person shooter video game developed by Rare and based on the 1995 James Bond film GoldenEye. It was released for the Nintendo 64 video game console in August 1997. The game features a single-player campaign in which players assume the role of British Secret Intelligence Service agent James Bond as he fights to prevent a criminal syndicate from using a satellite weapon against London to cause a global financial meltdown. The game includes a split-screen multiplayer mode in which two, three, or four players can compete in different types of deathmatch games. GoldenEye 007 was developed over a period of two and a half years by an inexperienced team led by Martin Hollis, who had previously worked on the coin-op version of Killer Instinct. It was partially conceived as an on-rails shooter inspired by Sega's Virtua Cop, before being redesigned as a free-roaming shooter. The game was highly acclaimed by the gaming media and sold over eight million copies worldwide, making it the third-best-selling Nintendo 64 game. It received the BAFTA Interactive Entertainment Games Award and four awards from the Academy of Interactive Arts &amp; Sciences. Retrospectively, GoldenEye 007 is considered an important game in the history of first-person shooters for demonstrating the viability of game consoles as platforms for the genre, and for signalling a transition from the then-standard Doom-like approach to a more realistic style. It pioneered features such as atmospheric single-player missions, stealth elements, and a console multiplayer deathmatch mode. The game is frequently cited as one of the greatest video games of all time. A spiritual successor, Perfect Dark, was released in 2000, while a reimagining of the game, also titled GoldenEye 007, was released in 2010.</descripcion>
+                <ruta>/roms/n64/goldeneye.n64</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\GoldenEye_007_43.jpg</imagen>
+                <favorito>false</favorito>
+                <jugado>true</jugado>
+            </rom>
+            <rom>
+                <titulo>Banjo-Kazooie</titulo>
+                <descripcion>The bear and bird's first ever outing available in full. Loads of rollicking fun to be had here and with the legendary Stop N Swop feature reinstated. You’ll never look the same again at a jigsaw.</descripcion>
+                <ruta>/roms/n64/banjo.n64</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Banjo_Kazooie_44.jpg</imagen>
+                <favorito>true</favorito>
+                <jugado>false</jugado>
+            </rom>
+        </roms>
+    </plataforma>
+    <plataforma>
+        <nombre>Nintendo DS</nombre>
+        <extensionRom>.nds</extensionRom>
+        <carpeta>nds</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Nintendo Switch</nombre>
+        <extensionRom>.nsp</extensionRom>
+        <carpeta>switch</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>PSP</nombre>
+        <extensionRom>.iso</extensionRom>
+        <carpeta>psp</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>PlayStation</nombre>
+        <extensionRom>.psx</extensionRom>
+        <carpeta>psx</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>PlayStation 2</nombre>
+        <extensionRom>.ps2</extensionRom>
+        <carpeta>ps2</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>SNES</nombre>
+        <extensionRom>.smc</extensionRom>
+        <carpeta>snes</carpeta>
+        <roms>
+            <rom>
+                <titulo>Super Mario World</titulo>
+                <descripcion>Mario's off on his biggest adventure ever, and this time he's brought along a friend. Yoshi the dinosaur teams up with Mario to battle Bowser, who has kidnapped Princess Toadstool once again. Guide Mario and Yoshi through nine peril-filled worlds to the final showdown in Bowser's castle. Use Mario's new powers and Yoshi's voracious monster-gobbling appetite as you explore 96 levels filled with dangerous new monsters and traps. Climb mountains and cross rivers, and descend into subterranean depths. Destroy the seven Koopa castles and find keys to gain entrance to hidden levels. Discover more warps and thrilling bonus worlds than ever before!</descripcion>
+                <ruta>/roms/snes/super_mario_world.sfc</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Super_Mario_World_45.jpg</imagen>
+                <favorito>true</favorito>
+                <jugado>false</jugado>
+            </rom>
+            <rom>
+                <titulo>Donkey Kong Country</titulo>
+                <descripcion>After a dark and stormy night, Donkey Kong finds all of his bananas stolen by K. Rool and his reptilian crew of Kremlings! Armed with chest-pounding muscle, mighty barrel rolls, and awesome vine-swinging skills, Donkey Kong and Diddy Kong set out to face their adversaries! Play solo, compete with a friend, or play cooperatively with a friend in over 100 levels filled with collectibles and hidden bonus levels. With the help of Donkey Kong's quirky family, animal friends, and your fast reflexes, our dynamic duo will prove to be an unstoppable force. Time to save those bananas! This classic game is part of the Virtual Console service, which brings you great games created for consoles such as NES™, Super NES™ and Game Boy™ Advance. We hope you'll enjoy the new features (including off-TV play) that have been added to this title. See more Virtual Console games for Wii U.</descripcion>
+                <ruta>/roms/snes/dkc.sfc</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Donkey_Kong_Country_46.jpg</imagen>
+                <favorito>true</favorito>
+                <jugado>true</jugado>
+            </rom>
+            <rom>
+                <titulo>Chrono Trigger</titulo>
+                <descripcion>Chrono Trigger is a role-playing video game developed and published by Square for the Super Nintendo Entertainment System in 1995. Chrono Trigger's development team included three designers that Square dubbed the "Dream Team": Hironobu Sakaguchi, the creator of Square's Final Fantasy series; Yuji Horii, a freelance designer and creator of Enix's popular Dragon Quest series; and Akira Toriyama, a manga artist famed for his work with Dragon Quest and Dragon Ball. Kazuhiko Aoki produced the game, Masato Kato wrote most of the plot, while composer Yasunori Mitsuda wrote most of the soundtrack before falling ill and deferring the remaining tracks to Final Fantasy series composer Nobuo Uematsu. The game's story follows a group of adventurers who travel through time to prevent a global catastrophe. Square re-released a ported version by Tose in Japan for the PlayStation in 1999, later repackaged with a Final Fantasy IV port as Final Fantasy Chronicles in 2001 for the North American market. A slightly enhanced Chrono Trigger, again ported by Tose, was released for the Nintendo DS in North America and Japan in 2008, and PAL regions in 2009. Chrono Trigger was a critical and commercial success upon release, and is frequently cited as one of the best video games of all time. Nintendo Power magazine described aspects of Chrono Trigger as revolutionary, including its multiple endings, plot-related sidequests focusing on character development, unique battle system, and detailed graphics. Chrono Trigger was the third best-selling game of 1995, shipping over two million copies by March 2003. The Nintendo DS version sold 790,000 copies by March 2009. Chrono Trigger was also ported to i-mode mobile phones, Virtual Console, the PlayStation Network, iOS devices, Android devices, and Microsoft Windows.</descripcion>
+                <ruta>/roms/snes/chrono_trigger.sfc</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Chrono_Trigger_47.jpg</imagen>
+                <favorito>true</favorito>
+                <jugado>false</jugado>
+            </rom>
+            <rom>
+                <titulo>Street Fighter II</titulo>
+                <descripcion>Street Fighter II is a fighting game. Players select from one of eight characters: Ryu, Ken, Blanka, E. Honda, Zangief, Chun Li, Guile and Dhalsim to do battle with. They must then use their combat strengths to defeat the other seven fighters followed by four boss characters: M. Bison, Vega, Sagat and Balrog. Each character represents a certain country and has his or her own reasons for wanting to win against the others. Each character has his or her own selection of basic fighting techniques based on three styles of punches and three styles of kicks. The effect of each of these changes depends on the characters orientation (ducking, airborne or standing still). Street Fighter II has a "button combination" style of gameplay used to unleash powerful moves specific to each character. These include the ability to project fireballs, channel electricity or capture the opponent in a tight suplex.</descripcion>
+                <ruta>/roms/snes/sf2.sfc</ruta>
+                <imagen>C:\Users\Juanma\.romraider\images\Street_Fighter_II_48.jpg</imagen>
+                <favorito>false</favorito>
+                <jugado>true</jugado>
+            </rom>
+        </roms>
+    </plataforma>
+    <plataforma>
+        <nombre>Sega 32X</nombre>
+        <extensionRom>.32x</extensionRom>
+        <carpeta>32x</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Sega CD</nombre>
+        <extensionRom>.scd</extensionRom>
+        <carpeta>segacd</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Sega Saturn</nombre>
+        <extensionRom>.sat</extensionRom>
+        <carpeta>saturn</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>TurboGrafx-16</nombre>
+        <extensionRom>.pce</extensionRom>
+        <carpeta>pcengine</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>Wii</nombre>
+        <extensionRom>.wbfs</extensionRom>
+        <carpeta>wii</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>WonderSwan</nombre>
+        <extensionRom>.ws</extensionRom>
+        <carpeta>wonderswan</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>WonderSwan Color</nombre>
+        <extensionRom>.wsc</extensionRom>
+        <carpeta>wsc</carpeta>
+        <roms/>
+    </plataforma>
+    <plataforma>
+        <nombre>ZX Spectrum</nombre>
+        <extensionRom>.tzx</extensionRom>
+        <carpeta>zxspectrum</carpeta>
+        <roms/>
+    </plataforma>
+</coleccion>
