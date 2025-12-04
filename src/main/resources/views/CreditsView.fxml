@@ -25,6 +25,14 @@
             <Label text="%credits.stack"
                    style="-fx-font-size: 13px; -fx-padding: 8 0 0 0;"/>
 
+            <!-- API Supabase -->
+            <Label text="%credits.supabase"
+                   style="-fx-font-size: 12px;"/>
+
+            <!-- API RAWG.io -->
+            <Label text="%credits.rawg"
+                   style="-fx-font-size: 12px;"/>
+
             <!-- Atribución Freepik -->
             <Hyperlink text="%credits.bgCredit"
                        onAction="#handleOpenFreepik"
