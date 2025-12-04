@@ -64,9 +64,9 @@ jobs:
     - name: Prepare Windows ZIP
       run: |
         mkdir dist_windows
-        cp target/rom-raider-1.0-SNAPSHOT.jar dist_windows/
+        cp target/rom-raider-1.0.jar dist_windows/
         cp -r fx_win/javafx-sdk-21.0.9 dist_windows/javafx
-        echo "java --enable-native-access=ALL-UNNAMED --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > dist_windows/ROMRaider.bat
+        echo "java --enable-native-access=ALL-UNNAMED --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media,javafx.web -jar rom-raider-1.0.jar" > dist_windows/ROMRaider.bat
         cd dist_windows && zip -r ../romraider_windows.zip .
 
     ###################################################################
@@ -75,9 +75,9 @@ jobs:
     - name: Prepare Linux ZIP
       run: |
         mkdir dist_linux
-        cp target/rom-raider-1.0-SNAPSHOT.jar dist_linux/
+        cp target/rom-raider-1.0.jar dist_linux/
         cp -r fx_linux/javafx-sdk-21.0.9 dist_linux/javafx
-        echo "java --enable-native-access=ALL-UNNAMED --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > dist_linux/romraider.sh
+        echo "java --enable-native-access=ALL-UNNAMED --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media,javafx.web -jar rom-raider-1.0.jar" > dist_linux/romraider.sh
         chmod +x dist_linux/romraider.sh
         cd dist_linux && zip -r ../romraider_linux.zip .
 
@@ -87,9 +87,9 @@ jobs:
     - name: Prepare Mac ZIP
       run: |
         mkdir dist_mac
-        cp target/rom-raider-1.0-SNAPSHOT.jar dist_mac/
+        cp target/rom-raider-1.0.jar dist_mac/
         cp -r fx_mac/javafx-sdk-21.0.9 dist_mac/javafx
-        echo "java --enable-native-access=ALL-UNNAMED --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media -jar rom-raider-1.0-SNAPSHOT.jar" > dist_mac/romraider.command
+        echo "java --enable-native-access=ALL-UNNAMED --module-path javafx/lib --add-modules javafx.controls,javafx.fxml,javafx.media,javafx.web -jar rom-raider-1.0.jar" > dist_mac/romraider.command
         chmod +x dist_mac/romraider.command
         cd dist_mac && zip -r ../romraider_mac.zip .
 
